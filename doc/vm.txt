@@ -1,0 +1,100 @@
+Virtual Machine Specification
+
+* 16-bit words
+* 7 registers (X0, X1, X2, X3, FL, SP, IP)
+
+Registers:
+
+  Mnemonic  Description
+    X0-X3     general purpose
+    FL        flags
+    SP        stack pointer
+    IP        instruction pointer
+
+The flags register has the following format:
+
+  x x x x | x x x x | x x x x | x x x Z
+
+  F E D C   B A 9 8   7 6 5 4   3 2 1 0 (bit)
+
+  where Z is set if the result of an operation is zero
+        bits marked with an x are unspecified
+
+Instructions:
+
+Instructions are 1 to 3 words long depending on their operands. The operation
+and the total instruction length are fully determined by the first instruction
+word.
+
+All instructions have the following format:
+
+  O O O O | A A A A | A A B B | B B B B
+
+  F E D C   B A 9 8   7 6 5 4   3 2 1 0 (bit)
+
+  where O is the 4-bit opcode
+        A and B are each 6-bit operand specifications
+
+Operand specifications:
+
+Each operand spec. is 6 bits and determines how operands are accessed by an
+operator.
+
+  Values (6 bits, octal):
+  0o00-0o06: register (X0, X1, X2, X3, FL, SP, IP in order)
+       0o07: immediate (next word)
+  0o10-0o16: indirect register
+       0o17: indirect immediate (next word)
+  0o20-0o26: register + immediate offset (next word)
+       0o27: invalid
+  0o30-0o36: indirect register + immediate offset (next word)
+       0o37: invalid
+  0o40-0o46: indirect register post-increment
+       0o47: invalid
+  0o50-0o56: indirect register pre-decrement
+       0o57: invalid
+  0o60-0o77: short-form immediate (signed, -8-7)
+
+Indirect operand specifications provide the address in memory of the actual
+operands. The value at that address is read or written as determined by the
+operator.
+
+Immediate and register + immediate offset operands and are not modified by
+operators that set their operands. These operations still update the flags
+register to reflect the result as if it were stored.
+
+Immediate (next word) operands are read from the next word (IP + 1). If two
+next word operands are specified, the second operand will be read from IP + 2.
+
+Post-increment operand specifications increment the source register after
+loading the address for use by the operator.
+
+Pre-decrement operand specifications decrement the source register before
+loading the address for use by the operator.
+
+If two post-increment or pre-decrement operands are used with the same source
+register within a single instruction, the result is undefined.
+
+Instructions that access the instruction pointer operate on its value at the
+end of the last instruction word. If its value is updated, the new value is
+stored instead of the address of the next instruction.
+
+Opcodes:
+
+Unless otherwise specified, all operators update the flags register to reflect
+the value of the first/destination operand.
+
+  Values (4 bits, hexadecimal):
+    0: invalid
+    1: SET a, b -- set a to b (flags are not affected)
+    2: IF  a, b -- execute the next instruction if a & b is non-zero (flags are
+                     not affected)
+  2-3: invalid
+    4: ADD a, b -- set a to a + b
+    5: SUB a, b -- set a to a - b
+    6: MUL a, b -- set b:a to a * b (flags reflect b:a)
+    7: DIV a, b -- set a to a / b
+    8: AND a, b -- set a to a & b
+    9: OR  a, b -- set a to a | b
+    A: XOR a, b -- set a to a ^ b
+  B-F: invalid
