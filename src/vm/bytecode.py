@@ -32,8 +32,9 @@ class Operand(object):
   # Bit masks
   OPSPEC_MODE_MASK = 0o70
   OPSPEC_REG_MASK = 0o7
-  OPSPEC_SHORT_IMM_MASK = 0o17
-  OPSPEC_SHORT_IMM_SIGN_MASK = 0o10
+  OPSPEC_SHORT_IMM_BITS = 4
+  OPSPEC_SHORT_IMM_MASK = 2**OPSPEC_SHORT_IMM_BITS - 1
+  OPSPEC_SHORT_IMM_SIGN_MASK = 2**(OPSPEC_SHORT_IMM_BITS - 1)
 
   @classmethod
   def _decodeReg(cls, opspec):
@@ -213,7 +214,8 @@ class ShortImmOperand(Operand):
   def __init__(self, val):
     super(ShortImmOperand, self).__init__()
 
-    if val & ~self.OPSPEC_SHORT_IMM_MASK:
+    if (val < -2**(self.OPSPEC_SHORT_IMM_BITS - 1)
+      or val >= 2**(self.OPSPEC_SHORT_IMM_BITS - 1)):
       raise InstructionError("short-form immediate value out of range")
 
     self.val = val
