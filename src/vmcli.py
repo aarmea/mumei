@@ -70,7 +70,7 @@ def readop(s):
     mo = re.match(r"^\[--(\w+)\]$", s)
     if mo:
       return bytecode.IndDecRegOperand(readReg(mo.group(1)))
-    mo = re.match(r"^\$([0-9A-F]+)$", s, re.I)
+    mo = re.match(r"^\$(-?[0-9A-F]+)$", s, re.I)
     if mo:
       return bytecode.ShortImmOperand(int(mo.group(1), 16))
   except (AttributeError, bytecode.InstructionError, ValueError):
@@ -80,7 +80,7 @@ def readop(s):
 def asm(s):
   """Assemble an instruction string and return its instruction words."""
   opre = (r"(\w+|\w+\s*\+\s*\w+|\[\w+\]|\[\w+\s*\+\s*\w+\]"
-    r"|\[\w+\+\+\]|\[--\w+\]|\$[0-9A-F]+)")
+    r"|\[\w+\+\+\]|\[--\w+\]|\$-?[0-9A-F]+)")
   instre = r"^\s*(\w+)\s+" + opre + r"\s*(?:,|\s+)\s*" + opre + "\s*$"
 
   mo = re.match(instre, s, re.I)
