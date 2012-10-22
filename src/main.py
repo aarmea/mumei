@@ -3,6 +3,8 @@
 from OpenGL.GL import *
 import pygame
 
+from level import Level
+
 class UI(object):
   """The main user interface object"""
 
@@ -88,16 +90,17 @@ class LevelMenu(object):
     self.__ui = ui
 
   def userUp(self):
-    print "Level: user up"
+    print "LevelMenu: user up"
 
   def userDown(self):
-    print "Level: user down"
+    print "LevelMenu: user down"
 
   def userSelect(self):
-    print "Level: user select"
+    print "LevelMenu: user select"
+    self.__ui.pushState(Level(self.__ui))
 
   def userBack(self):
-    print "Level: user back"
+    print "LevelMenu: user back"
     self.__ui.popState()
 
   def draw(self):
