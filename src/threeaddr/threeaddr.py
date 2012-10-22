@@ -3,123 +3,147 @@ Three-address code instructions and helper classes
 """
 
 class AutoGen(object):
-  """An automatic object generator"""
-  def __init__(self, cls):
-    self.cls = cls
+  """An automatic identifier generator"""
+
+  def __init__(self, prefix):
+    self.prefix = prefix
     self.n = 0
 
   def next(self):
     n = self.n
     self.n += 1
-    return self.cls(n)
+    return "%s%d" % (self.prefix, self.n)
 
-class AutoVar(object):
-  """An automatic variable generator"""
-  def __init__(self, id):
-    self.id = id
+class Label(tuple):
+  """A named jump target"""
 
-  def __repr__(self):
-    return "AutoVar(id=%r)" % self.id
-
-class AutoLabel(object):
-  """An automatic label generator"""
-  def __init__(self, id):
-    self.id = id
+  def __new__(cls, name):
+    return tuple.__new__(cls, (name,))
 
   def __repr__(self):
-    return "AutoLabel(id=%r)" % self.id
+    return "%s(name=%r)" % (type(self).__name__, self.name)
 
-class Assign(object):
-  """An assignment of a source constant or variable to a destination
+  name = property(lambda self: self[0])
+
+class Word(tuple):
+  """A literal word"""
+
+  def __new__(cls, val):
+    return tuple.__new__(cls, (val,))
+
+  def __repr__(self):
+    return "%s(val=%r)" % (type(self).__name__, self.val)
+
+  val = property(lambda self: self[0])
+
+class BeginFunc(tuple):
+  """Begin a function, allocating the given number of words on the stack for
+  local variables"""
+
+  def __new__(cls, nwords):
+    return tuple.__new__(cls, (nwords,))
+
+  def __repr__(self):
+    return "%s(nwords=%r)" % (type(self).__name__, self.nwords)
+
+  nwords = property(lambda self: self[0])
+
+class EndFunc(tuple):
+  """End a function, using the given variable as the return value"""
+
+  def __new__(cls, ret):
+    return tuple.__new__(cls, (ret,))
+
+  def __repr__(self):
+    return "%s(src=%r)" % (type(self).__name__, self.ret)
+
+  ret = property(lambda self: self[0])
+
+class Assign(tuple):
+  """An operation that assigns a source constant or variable to a destination
   variable"""
-  def __init__(self, dst, src):
-    self.dst = dst
-    self.src = src
+
+  def __new__(cls, dst, src):
+    return tuple.__new__(cls, (dst, src))
 
   def __repr__(self):
-    return "Assign(dst=%r, src=%r)" % (self.dst, self.src)
+    return "%s(dst=%r, src=%r)" % (type(self).__name__, self.dst, self.src)
 
-class PushParam(object):
+  dst = property(lambda self: self[0])
+  src = property(lambda self: self[1])
+
+class PushParam(tuple):
   """An operation that pushes a variable onto the parameter stack for a future
   function call"""
-  def __init__(self, src):
-    self.src = src
+
+  def __new__(cls, src):
+    return tuple.__new__(cls, (src,))
 
   def __repr__(self):
-    return "PushParam(src=%r)" % self.src
+    return "%s(src=%r)" % (type(self).__name__, self.src)
 
-class PopParams(object):
+  src = property(lambda self: self[0])
+
+class PopParams(tuple):
   """An operation that removes words from the parameter stack"""
-  def __init__(self, num):
-    self.num = num
+
+  def __new__(cls, nwords):
+    return tuple.__new__(cls, (nwords,))
 
   def __repr__(self):
-    return "PopParams(num=%r)" % self.num
+    return "%s(nwords=%r)" % (type(self).__name__, self.nwords)
 
-class Call(object):
-  """A function call whose result is stored in a destination variable"""
-  def __init__(self, dst, proc):
-    self.dst = dst
-    self.proc = proc
+  nwords = property(lambda self: self[0])
 
-  def __repr__(self):
-    return "Call(dst=%r, proc=%r)" % (self.dst, self.proc)
-
-class Add(object):
-  """An operation that adds two source variable, storing the result in a
+class Call(tuple):
+  """An operation that calls a procedure by label, storing the result in a
   destination variable"""
-  def __init__(self, dst, srca, srcb):
-    self.dst = dst
-    self.srca = srca
-    self.srcb = srcb
+
+  def __new__(cls, dst, label):
+    return tuple.__new__(cls, (dst, label))
 
   def __repr__(self):
-    return "Add(dst=%r, srca=%r, srcb=%r)" % (self.dst, self.srca, self.srcb)
+    return "%s(dst=%r, label=%r)" % (type(self).__name__, self.dst, self.label)
 
-class Return(object):
-  """An operation that sets the return value of a function"""
-  def __init__(self, src):
-    self.src = src
+  dst = property(lambda self: self[0])
+  label = property(lambda self: self[1])
 
-  def __repr__(self):
-    return "Return(src=%r)" % self.src
+class Add(tuple):
+  """An operation that adds two source variables, storing the result in a
+  destination variable"""
 
-class Label(object):
-  """A named jump target"""
-  def __init__(self, name):
-    self.name = name
+  def __new__(cls, dst, srca, srcb):
+    return tuple.__new__(cls, (dst, srca, srcb))
 
   def __repr__(self):
-    return "Label(name=%r)" % self.name
+    return ("%s(dst=%r, srca=%r, srcb=%r)" % (type(self).__name__, self.dst,
+      self.srca, self.srcb))
 
-class Goto(object):
+  dst = property(lambda self: self[0])
+  srca = property(lambda self: self[1])
+  srcb = property(lambda self: self[2])
+
+class Jump(tuple):
   """An operation that jumps to the given label"""
-  def __init__(self, label):
-    self.label = label
+
+  def __new__(cls, label):
+    return tuple.__new__(cls, (label,))
 
   def __repr__(self):
-    return "Goto(label=%r)" % self.label
+    return "%s(label=%r)" % (type(self).__name__, self.label)
 
-class IfZeroGoto(object):
-  """An operation that jumps to the given label if the test variable is
+  label = property(lambda self: self[0])
+
+class IfZeroJump(tuple):
+  """An operation that jumps to the given label if the source variable is
   zero"""
-  def __init__(self, test, label):
-    self.test = test
-    self.label = label
+
+  def __new__(cls, src, label):
+    return tuple.__new__(cls, (src, label))
 
   def __repr__(self):
-    return "IfZeroGoto(test=%r, label=%r)" % (self.test, self.label)
+    return ("%s(src=%r, label=%r)" % (type(self).__name__, self.src,
+      self.label))
 
-class BeginFunc(object):
-  """The beginning of a function, specifying the amount of local variable
-  storage that should be reserved"""
-  def __init__(self, nlocals=0):
-    self.nlocals = nlocals
-
-  def __repr__(self):
-    return "BeginFunc(localc=%r)" % self.nlocals
-
-class EndFunc(object):
-  """The end of a function"""
-  def __repr__(self):
-    return "EndFunc()"
+  src = property(lambda self: self[0])
+  label = property(lambda self: self[1])
