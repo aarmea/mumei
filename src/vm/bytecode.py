@@ -254,12 +254,12 @@ class Instruction(object):
     return decorator
 
   @classmethod
-  def fromopcode(cls, opcode):
+  def fromOpcode(cls, opcode):
     """Return an instruction type for the given opcode."""
     return cls._opcodes[opcode]
 
   @classmethod
-  def frommnemonic(cls, mnemonic):
+  def fromMnemonic(cls, mnemonic):
     """Return an instruction type for the given mnemonic."""
     return cls._mnemonics[mnemonic.upper()]
 
@@ -280,7 +280,7 @@ class Instruction(object):
 
     opcode = inst >> 12
     try:
-      opcls = cls.fromopcode(opcode)
+      opcls = cls.fromOpcode(opcode)
     except KeyError:
       raise InstructionError("invalid opcode")
     opa = Operand.decode((inst >> 6) & 0o77, seq)
