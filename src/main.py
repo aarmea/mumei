@@ -97,7 +97,7 @@ class LevelMenu(object):
 
   def userSelect(self):
     print "LevelMenu: user select"
-    self.__ui.pushState(Level(self.__ui))
+    self.__ui.pushState(Level(self.__ui, "level00.csv"))
 
   def userBack(self):
     print "LevelMenu: user back"
