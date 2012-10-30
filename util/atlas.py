@@ -74,7 +74,7 @@ def Atlas(filenames, outname, size):
   csvfile = open(outname + ".csv", "w")
   
   for fb in fullboxes:
-    csvfile.write("{0}, {1}.png, {2}, {3}, {4}, {5}, {6}\n".format(os.path.basename(fb[6]), outname, fb[1], fb[2], fb[3], fb[4], fb[5]))
+    csvfile.write("{0}, {1}-{2}.png, {3}, {4}, {5}, {6}\n".format(os.path.basename(fb[6]), outname, fb[1], fb[2], fb[3], fb[4], fb[5]))
  
   print ("It all fit into " + str(numoutimages) + " images!")
  
