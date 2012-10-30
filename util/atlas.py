@@ -70,14 +70,12 @@ def Atlas(filenames, outname, size):
   for idx, outimage in enumerate(outimages):
     outimage.save(outname + "-" + str(idx) + ".png")
  
-  #write out an xml file that says where everything ended up
-  xmlfile = open(outname + ".xml", "w")
-  xmlfile.write("<images>\n")
- 
+  #write out an csv file that says where everything ended up
+  csvfile = open(outname + ".csv", "w")
+  
   for fb in fullboxes:
-    xmlfile.write('\t<image name="{0}" file="{1}-{2}.png" x="{3}" y ="{4}" w="{5}" h="{6}" />\n'.format(os.path.basename(fb[6]),outname, fb[1], fb[2], fb[3], fb[4], fb[5] )) 
+    csvfile.write("{0}, {1}.png, {2}, {3}, {4}, {5}, {6}\n".format(os.path.basename(fb[6]), outname, fb[1], fb[2], fb[3], fb[4], fb[5]))
  
-  xmlfile.write("</images>\n")
   print ("It all fit into " + str(numoutimages) + " images!")
  
 def main(argv):
