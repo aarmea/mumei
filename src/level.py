@@ -33,6 +33,7 @@ class Level(object):
           self._objects.append(levelobj.NAMES[cell]((x,y)))
 
       print "Level: loaded", levelFile
+      file.close()
 
   def userUp(self):
     print "Level: user up"
