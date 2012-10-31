@@ -14,7 +14,9 @@ import optparse
 import glob
  
 def Atlas(filenames, outname, size):
- 
+  
+  filenames.sort()
+
   #open all of the images
   ims = [(f, Image.open(f)) for f in filenames]
  
