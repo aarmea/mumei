@@ -6,8 +6,7 @@ It is based on the grammar from Annex B of the 1989 ANSI standard.
 External definitions.
 
 translation-unit:
-  external-declaration
-  translation-unit external-declaration
+  external-declaration+
 
 external-declaration:
   function-definition
@@ -30,8 +29,10 @@ declaration-specifiers:
   type-qualifier declaration-specifiers?
 
 init-declarator-list:
-  init-declarator
-  init-declarator-list ',' init-declarator
+  init-declarator init-declarator-list-suffix?
+
+init-declarator-list-suffix:
+  ',' init-declarator init-declarator-list-suffix?
 
 init-declarator:
   declarator
@@ -67,8 +68,7 @@ struct-or-union:
   'union'
 
 struct-declaration-list:
-  struct-declaration
-  struct-declaration-list struct-declaration
+  struct-declaration+
 
 struct-declaration:
   specifier-qualifier-list struct-declarator-list ';'
@@ -78,8 +78,10 @@ specifier-qualifier-list:
   type-qualifier specifier-qualifier-list?
 
 struct-declarator-list:
-  struct-declarator
-  struct-declarator-list ',' struct-declarator
+  struct-declarator struct-declarator-list-suffix?
+
+struct-declarator-list-suffix:
+  ',' struct-declarator struct-declarator-list-suffix?
 
 struct-declarator:
   declarator
@@ -90,12 +92,17 @@ enum-specifier:
   enum identifier
 
 enumerator-list:
-  enumerator
-  enumerator-list ',' enumerator
+  enumerator enumerator-list-suffix?
+
+enumerator-list-suffix:
+  ',' enumerator enumerator-list-suffix?
 
 enumerator:
   enumeration-constant
   enumeration-constant '=' constant-expression
+
+typedef-name:
+  identifier
 
 type-qualifier:
   'const'
@@ -105,35 +112,40 @@ declarator:
   pointer? direct-declarator
 
 direct-declarator:
-  identifier
-  '(' declarator ')'
-  direct-declarator '[' constant-expression? ']'
-  direct-declarator '(' parameter-type-list ')'
-  direct-declarator '(' identifier-list? ')'
+  identifier direct-declarator-suffix?
+  '(' declarator ')' direct-declarator-suffix?
+
+direct-declarator-suffix:
+  '[' constant-expression? ']' direct-declarator-suffix?
+  '(' parameter-type-list ')' direct-declarator-suffix?
+  '(' identifier-list? ')' direct-declarator-suffix?
 
 pointer:
   '*' type-qualifier-list?
   '*' type-qualifier-list? pointer
 
 type-qualifier-list:
-  type-qualifier
-  type-qualifier-list type-qualifier
+  type-qualifier+
 
 parameter-type-list:
   parameter-list
   parameter-list ',' '...'
 
 parameter-list:
-  parameter-declaration
-  parameter-list ',' parameter-declaration
+  parameter-declaration parameter-list-suffix?
+
+parameter-list-suffix:
+  ',' parameter-declaration parameter-list-suffix?
 
 parameter-declaration:
   declaration-specifiers declarator
   declaration-specifiers abstract-declarator?
 
 identifier-list:
-  identifier
-  identifier-list ',' identifier
+  identifier identifier-list-suffix?
+
+identifier-list-suffix:
+  ',' identifier identifier-list-suffix?
 
 type-name:
   specifier-qualifier-list abstract-declarator?
@@ -144,11 +156,11 @@ abstract-declarator:
 
 direct-abstract-declarator:
   '(' abstract-declarator ')'
-  direct-abstract-declarator? '[' constant-expression? ']'
-  direct-abstract-declarator? '(' parameter-type-list? ')'
+  direct-abstract-declarator-suffix
 
-typedef-name:
-  identifier
+direct-abstract-declarator-suffix:
+  '[' constant-expression? ']' direct-abstract-declarator-suffix?
+  '(' parameter-type-list? ')' direct-abstract-declarator-suffix?
 
 initializer:
   assignment-expression
@@ -156,8 +168,10 @@ initializer:
   '{' initializer-list ',' '}'
 
 initializer-list:
-  initializer
-  initializer-list ',' initializer
+  initializer initializer-list-suffix?
+
+initializer-list-suffix:
+  ',' initializer initializer-list-suffix?
 
 Statements.
 
@@ -203,8 +217,10 @@ jump-statement:
 Expressions.
 
 expression:
-  assignment-expression
-  expression ',' assignment-expression
+  assignment-expression expression-suffix?
+
+expression-suffix:
+  ',' assignment-expression expression-suffix?
 
 assignment-expression:
   conditional-expression
@@ -228,52 +244,72 @@ conditional-expression:
   logical-or-expression '?' expression ':' conditional-expression
 
 logical-or-expression:
-  logical-and-expression
-  logical-or-expression '||' logical-and-expression
+  logical-and-expression logical-or-expression-suffix?
+
+logical-or-expression-suffix:
+  '||' logical-and-expression logical-or-expression-suffix?
 
 logical-and-expression:
-  inclusive-or-expression
-  logical-and-expression '&&' inclusive-or-expression
+  inclusive-or-expression logical-and-expression-suffix?
+
+logical-and-expression-suffix:
+  '&&' inclusive-or-expression logical-and-expression-suffix?
 
 inclusive-or-expression:
-  exclusive-or-expression
-  inclusive-or-expression '|' exclusive-or-expression
+  exclusive-or-expression inclusive-or-expression-suffix?
+
+inclusive-or-expression-suffix:
+  '|' exclusive-or-expression inclusive-or-expression-suffix?
 
 exclusive-or-expression:
-  and-expression
-  exclusive-or-expression '^' and-expression
+  and-expression exclusive-or-expression-suffix?
+
+exclusive-or-expression-suffix:
+  '^' and-expression exclusive-or-expression-suffix?
 
 and-expression:
-  equality-expression
-  and-expression '&' equality-expression
+  equality-expression and-expression-suffix?
+
+and-expression-suffix:
+  '&' equality-expression and-expression-suffix?
 
 equality-expression:
-  relational-expression
-  equality-expression '==' relational-expression
-  equality-expression '!=' relational-expression
+  relational-expression equality-expression-suffix?
+
+equality-expression-suffix:
+  '==' relational-expression equality-expression-suffix?
+  '!=' relational-expression equality-expression-suffix?
 
 relational-expression:
-  shift-expression
-  relational-expression '<' shift-expression
-  relational-expression '>' shift-expression
-  relational-expression '<=' shift-expression
-  relational-expression '>=' shift-expression
+  shift-expression relational-expression-suffix?
+
+relational-expression-suffix:
+  '<' shift-expression relational-expression-suffix?
+  '>' shift-expression relational-expression-suffix?
+  '<=' shift-expression relational-expression-suffix?
+  '>=' shift-expression relational-expression-suffix?
 
 shift-expression:
-  additive-expression
-  shift-expression '<<' additive-expression
-  shift-expression '>>' additive-expression
+  additive-expression shift-expression-suffix?
+
+shift-expression-suffix:
+  '<<' additive-expression shift-expression-suffix?
+  '>>' additive-expression shift-expression-suffix?
 
 additive-expression:
-  multiplicative-expression
-  additive-expression '+' multiplicative-expression
-  additive-expression '-' multiplicative-expression
+  multiplicative-expression additive-expression-suffix?
+
+additive-expression-suffix:
+  '+' multiplicative-expression additive-expression-suffix?
+  '-' multiplicative-expression additive-expression-suffix?
 
 multiplicative-expression:
-  cast-expression
-  multiplicative-expression '*' cast-expression
-  multiplicative-expression '/' cast-expression
-  multiplicative-expression '%' cast-expression
+  cast-expression multiplicative-expression-suffix?
+
+multiplicative-expression-suffix:
+  '*' cast-expression multiplicative-expression-suffix?
+  '/' cast-expression multiplicative-expression-suffix?
+  '%' cast-expression multiplicative-expression-suffix?
 
 cast-expression:
   unary-expression
@@ -296,17 +332,21 @@ unary-operator:
   '!'
 
 postfix-expression:
-  primary-expression
-  postfix-expression '[' expression ']'
-  postfix-expression '(' argument-expression-list? ')'
-  postfix-expression ',' identifier
-  postfix-expression '->' identifier
-  postfix-expression '++'
-  postfix-expression '--'
+  primary-expression postfix-expression-suffix?
+
+postfix-expression-suffix:
+  '[' expression ']' postfix-expression-suffix?
+  '(' argument-expression-list? ')' postfix-expression-suffix?
+  ',' identifier postfix-expression-suffix?
+  '->' identifier postfix-expression-suffix?
+  '++' postfix-expression-suffix?
+  '--' postfix-expression-suffix?
 
 argument-expression-list:
-  assignment-expression
-  argument-expression-list ',' assignment-expression
+  assignment-expression argument-expression-list-suffix?
+
+argument-expression-list-suffix:
+  ',' assignment-expression argument-expression-list-suffix?
 
 primary-expression:
   identifier
