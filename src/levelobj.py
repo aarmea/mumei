@@ -246,9 +246,6 @@ class Actor(LevelObject):
 
     self._sides[0].append("skeleton.png")
 
-  def nudge(self, direction):
-    self.relMove((math.copysign(1, direction[0]), math.copysign(1, direction[1])))
-
 class Player(Actor):
   """The player"""
 
