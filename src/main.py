@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from OpenGL.GL import *
+# from OpenGL.GLU import * # for perspective
 import pygame
 
 from level import Level
@@ -20,6 +21,8 @@ class UI(object):
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(-640 / 64 / 2, 640 / 64 / 2, -480 / 64 / 2, 480 / 64 / 2, -10, 10)
+    # For perspective stuff, comment the line above and uncomment the line below
+    # gluPerspective(90, 0.75, 1, 10)
 
     self.stateStack = [MainMenu(self)]
 
