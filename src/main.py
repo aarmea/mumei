@@ -4,6 +4,7 @@ from OpenGL.GL import *
 import pygame
 
 from level import Level
+from texture import Texture
 
 class UI(object):
   """The main user interface object"""
@@ -90,21 +91,7 @@ class PlainMenu(Menu):
 
   def __init__(self, ui, textureFile):
     super(PlainMenu, self).__init__(ui)
-
-    # Load and allocate the texture
-    self.__surface = pygame.image.load(textureFile).convert_alpha()
-    self.__w, self.__h = self.__surface.get_size()
-    self.__texture = glGenTextures(1)
-
-    # Set up the texture
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, self.__texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.__w, self.__h, 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, pygame.image.tostring(self.__surface, "RGBA", True))
+    self.__texture = Texture(textureFile)
 
   def draw(self):
     """Draw the menu."""
@@ -117,7 +104,7 @@ class PlainMenu(Menu):
     glLoadIdentity()
 
     # Draw the menu quad
-    glBindTexture(GL_TEXTURE_2D, self.__texture);
+    self.__texture.bind()
     glBegin(GL_QUADS);
     if True:
       glTexCoord2d(0.0, 0.0); glVertex2d(-5.0,-4.0);

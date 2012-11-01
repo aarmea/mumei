@@ -1,60 +1,60 @@
-import math
 import csv
+import math
+
 from OpenGL.GL import *
 import pygame
 
+from texture import Texture
+
 # TODO: implement the sprite atlas at "assets/spritesheet-0.png"
-spriteDir = "../assets/sprites/"
+SPRITE_DIR = "../assets/sprites/"
+
 class TileSet(object):
-  """Holds the spritesheet for easy access"""
+  """An interface for texturing quads with tiles from a single texture"""
 
   def __init__(self, path, prefix):
     # TODO: handle multiple spritesheets
-    
+
     # Parse the *.csv file
     self.__images = dict()
-    with open(path + prefix + ".csv") as file:
-      csvFile = csv.reader(file)
+    with open(path + prefix + ".csv") as file_:
+      csvFile = csv.reader(file_)
+
       for meta in csvFile:
-        # Parse the individual element
+        # Parse each individual element
         # Format: __images[sprite name] = (sheet file, top left corner, size)
         self.__images[meta[0]] = (meta[1], (int(meta[2]), int(meta[3])),
           (int(meta[4]), int(meta[5])))
-      file.close()
 
-    # Set up OpenGL
-    # Picks a random sprite and assumes all other sprites have that size
-    self.__tilew, self.__tileh = self.__images.itervalues().next()[2]
-    self.__surface = pygame.image.load(path + prefix + "-0.png").convert_alpha()
-    self.__w, self.__h = self.__surface.get_size()
-    self.__es = 1.0 / self.__w
-    self.__et = 1.0 / self.__h
-    self.__htiles = self.__w / self.__tilew
-    self.__vtiles = self.__h / self.__tileh
+      file_.close()
+
+    # Load the texture
+    self.__texture = Texture(path + prefix + "-0.png")
+
+    # Pick a sprite and assume all the other sprites are the same size
+    self.__tilew, self.__tileh = self.__images.values()[0][2]
+
+    # Calculate placement parameters
+    self.__es = 1.0 / self.__texture.w
+    self.__et = 1.0 / self.__texture.h
+    self.__htiles = self.__texture.w / self.__tilew
+    self.__vtiles = self.__texture.h / self.__tileh
     self.__ntiles = self.__htiles * self.__vtiles
-    self.__tex = glGenTextures(1)
-    self.bindTexture()
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.__w, self.__h, 0, GL_RGBA,
-      GL_UNSIGNED_BYTE, pygame.image.tostring(self.__surface, "RGBA", True))
 
-  def bindTexture(self):
-    """Tell OpenGL to use this spritesheet."""
-    glBindTexture(GL_TEXTURE_2D, self.__tex)
+  def bind(self):
+    """Bind this tile set."""
+    self.__texture.bind()
 
   def tileCoord(self, spriteName, u, v):
-    """Tell OpenGL to use this sprite."""
-    s = self.__images[spriteName[0]][1][0] / self.__tilew
-    t = self.__images[spriteName[0]][1][1] / self.__tileh
+    """Set the texture coordinates for the given tile."""
+    s = self.__images[spriteName][1][0] / self.__tilew
+    t = self.__images[spriteName][1][1] / self.__tileh
     assert s < self.__htiles
     assert t < self.__vtiles
     assert u >= 0.0 and u <= 1.0
     assert v >= 0.0 and v <= 1.0
     glTexCoord2f((s + u) * self.__tilew * self.__es,
-      (self.__h - (t + 1.0 - v) * self.__tileh) * self.__et)
+      (self.__texture.h - (t + 1.0 - v) * self.__tileh) * self.__et)
 
 class LevelObject(object):
   """The base level object"""
@@ -95,7 +95,7 @@ class LevelObject(object):
     glAlphaFunc(GL_GREATER, 0.5)
 
     glEnable(GL_TEXTURE_2D)
-    self._spritesheet.bindTexture()
+    self._spritesheet.bind()
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE)
 
     glEnable(GL_BLEND)
@@ -122,7 +122,7 @@ class LevelObject(object):
       z = 0
 
       if len(self._sides[plane]) == 0: continue
-      tile = self._sides[plane]
+      tile = self._sides[plane][0]
 
       self._spritesheet.tileCoord(tile, 0, 0)
       glVertex3f(x + v[0][0], y + v[0][1], z + v[0][2])
