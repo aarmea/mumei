@@ -19,7 +19,9 @@ class Level(object):
     self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
     self.load(levelFile)
 
-    self._objects.append(levelobj.Player(self._startPos, self.spritesheet))
+    # Spawn a player
+    self._player = levelobj.Player(self._startPos, self.spritesheet)
+    self._objects.append(self._player)
 
     # Temporary screen move stuff
     self.t = 0.0
@@ -97,15 +99,13 @@ class Level(object):
         elif e.key == pygame.K_d:
           self.yrot += 5
         elif e.key == pygame.K_i:
-          self.botz -= 0.1
+          pass
         elif e.key == pygame.K_j:
-          self.botx -= 0.1
+          self._player.nudge((-1, 0))
         elif e.key == pygame.K_k:
-          self.botz += 0.1
+          pass
         elif e.key == pygame.K_l:
-          self.botx += 0.1
-        elif e.key == pygame.K_SPACE:
-          self.moveplayer()
+          self._player.nudge((1, 0))
     return False
 
   def draw(self):

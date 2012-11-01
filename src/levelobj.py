@@ -1,3 +1,4 @@
+import math
 import csv
 from OpenGL.GL import *
 import pygame
@@ -68,14 +69,18 @@ class LevelObject(object):
 
   def _uinit(self, pos, spritesheet):
     """Initialization common to all child classes."""
-    self._pos = pos
+    self._pos = (float(pos[0]), float(pos[1]))
     self._spritesheet = spritesheet
     # Format: 0 = front, 1 = back, 2 = top, 3 = bottom, 4 = left, 5 = right
     self._sides = [ [] for i in range(6) ]
 
   def move(self, pos):
     """Move the object to a new position."""
-    self._pos = pos
+    self._pos = (float(pos[0]), float(pos[1]))
+
+  def relMove(self, pos):
+    """Move the object to a new position relative to it's current lcoation."""
+    self._pos = (self._pos[0] + pos[0], self._pos[1], + pos[1])
 
   def onActorCollide(self, actor):
     """Perform actions when an Actor hits this object."""
@@ -240,6 +245,9 @@ class Actor(LevelObject):
     self._uinit(pos, spritesheet)
 
     self._sides[0].append("skeleton.png")
+
+  def nudge(self, direction):
+    self.relMove((math.copysign(1, direction[0]), math.copysign(1, direction[1])))
 
 class Player(Actor):
   """The player"""
