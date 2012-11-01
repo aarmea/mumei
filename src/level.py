@@ -15,10 +15,13 @@ class Level(object):
     self._width = 0
     self._objects = []
     self._startPos = (0, 0)
+    self._doorPos = (0, 0)
     self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
     self.load(levelFile)
 
-    self._objects.append(levelobj.Player(self._startPos, self.spritesheet))
+    # Spawn a player
+    self._player = levelobj.Player(self._startPos, self.spritesheet)
+    self._objects.append(self._player)
 
     # Temporary screen move stuff
     self.t = 0.0
@@ -53,6 +56,9 @@ class Level(object):
         if isinstance(obj, levelobj.Start):
           self._startPos = obj._pos
 
+        if isinstance(obj, levelobj.Door):
+          self._doorPos = obj._pos
+
       print "Level: loaded", levelFile
       file.close()
 
@@ -83,13 +89,13 @@ class Level(object):
         elif e.key == pygame.K_d:
           self.yrot += 5
         elif e.key == pygame.K_i:
-          self.botz -= 0.1
+          pass
         elif e.key == pygame.K_j:
-          self.botx -= 0.1
+          self._player.nudge((-1, 0))
         elif e.key == pygame.K_k:
-          self.botz += 0.1
+          pass
         elif e.key == pygame.K_l:
-          self.botx += 0.1
+          self._player.nudge((1, 0))
     return False
 
   def draw(self):
