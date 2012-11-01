@@ -203,11 +203,11 @@ class Wall(Barrier):
   def __init__(self, pos, spritesheet):
     self._uinit(pos, spritesheet)
 
-    self._sides[0].append("wall-floor.png")
+    self._sides[0].append("wall.png")
     self._sides[2].append("floor-top.png")
     self._sides[3].append("floor-top.png")
-    self._sides[4].append("wall-floor.png")
-    self._sides[5].append("wall-floor.png")
+    self._sides[4].append("wall.png")
+    self._sides[5].append("wall.png")
 
 class Floor(Barrier):
   """A horizontal surface that blocks vertical movement"""
@@ -216,7 +216,7 @@ class Floor(Barrier):
     self._uinit(pos, spritesheet)
 
     self._sides[0].append("floor-front.png")
-    self._sides[1].append("wall.png")
+    # self._sides[1].append("wall.png")
     self._sides[2].append("floor-top.png")
     self._sides[4].append("floor-side.png")
     self._sides[5].append("floor-side.png")
