@@ -246,9 +246,6 @@ class Actor(LevelObject):
 
     self._sides[0].append("skeleton.png")
 
-  def nudge(self, direction):
-    self.relMove((math.copysign(1, direction[0]), math.copysign(1, direction[1])))
-
 class Player(Actor):
   """The player"""
 
@@ -259,11 +256,6 @@ class Player(Actor):
     self._sides[0].append("robot1.png")
     self._sides[0].append("robot2.png")
     self._sides[0].append("robot3.png")
-
-  def advance(self):
-    self.move(self._startpos)
-    self.move(6, 0)
-
 
 # TODO: more objects
 

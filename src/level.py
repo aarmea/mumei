@@ -63,14 +63,6 @@ class Level(object):
       print "Level: loaded", levelFile
       file.close()
 
-
-  def moveplayer(self):
-    # sorry
-    for obj in self._objects:
-      if isinstance(obj, levelobj.Player):
-        self._pos = (6, 0)
-
-
   def handleEvents(self, events):
     """Handle keyboard input."""
     for e in events:
@@ -101,11 +93,11 @@ class Level(object):
         elif e.key == pygame.K_i:
           pass
         elif e.key == pygame.K_j:
-          self._player.nudge((-1, 0))
+          self.movePlayer((-1, 0))
         elif e.key == pygame.K_k:
           pass
         elif e.key == pygame.K_l:
-          self._player.nudge((1, 0))
+          self.movePlayer((1, 0))
     return False
 
   def draw(self):
@@ -127,3 +119,10 @@ class Level(object):
 
     for block in self._objects:
       block.draw()
+
+  def movePlayer(self, pos):
+    dPos = (float(pos[0])/16, float(pos[1])/16)
+    for i in range(16):
+      self._player.relMove(dPos)
+      self.draw()
+      pygame.display.flip() # this should not stay for release
