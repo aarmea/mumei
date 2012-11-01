@@ -222,7 +222,7 @@ class Floor(Barrier):
     self._uinit(pos, spritesheet)
 
     self._sides[0].append("floor-front.png")
-    # self._sides[1].append("wall.png")
+    self._sides[1].append("wall.png")
     self._sides[2].append("floor-top.png")
     self._sides[4].append("floor-side.png")
     self._sides[5].append("floor-side.png")
