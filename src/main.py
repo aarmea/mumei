@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
 from OpenGL.GL import *
-# from OpenGL.GLU import * # for perspective
 import pygame
 
 from level import Level
-
-
 
 class UI(object):
   """The main user interface object"""
@@ -17,15 +14,13 @@ class UI(object):
     self.screen = pygame.display.set_mode((800, 600), pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption("Mumei")
     pygame.mouse.set_visible(False)
-    # XXX pygame.key.set_repeat(10, 10)
 
-    # Set up OpenGL
+    # Set up the projection matrix
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(-640 / 64 / 2, 640 / 64 / 2, -480 / 64 / 2, 480 / 64 / 2, -10, 10)
-    # For perspective stuff, comment the line above and uncomment the line below
-    # gluPerspective(90, 0.75, 1, 10)
 
+    # Set up the initial state
     self.stateStack = [MainMenu(self)]
 
   def pushState(self, state):
@@ -45,18 +40,19 @@ class UI(object):
 
   def run(self):
     """Run the main UI loop."""
-    while len(self.stateStack):
+    quit = False
+
+    while len(self.stateStack) and not quit:
       currentState = self.stateStack[-1]
       quit = currentState.handleEvents(pygame.event.get())
       currentState.draw()
       pygame.display.flip()
-      if quit: break
 
 class Menu(object):
-  """The base menu class"""
-  
+  """The base class for all menus"""
+
   def __init__(self, ui):
-    self.__ui = ui
+    self._ui = ui
 
   def handleEvents(self, events):
     """Handle keyboard input. Returns True if the game should quit."""
@@ -68,26 +64,41 @@ class Menu(object):
           self.userUp()
         elif e.key == pygame.K_DOWN:
           self.userDown()
-
         elif e.key == pygame.K_RETURN:
           self.userSelect()
         elif e.key == pygame.K_ESCAPE:
           self.userBack()
-
         elif e.key == pygame.K_q:
           return True
     return False
 
-class MainMenu(Menu):
-  """The main menu"""
+  def userUp(self):
+    """The default up handler"""
 
-  def __init__(self, ui):
-    self.__ui = ui
-    self.__surface = pygame.image.load("background.png").convert_alpha()
-    self.__tex = glGenTextures(1)
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,self.__tex);
+  def userDown(self):
+    """The default down handler"""
+
+  def userSelect(self):
+    """The default select handler"""
+
+  def userBack(self):
+    """The default back handler"""
+    self._ui.popState()
+
+class PlainMenu(Menu):
+  """A menu with a single textured quad"""
+
+  def __init__(self, ui, textureFile):
+    super(PlainMenu, self).__init__(ui)
+
+    # Load and allocate the texture
+    self.__surface = pygame.image.load(textureFile).convert_alpha()
     self.__w, self.__h = self.__surface.get_size()
+    self.__texture = glGenTextures(1)
+
+    # Set up the texture
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, self.__texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
@@ -95,82 +106,46 @@ class MainMenu(Menu):
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.__w, self.__h, 0, GL_RGBA,
       GL_UNSIGNED_BYTE, pygame.image.tostring(self.__surface, "RGBA", True))
 
-  def userUp(self):
-    print "Main: user up"
-
-  def userDown(self):
-    print "Main: user down"
-
-  def userSelect(self):
-    print "Main: user select"
-    self.__ui.pushState(LevelMenu(self.__ui))
-
-  def userBack(self):
-    print "Main: user back"
-    self.__ui.popState()
-
   def draw(self):
-    """Draw the user interface."""
+    """Draw the menu."""
+    # Clear the screen
     glClearColor(0, 0, 1, 1)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    # Reset the modelview matrix
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    glBindTexture(GL_TEXTURE_2D,self.__tex);
-    glBegin( GL_QUADS );
-    glTexCoord2d(0.0,0.0); glVertex2d(-5.0,-4.0);
-    glTexCoord2d(1.0,0.0); glVertex2d(5.0,-4.0);
-    glTexCoord2d(1.0,1.0); glVertex2d(5.0,3.0);
-    glTexCoord2d(0.0,1.0); glVertex2d(-5.0,3.0);
+
+    # Draw the menu quad
+    glBindTexture(GL_TEXTURE_2D, self.__texture);
+    glBegin(GL_QUADS);
+    if True:
+      glTexCoord2d(0.0, 0.0); glVertex2d(-5.0,-4.0);
+      glTexCoord2d(1.0, 0.0); glVertex2d( 5.0,-4.0);
+      glTexCoord2d(1.0, 1.0); glVertex2d( 5.0, 3.0);
+      glTexCoord2d(0.0, 1.0); glVertex2d(-5.0, 3.0);
     glEnd();
 
+class MainMenu(PlainMenu):
+  """The main menu"""
 
-class LevelMenu(Menu):
+  def __init__(self, ui):
+    super(MainMenu, self).__init__(ui, "background.png")
+
+  def userSelect(self):
+    self._ui.pushState(LevelMenu(self._ui))
+
+class LevelMenu(PlainMenu):
   """The level menu"""
 
   def __init__(self, ui):
-    self.__ui = ui
-    self.__surface = pygame.image.load("background2.png").convert_alpha()
-    self.__tex = glGenTextures(1)
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,self.__tex);
-    self.__w, self.__h = self.__surface.get_size()
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.__w, self.__h, 0, GL_RGBA,
-    GL_UNSIGNED_BYTE, pygame.image.tostring(self.__surface, "RGBA", True))
-
-  def userUp(self):
-    print "LevelMenu: user up"
-
-  def userDown(self):
-    print "LevelMenu: user down"
+    super(LevelMenu, self).__init__(ui, "background2.png")
 
   def userSelect(self):
-    print "LevelMenu: user select"
-    self.__ui.pushState(Level(self.__ui, "level00.csv"))
-
-  def userBack(self):
-    print "LevelMenu: user back"
-    self.__ui.popState()
-
-  def draw(self):
-    """Draw the user interface."""
-    glClearColor(0, 0, 1, 1)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-    glMatrixMode(GL_MODELVIEW)
-    glLoadIdentity()
-    glBindTexture(GL_TEXTURE_2D,self.__tex);
-    glBegin( GL_QUADS );
-    glTexCoord2d(0.0,0.0); glVertex2d(-5.0,-4.0);
-    glTexCoord2d(1.0,0.0); glVertex2d(5.0,-4.0);
-    glTexCoord2d(1.0,1.0); glVertex2d(5.0,3.0);
-    glTexCoord2d(0.0,1.0); glVertex2d(-5.0,3.0);
-    glEnd();
+    self._ui.pushState(Level(self._ui, "level00.csv"))
 
 def main():
+  """Create and run the UI."""
   ui = UI()
   ui.run()
 
