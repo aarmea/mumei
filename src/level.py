@@ -60,29 +60,29 @@ class Level(object):
 
         # Temporary screen move stuff
         elif e.key == pygame.K_LEFT:
-          self.x -= 0.05
+          self.x -= 0.5
         elif e.key == pygame.K_RIGHT:
-          self.x += 0.05
+          self.x += 0.5
         elif e.key == pygame.K_UP:
-          self.y += 0.05
+          self.y += 0.5
         elif e.key == pygame.K_DOWN:
-          self.y -= 0.05
+          self.y -= 0.5
         elif e.key == pygame.K_w:
-          self.xrot -= 0.5
+          self.xrot -= 5
         elif e.key == pygame.K_s:
-          self.xrot += 0.5
+          self.xrot += 5
         elif e.key == pygame.K_a:
-          self.yrot -= 0.5
+          self.yrot -= 5
         elif e.key == pygame.K_d:
-          self.yrot += 0.5
+          self.yrot += 5
         elif e.key == pygame.K_i:
-          self.botz -= 0.01
+          self.botz -= 0.1
         elif e.key == pygame.K_j:
-          self.botx -= 0.01
+          self.botx -= 0.1
         elif e.key == pygame.K_k:
-          self.botz += 0.01
+          self.botz += 0.1
         elif e.key == pygame.K_l:
-          self.botx += 0.01
+          self.botx += 0.1
     return False
 
   def draw(self):
