@@ -17,6 +17,15 @@ class Level(object):
     self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
     self.load(levelFile)
 
+    # Temporary screen move stuff
+    self.t = 0.0
+    self.x = 0.0
+    self.y = 0.0
+    self.xrot = 0.0
+    self.yrot = 0.0
+    self.botx = 0
+    self.botz = 1
+
   def load(self, levelFile):
     """Load a level from a CSV file."""
     with open(self.levelDir + levelFile, 'rb') as file:
@@ -44,6 +53,32 @@ class Level(object):
       elif e.type == pygame.KEYDOWN:
         if e.key == pygame.K_ESCAPE:
           self.__ui.popState()
+
+        # Temporary screen move stuff
+        elif e.key == pygame.K_LEFT:
+          self.x -= 0.05
+        elif e.key == pygame.K_RIGHT:
+          self.x += 0.05
+        elif e.key == pygame.K_UP:
+          self.y += 0.05
+        elif e.key == pygame.K_DOWN:
+          self.y -= 0.05
+        elif e.key == pygame.K_w:
+          self.xrot -= 0.5
+        elif e.key == pygame.K_s:
+          self.xrot += 0.5
+        elif e.key == pygame.K_a:
+          self.yrot -= 0.5
+        elif e.key == pygame.K_d:
+          self.yrot += 0.5
+        elif e.key == pygame.K_i:
+          self.botz -= 0.01
+        elif e.key == pygame.K_j:
+          self.botx -= 0.01
+        elif e.key == pygame.K_k:
+          self.botz += 0.01
+        elif e.key == pygame.K_l:
+          self.botx += 0.01
     return False
 
   def draw(self):
@@ -57,10 +92,11 @@ class Level(object):
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    glTranslatef(0, 0, 0)
-    # XXX glRotate(t / 40, 0, 1, -1)
-    glRotate(0, 1, 0, 0)
-    glRotate(0, 0, 1, 0)
+
+    # Temporary screen move stuff
+    glTranslate(self.x, self.y, 0)
+    glRotate(self.xrot, 1, 0, 0)
+    glRotate(self.yrot, 0, 1, 0)
 
     for block in self._objects:
       block.draw()
