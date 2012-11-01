@@ -42,6 +42,10 @@ class Level(object):
             levelobj.LevelObject)((x,y), self.spritesheet))
           # self._objects.append(levelobj.NAMES[cell]((x,y), self.spritesheet))
 
+      # Invert the y position
+      for obj in self._objects:
+        obj.move((obj._pos[0], self._height - obj._pos[1]))
+
       print "Level: loaded", levelFile
       file.close()
 

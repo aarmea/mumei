@@ -99,12 +99,18 @@ class LevelObject(object):
     glBegin(GL_QUADS)
     glColor4f(1, 1, 1, 1)
     for plane, side in enumerate(self._sides):
-      if plane == 0 or plane == 1: # XXX xy (front)
+      if plane == 0: # XXX xy (front)
         v = [(0, 0, 1), (1, 0, 1), (1, 1, 1), (0, 1, 1)]
-      elif plane == 2 or plane == 3: # XXX xz (bottom)
+      elif plane == 1: # back
+        v = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+      elif plane == 2: # XXX xz (bottom)
+        v = [(0, 1, 1), (1, 1, 1), (1, 1, 0), (0, 1, 0)]
+      elif plane == 3: # top
         v = [(0, 0, 1), (1, 0, 1), (1, 0, 0), (0, 0, 0)]
-      elif plane == 4 or plane == 5: # XXX yz (left)
+      elif plane == 4: # XXX yz (left)
         v = [(0, 0, 0), (0, 0, 1), (0, 1, 1), (0, 1, 0)]
+      elif plane == 5: # right
+        v = [(1, 0, 0), (1, 0, 1), (1, 1, 1), (1, 1, 0)]
       
       x = self._pos[0]
       y = self._pos[1]
