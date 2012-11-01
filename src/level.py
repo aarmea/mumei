@@ -63,14 +63,6 @@ class Level(object):
       print "Level: loaded", levelFile
       file.close()
 
-
-  def moveplayer(self):
-    # sorry
-    for obj in self._objects:
-      if isinstance(obj, levelobj.Player):
-        self._pos = (6, 0)
-
-
   def handleEvents(self, events):
     """Handle keyboard input."""
     for e in events:

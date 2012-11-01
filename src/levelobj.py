@@ -260,11 +260,6 @@ class Player(Actor):
     self._sides[0].append("robot2.png")
     self._sides[0].append("robot3.png")
 
-  def advance(self):
-    self.move(self._startpos)
-    self.move(6, 0)
-
-
 # TODO: more objects
 
 NAMES = {
