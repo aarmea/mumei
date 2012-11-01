@@ -241,10 +241,6 @@ class Actor(LevelObject):
 
     self._sides[0].append("skeleton.png")
 
-  def draw(self):
-    # TODO: implement!
-    pass
-
 class Player(Actor):
   """The player"""
 

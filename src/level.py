@@ -14,8 +14,11 @@ class Level(object):
     self._height = 0
     self._width = 0
     self._objects = []
+    self._startPos = (0, 0)
     self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
     self.load(levelFile)
+
+    self._objects.append(levelobj.Player(self._startPos, self.spritesheet))
 
     # Temporary screen move stuff
     self.t = 0.0
@@ -42,9 +45,13 @@ class Level(object):
             levelobj.LevelObject)((x,y), self.spritesheet))
           # self._objects.append(levelobj.NAMES[cell]((x,y), self.spritesheet))
 
-      # Invert the y position
       for obj in self._objects:
+        # Invert the y position
         obj.move((obj._pos[0], self._height - obj._pos[1]))
+
+        # Get the start position
+        if isinstance(obj, levelobj.Start):
+          self._startPos = obj._pos
 
       print "Level: loaded", levelFile
       file.close()
