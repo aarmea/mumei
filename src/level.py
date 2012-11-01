@@ -17,11 +17,6 @@ class Level(object):
     self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
     self.load(levelFile)
 
-    # Set up OpenGL
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    glOrtho(-640 / 64 / 2, 640 / 64 / 2, -480 / 64 / 2, 480 / 64 / 2, -10, 10)
-
   def load(self, levelFile):
     """Load a level from a CSV file."""
     with open(self.levelDir + levelFile, 'rb') as file:
@@ -34,25 +29,22 @@ class Level(object):
 
         # Add the elements at each cell to the representation
         for x, cell in enumerate(row):
-          # self._objects.append(levelobj.NAMES.get(cell,
-          #   levelobj.LevelObject)((x,y), self.spritesheet))
-          self._objects.append(levelobj.NAMES[cell]((x,y), self.spritesheet))
+          self._objects.append(levelobj.NAMES.get(cell,
+            levelobj.LevelObject)((x,y), self.spritesheet))
+          # self._objects.append(levelobj.NAMES[cell]((x,y), self.spritesheet))
 
       print "Level: loaded", levelFile
       file.close()
 
-  def userUp(self):
-    print "Level: user up"
-
-  def userDown(self):
-    print "Level: user down"
-
-  def userSelect(self):
-    print "Level: user select"
-
-  def userBack(self):
-    print "Level: user back"
-    self.__ui.popState()
+  def handleEvents(self, events):
+    """Handle keyboard input."""
+    for e in events:
+      if e.type == pygame.QUIT:
+        return True
+      elif e.type == pygame.KEYDOWN:
+        if e.key == pygame.K_ESCAPE:
+          self.__ui.popState()
+    return False
 
   def draw(self):
     """Render the level interface."""

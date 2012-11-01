@@ -16,6 +16,11 @@ class UI(object):
     pygame.mouse.set_visible(False)
     # XXX pygame.key.set_repeat(10, 10)
 
+    # Set up OpenGL
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glOrtho(-640 / 64 / 2, 640 / 64 / 2, -480 / 64 / 2, 480 / 64 / 2, -10, 10)
+
     self.stateStack = [MainMenu(self)]
 
   def pushState(self, state):
@@ -37,29 +42,38 @@ class UI(object):
     """Run the main UI loop."""
     while len(self.stateStack):
       currentState = self.stateStack[-1]
-
-      # Handle events
-      for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-          return
-        elif e.type == pygame.KEYDOWN:
-          if e.key == pygame.K_UP:
-            currentState.userUp()
-          elif e.key == pygame.K_DOWN:
-            currentState.userDown()
-
-          elif e.key == pygame.K_RETURN:
-            currentState.userSelect()
-          elif e.key == pygame.K_ESCAPE:
-            currentState.userBack()
-
-          elif e.key == pygame.K_q:
-            return
-
+      quit = currentState.handleEvents(pygame.event.get())
       currentState.draw()
       pygame.display.flip()
+      if quit: break
 
-class MainMenu(object):
+class Menu(object):
+  """The base menu class"""
+  
+  def __init__(self, ui):
+    self.__ui = ui
+
+  def handleEvents(self, events):
+    """Handle keyboard input. Returns True if the game should quit."""
+    for e in events:
+      if e.type == pygame.QUIT:
+        return True
+      elif e.type == pygame.KEYDOWN:
+        if e.key == pygame.K_UP:
+          self.userUp()
+        elif e.key == pygame.K_DOWN:
+          self.userDown()
+
+        elif e.key == pygame.K_RETURN:
+          self.userSelect()
+        elif e.key == pygame.K_ESCAPE:
+          self.userBack()
+
+        elif e.key == pygame.K_q:
+          return True
+    return False
+
+class MainMenu(Menu):
   """The main menu"""
 
   def __init__(self, ui):
@@ -83,7 +97,7 @@ class MainMenu(object):
     """Draw the user interface."""
     self.__ui.drawBackground(0, 0, 1)
 
-class LevelMenu(object):
+class LevelMenu(Menu):
   """The level menu"""
 
   def __init__(self, ui):
