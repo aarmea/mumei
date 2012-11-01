@@ -15,6 +15,7 @@ class Level(object):
     self._width = 0
     self._objects = []
     self._startPos = (0, 0)
+    self._doorPos = (0, 0)
     self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
     self.load(levelFile)
 
@@ -53,8 +54,20 @@ class Level(object):
         if isinstance(obj, levelobj.Start):
           self._startPos = obj._pos
 
+        # Get the door position
+        if isinstance(obj, levelobj.Door):
+          self._doorPos = obj._pos
+
       print "Level: loaded", levelFile
       file.close()
+
+
+  def moveplayer(self):
+    # sorry
+    for obj in self._objects:
+      if isinstance(obj, levelobj.Player):
+        self._pos = (6, 0)
+
 
   def handleEvents(self, events):
     """Handle keyboard input."""
@@ -64,6 +77,7 @@ class Level(object):
       elif e.type == pygame.KEYDOWN:
         if e.key == pygame.K_ESCAPE:
           self.__ui.popState()
+          break
 
         # Temporary screen move stuff
         elif e.key == pygame.K_LEFT:
@@ -90,6 +104,8 @@ class Level(object):
           self.botz += 0.1
         elif e.key == pygame.K_l:
           self.botx += 0.1
+        elif e.key == pygame.K_SPACE:
+          self.moveplayer()
     return False
 
   def draw(self):

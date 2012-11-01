@@ -6,13 +6,15 @@ import pygame
 
 from level import Level
 
+
+
 class UI(object):
   """The main user interface object"""
 
   def __init__(self):
     pygame.init()
 
-    pygame.display.set_mode((800, 600), pygame.OPENGL | pygame.DOUBLEBUF)
+    self.screen = pygame.display.set_mode((800, 600), pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption("Mumei")
     pygame.mouse.set_visible(False)
     # XXX pygame.key.set_repeat(10, 10)
@@ -81,6 +83,17 @@ class MainMenu(Menu):
 
   def __init__(self, ui):
     self.__ui = ui
+    self.__surface = pygame.image.load("background.png").convert_alpha()
+    self.__tex = glGenTextures(1)
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,self.__tex);
+    self.__w, self.__h = self.__surface.get_size()
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.__w, self.__h, 0, GL_RGBA,
+      GL_UNSIGNED_BYTE, pygame.image.tostring(self.__surface, "RGBA", True))
 
   def userUp(self):
     print "Main: user up"
@@ -98,13 +111,35 @@ class MainMenu(Menu):
 
   def draw(self):
     """Draw the user interface."""
-    self.__ui.drawBackground(0, 0, 1)
+    glClearColor(0, 0, 1, 1)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+    glBindTexture(GL_TEXTURE_2D,self.__tex);
+    glBegin( GL_QUADS );
+    glTexCoord2d(0.0,0.0); glVertex2d(-5.0,-4.0);
+    glTexCoord2d(1.0,0.0); glVertex2d(5.0,-4.0);
+    glTexCoord2d(1.0,1.0); glVertex2d(5.0,3.0);
+    glTexCoord2d(0.0,1.0); glVertex2d(-5.0,3.0);
+    glEnd();
+
 
 class LevelMenu(Menu):
   """The level menu"""
 
   def __init__(self, ui):
     self.__ui = ui
+    self.__surface = pygame.image.load("background2.png").convert_alpha()
+    self.__tex = glGenTextures(1)
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,self.__tex);
+    self.__w, self.__h = self.__surface.get_size()
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.__w, self.__h, 0, GL_RGBA,
+    GL_UNSIGNED_BYTE, pygame.image.tostring(self.__surface, "RGBA", True))
 
   def userUp(self):
     print "LevelMenu: user up"
@@ -122,7 +157,18 @@ class LevelMenu(Menu):
 
   def draw(self):
     """Draw the user interface."""
-    self.__ui.drawBackground(1, 0, 0)
+    glClearColor(0, 0, 1, 1)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+    glBindTexture(GL_TEXTURE_2D,self.__tex);
+    glBegin( GL_QUADS );
+    glTexCoord2d(0.0,0.0); glVertex2d(-5.0,-4.0);
+    glTexCoord2d(1.0,0.0); glVertex2d(5.0,-4.0);
+    glTexCoord2d(1.0,1.0); glVertex2d(5.0,3.0);
+    glTexCoord2d(0.0,1.0); glVertex2d(-5.0,3.0);
+    glEnd();
 
 def main():
   ui = UI()
