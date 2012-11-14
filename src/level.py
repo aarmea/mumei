@@ -13,7 +13,7 @@ class Level(object):
     self.__ui = ui
     self._height = 0
     self._width = 0
-    self._objects = []
+    self._objects = [ [] ]
     self._startPos = (0, 0)
     self._doorPos = (0, 0)
     self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
@@ -21,7 +21,6 @@ class Level(object):
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
-    self._objects.append(self._player)
 
     # Temporary screen move stuff
     self.t = 0.0
@@ -36,19 +35,24 @@ class Level(object):
     """Load a level from a CSV file."""
     with open(self.levelDir + levelFile, 'rb') as file:
       csvFile = csv.reader(file)
+      objects = []
       for y, row in enumerate(csvFile):
         # Update the level's dimensions
         self._height += 1
         if len(row) > self._width:
           self._width = len(row)
 
-        # Add the elements at each cell to the representation
+        # Add the elements at each cell to a temporary representation
         for x, cell in enumerate(row):
-          self._objects.append(levelobj.NAMES.get(cell,
+          objects.append(levelobj.NAMES.get(cell,
             levelobj.LevelObject)((x,y), self.spritesheet))
-          # self._objects.append(levelobj.NAMES[cell]((x,y), self.spritesheet))
 
-      for obj in self._objects:
+      # Resize the self._objects to the size of the level
+      self._objects = [[levelobj.LevelObject((x,y), self.spritesheet)
+                        for y in xrange(self._height)]
+                        for x in xrange(self._width)]
+
+      for obj in objects:
         # Invert the y position
         obj.move((obj._pos[0], self._height - obj._pos[1]))
 
@@ -59,6 +63,10 @@ class Level(object):
         # Get the door position
         if isinstance(obj, levelobj.Door):
           self._doorPos = obj._pos
+
+        # Convert the temporary objects to the 2D list self._objects
+        self._objects[int(obj._pos[0])-1][int(obj._pos[1])-1] = obj
+
 
       print "Level: loaded", levelFile
       file.close()
@@ -93,18 +101,15 @@ class Level(object):
         elif e.key == pygame.K_i:
           pass
         elif e.key == pygame.K_j:
-          self._player.relMove((-1, 0))
+          self._player.relMove(self, (-1, 0))
         elif e.key == pygame.K_k:
           pass
         elif e.key == pygame.K_l:
-          self._player.relMove((1, 0))
+          self._player.relMove(self, (1, 0))
     return False
 
   def draw(self, time):
     """Render the level interface."""
-    # TODO: implement!
-    # self.__ui.drawBackground(0, 1, 0)
-
     # Draw
     glClearColor(0, 0, 1, 1)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -117,5 +122,10 @@ class Level(object):
     glRotate(self.xrot, 1, 0, 0)
     glRotate(self.yrot, 0, 1, 0)
 
-    for block in self._objects:
-      block.draw()
+    # Draw the static level
+    for row in self._objects:
+      for block in row:
+        block.draw()
+
+    # Draw the movable objects
+    self._player.draw()
