@@ -93,7 +93,7 @@ the value of the first/destination operand.
     1: SET a, b -- set a to b (flags are not affected)
     2: IF  a, b -- execute the next instruction if a & b is non-zero (flags are
                      not affected)
-  2-3: invalid
+    3: invalid
     4: ADD a, b -- set a to a + b
     5: SUB a, b -- set a to a - b
     6: MUL a, b -- set b:a to a * b (flags reflect b:a)
