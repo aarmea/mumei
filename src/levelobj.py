@@ -6,9 +6,6 @@ import pygame
 
 from texture import Texture
 
-# TODO: implement the sprite atlas at "assets/spritesheet-0.png"
-SPRITE_DIR = "../assets/sprites/"
-
 class TileSet(object):
   """An interface for texturing quads with tiles from a single texture"""
 

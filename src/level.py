@@ -125,4 +125,4 @@ class Level(object):
     for i in range(16):
       self._player.relMove(dPos)
       self.draw()
-      pygame.display.flip() # this should not stay for release
+      pygame.display.flip() # this is really ugly
