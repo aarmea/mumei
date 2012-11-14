@@ -93,14 +93,14 @@ class Level(object):
         elif e.key == pygame.K_i:
           pass
         elif e.key == pygame.K_j:
-          self.movePlayer((-1, 0))
+          self._player.relMove((-1, 0))
         elif e.key == pygame.K_k:
           pass
         elif e.key == pygame.K_l:
-          self.movePlayer((1, 0))
+          self._player.relMove((1, 0))
     return False
 
-  def draw(self):
+  def draw(self, time):
     """Render the level interface."""
     # TODO: implement!
     # self.__ui.drawBackground(0, 1, 0)
@@ -119,10 +119,3 @@ class Level(object):
 
     for block in self._objects:
       block.draw()
-
-  def movePlayer(self, pos):
-    dPos = (float(pos[0])/16, float(pos[1])/16)
-    for i in range(16):
-      self._player.relMove(dPos)
-      self.draw()
-      pygame.display.flip() # this is really ugly

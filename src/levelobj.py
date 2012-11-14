@@ -6,6 +6,8 @@ import pygame
 
 from texture import Texture
 
+EPSILON = 0.01
+
 class TileSet(object):
   """An interface for texturing quads with tiles from a single texture"""
 
@@ -59,6 +61,10 @@ class LevelObject(object):
   _dHealth = 0
   _blocking = False
 
+  _moving = False
+  _moveStep = (1.0, 1.0)
+  _dest = (0, 0)
+
   def __init__(self, pos, spritesheet):
     self._uinit(pos, spritesheet)
 
@@ -76,8 +82,13 @@ class LevelObject(object):
     self._pos = (float(pos[0]), float(pos[1]))
 
   def relMove(self, pos):
-    """Move the object to a new position relative to it's current lcoation."""
-    self._pos = (self._pos[0] + pos[0], self._pos[1], + pos[1])
+    """Move the object to a new position relative to it's current location."""
+    # self._pos = (self._pos[0] + pos[0], self._pos[1], + pos[1])
+    if not self._moving:
+      self._dest = (self._pos[0] + pos[0], self._pos[1], + pos[1])
+      self._moveStep = (float(self._dest[0] - self._pos[0]) / 16, 
+                        float(self._dest[1] - self._pos[1]) / 16)
+      self._moving = True
 
   def onActorCollide(self, actor):
     """Perform actions when an Actor hits this object."""
@@ -86,6 +97,19 @@ class LevelObject(object):
 
   def draw(self):
     """Render the object to the OpenGL display."""
+    # Move the object for animated relative moves
+    if self._moving:
+      # Stop moving if it's at or near the destination
+      if abs(self._dest[0]-self._pos[0]) < EPSILON and \
+         abs(self._dest[1]-self._pos[1]) < EPSILON:
+        self._moving = False
+        self._pos = self._dest
+      else:
+        # Move the object by _moveStep
+        self._pos = (self._pos[0] + self._moveStep[0],
+                     self._pos[1] + self._moveStep[1])
+
+    # Draw stuff
     glEnable(GL_DEPTH_TEST)
 
     glEnable(GL_ALPHA_TEST)

@@ -42,11 +42,14 @@ class UI(object):
   def run(self):
     """Run the main UI loop."""
     quit = False
+    clock = pygame.time.Clock()
+    time = 0.0
 
     while len(self.stateStack) and not quit:
       currentState = self.stateStack[-1]
       quit = currentState.handleEvents(pygame.event.get())
-      currentState.draw()
+      time += clock.tick()
+      currentState.draw(time)
       pygame.display.flip()
 
 class Menu(object):
@@ -93,7 +96,7 @@ class PlainMenu(Menu):
     super(PlainMenu, self).__init__(ui)
     self.__texture = Texture(textureFile)
 
-  def draw(self):
+  def draw(self, time):
     """Draw the menu."""
     # Clear the screen
     glClearColor(0, 0, 1, 1)
