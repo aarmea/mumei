@@ -17,11 +17,11 @@ function-definition:
 
 Declarations.
 
-declaration:
-  declaration-specifiers init-declarator-list? ';'
-
 declaration-list:
   declaration+
+
+declaration:
+  declaration-specifiers init-declarator-list? ';'
 
 declaration-specifiers:
   storage-class-specifier declaration-specifiers?
@@ -104,6 +104,9 @@ enumerator:
 typedef-name:
   identifier
 
+type-qualifier-list:
+  type-qualifier+
+
 type-qualifier:
   'const'
   'volatile'
@@ -123,9 +126,6 @@ direct-declarator-suffix:
 pointer:
   '*' type-qualifier-list?
   '*' type-qualifier-list? pointer
-
-type-qualifier-list:
-  type-qualifier+
 
 parameter-type-list:
   parameter-list
@@ -162,16 +162,16 @@ direct-abstract-declarator-suffix:
   '[' constant-expression? ']' direct-abstract-declarator-suffix?
   '(' parameter-type-list? ')' direct-abstract-declarator-suffix?
 
-initializer:
-  assignment-expression
-  '{' initializer-list '}'
-  '{' initializer-list ',' '}'
-
 initializer-list:
   initializer initializer-list-suffix?
 
 initializer-list-suffix:
   ',' initializer initializer-list-suffix?
+
+initializer:
+  assignment-expression
+  '{' initializer-list '}'
+  '{' initializer-list ',' '}'
 
 Statements.
 
@@ -205,7 +205,7 @@ selection-statement:
 iteration-statement:
   'while' '(' expression ')' statement
   'do' statement 'while' '(' expression ')' ';'
-  'for' '(' expression? ';' expression? ';' expression> ')' statement
+  'for' '(' expression? ';' expression? ';' expression ')' statement
   'for' '(' declaration expression? ';' expression? ')' statement
 
 jump-statement:
