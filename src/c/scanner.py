@@ -1128,9 +1128,9 @@ def tokensAndWarnings(xs, warnings):
     else:
       yield x
 
-def scan(str_):
+def scan(str_, trace=False):
   """Scan an input string, returning a generator that yields tokens."""
-  iter_ = ScannerIter(CScanner(), str_, True)
+  iter_ = ScannerIter(CScanner(), str_, trace)
 
   for tok in iter_:
     yield tok
