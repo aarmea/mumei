@@ -70,6 +70,21 @@ class TileSet(TextureAtlas):
     t = self.__images[spriteName][1][1] / self._tileh
     super(TileSet, self).tileCoord(s, t, u, v)
 
+class CharacterSet(TextureAtlas):
+  """An interface for texturing quads with ASCII characters from a texture"""
+
+  # Characters are 16x16 tiles on a 256x256 texture
+  CHARW, CHARH = 16, 16
+
+  def __init__(self, filename):
+    super(CharacterSet, self).__init__(filename, CHARW, CHARH)
+
+  def tileCoord(self, char, u, v):
+    """Set the texture coordinates from an ASCII code."""
+    # ord(character) returns the character code of the character
+    t, s = divmod(ord(char), 16)
+    super(CharacterSet, self).tileCoord(s, t, u, v)
+
 class LevelObject(object):
   """The base level object"""
 
