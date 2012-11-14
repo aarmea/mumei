@@ -81,11 +81,23 @@ class LevelObject(object):
     """Move the object to a new position."""
     self._pos = (float(pos[0]), float(pos[1]))
 
-  def relMove(self, pos):
-    """Move the object to a new position relative to it's current location."""
-    # self._pos = (self._pos[0] + pos[0], self._pos[1], + pos[1])
+  def relMove(self, level, pos):
+    """Move the object to a new position relative to its current location."""
+    # If a diagonal move is specified, only move in the x direction
+    if abs(pos[0]) > EPSILON and abs(pos[1]) > EPSILON:
+      pos = (pos[0], 0)
+
     if not self._moving:
-      self._dest = (self._pos[0] + pos[0], self._pos[1], + pos[1])
+      # Only move one unit
+      dx = math.copysign(1, pos[0]) if abs(pos[0])>EPSILON else 0
+      dy = math.copysign(1, pos[1]) if abs(pos[1])>EPSILON else 0
+
+      # Check for collisions
+      if (level._objects[int(self._pos[0] + dx - 1)]
+                        [int(self._pos[1] + dy - 1)]._blocking):
+        return
+
+      self._dest = (self._pos[0] + dx, self._pos[1], + dy)
       self._moveStep = (float(self._dest[0] - self._pos[0]) / 16, 
                         float(self._dest[1] - self._pos[1]) / 16)
       self._moving = True
