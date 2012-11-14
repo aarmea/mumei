@@ -120,7 +120,7 @@ class MainMenu(PlainMenu):
   """The main menu"""
 
   def __init__(self, ui):
-    super(MainMenu, self).__init__(ui, "background.png")
+    super(MainMenu, self).__init__(ui, "../assets/background.png")
 
   def userSelect(self):
     self._ui.pushState(LevelMenu(self._ui))
@@ -129,7 +129,7 @@ class LevelMenu(PlainMenu):
   """The level menu"""
 
   def __init__(self, ui):
-    super(LevelMenu, self).__init__(ui, "background2.png")
+    super(LevelMenu, self).__init__(ui, "../assets/background2.png")
 
   def userSelect(self):
     self._ui.pushState(Level(self._ui, "level00.csv"))
