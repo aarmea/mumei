@@ -13,11 +13,15 @@ Registers:
 
 The flags register has the following format:
 
-  x x x x | x x x x | x x x x | x x x Z
+  x x x x | x x x x | x x V S | x L C Z
 
   F E D C   B A 9 8   7 6 5 4   3 2 1 0 (bit)
 
   where Z is set if the result of an operation is zero
+        C is set if an arithmetic operation carries
+        L is set to V XOR S
+        S is set to the sign of the result (most significant bit)
+        V is set if an arithmetic operation overflows
         bits marked with an x are unspecified
 
 Instructions:
