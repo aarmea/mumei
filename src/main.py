@@ -12,14 +12,14 @@ class UI(object):
   def __init__(self):
     pygame.init()
 
-    self.screen = pygame.display.set_mode((800, 600), pygame.OPENGL | pygame.DOUBLEBUF)
+    self.screen = pygame.display.set_mode((1024, 768), pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption("Mumei")
     pygame.mouse.set_visible(False)
 
     # Set up the projection matrix
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(-640 / 64 / 2, 640 / 64 / 2, -480 / 64 / 2, 480 / 64 / 2, -10, 10)
+    glOrtho(-1024 / 64 / 2, 1024 / 64 / 2, -768 / 64 / 2, 768 / 64 / 2, -10, 10)
 
     # Set up the initial state
     self.stateStack = [MainMenu(self)]
