@@ -22,8 +22,8 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelFile)
 
-    self._text = TextBox((0, 0), (8, 8), self.charset,
-                         "This is\na test")
+    self._text = TextEditor((0, 5.75), (32, 48), self.charset,
+                            "This is some text.\nIt's not pretty.\n...but.")
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
