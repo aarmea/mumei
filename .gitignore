@@ -1,1 +1,6 @@
+# Compiled Python files
 *.py[co]
+
+# OS-specific indices
+.DS_Store
+Thumbs.db
