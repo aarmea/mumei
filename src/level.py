@@ -3,6 +3,7 @@ from OpenGL.GL import *
 import pygame
 
 import levelobj
+from textureatlas import *
 
 class Level(object):
   """A level"""
