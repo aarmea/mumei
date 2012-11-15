@@ -12,9 +12,9 @@ from texture import Texture
 class TextureAtlas(object):
   """An interface for texturing quads with tiles from a single texture"""
 
-  def __init__(self, filename, tilew, tileh):
+  def __init__(self, texture, tilew, tileh):
     # Load the texture
-    self.__texture = Texture(filename)
+    self.__texture = texture
     
     # Set the size of each texture
     self._tilew = tilew
@@ -45,6 +45,7 @@ class TileSet(TextureAtlas):
 
   def __init__(self, path, prefix):
     # TODO: handle multiple spritesheets
+    texture = Texture(path + prefix + "-0.png")
 
     # Parse the *.csv file
     self.__images = dict()
@@ -63,7 +64,7 @@ class TileSet(TextureAtlas):
     tilew, tileh = self.__images.values()[0][2]
 
     # Call the parent's constructor
-    super(TileSet, self).__init__(path+prefix+"-0.png", tilew, tileh)
+    super(TileSet, self).__init__(texture, tilew, tileh)
 
   def tileCoord(self, spriteName, u, v):
     """Set the texture coordinates for the given tile."""
@@ -74,11 +75,14 @@ class TileSet(TextureAtlas):
 class CharacterSet(TextureAtlas):
   """An interface for texturing quads with ASCII characters from a texture"""
 
-  # Characters are 16x16 tiles on a 256x256 texture
-  CHARW, CHARH = 16, 16
-
   def __init__(self, filename):
-    super(CharacterSet, self).__init__(filename, CHARW, CHARH)
+    texture = Texture(filename)
+
+    # A CharacterSet font image is 16 characters by 16 characters
+    charw = texture.w / 16
+    charh = texture.h / 16
+
+    super(CharacterSet, self).__init__(texture, charw, charh)
 
   def tileCoord(self, char, u, v):
     """Set the texture coordinates from an ASCII code."""
