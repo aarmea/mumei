@@ -4,6 +4,7 @@ import pygame
 
 import levelobj
 from textureatlas import *
+from textbox import *
 
 class Level(object):
   """A level"""
@@ -17,8 +18,12 @@ class Level(object):
     self._objects = [ [] ]
     self._startPos = (0, 0)
     self._doorPos = (0, 0)
-    self.spritesheet = levelobj.TileSet("../assets/", "spritesheet")
+    self.spritesheet = TileSet("../assets/", "spritesheet")
+    self.charset = CharacterSet("../assets/font.png")
     self.load(levelFile)
+
+    self._text = TextBox((0, 0), (8, 8), self.charset,
+                         "This is\na test")
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
@@ -130,3 +135,6 @@ class Level(object):
 
     # Draw the movable objects
     self._player.draw()
+
+    # Draw the editor
+    self._text.draw()
