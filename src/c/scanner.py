@@ -47,6 +47,7 @@ class Token(tuple):
     return "%s(pos=%r)" % (type(self).__name__, self.pos)
 
   pos = property(lambda self: self[0])
+  """The position of the token in the input string"""
 
 class ValueToken(Token):
   """The base class of all tokens with a value"""
@@ -58,6 +59,7 @@ class ValueToken(Token):
     return "%s(pos=%r, val=%r)" % (type(self).__name__, self.pos, self.val)
 
   val = property(lambda self: self[1])
+  """The value associated with the token"""
 
 class IdentifierToken(ValueToken):
   """An identifier token"""
@@ -500,6 +502,7 @@ class IdentifierOrKeywordScanner(Scanner):
     "volatile", "while"])
 
   def __getTok(self):
+    """Generate the appropriate token based on the consumed input."""
     if self.tokStr not in self.KEYWORDS:
       return IdentifierToken(self.tokPos, self.tokStr)
     else:
@@ -541,6 +544,8 @@ class NumberScanner(Scanner):
   BASE_DIGITS = {8: string.octdigits, 10: string.digits, 16: string.hexdigits}
 
   def _isDigit(self, c):
+    """Return whether the given character is a valid digit in the current
+    base."""
     return c in self.BASE_DIGITS[self.base]
 
   def _start(self, c, off, pos, cconsume, cpass):
