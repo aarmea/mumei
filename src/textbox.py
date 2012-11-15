@@ -30,6 +30,7 @@ class TextBox(object):
   def draw(self):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
+    glScalef(0.5, 0.5, 1)
 
     self._charset.bind()
 
