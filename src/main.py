@@ -22,7 +22,7 @@ class UI(object):
     glOrtho(-1024 / 64 / 2, 1024 / 64 / 2, -768 / 64 / 2, 768 / 64 / 2, -10, 10)
 
     # Set up the initial state
-    self.stateStack = [MainMenu(self)]
+    self.stateStack = [WelcomeScreen(self)] # welcome screen first...
 
   def pushState(self, state):
     """Add a state to the state stack. The new state will become the active
@@ -34,10 +34,10 @@ class UI(object):
     active state."""
     self.stateStack.pop()
 
-  def drawBackground(self, r, g, b):
-    """Fill the background with the given color."""
-    glClearColor(r, g, b, 1)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+  #def drawBackground(self, r, g, b):
+  #  """Fill the background with the given color."""
+  #  glClearColor(r, g, b, 1)
+  #  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
   def run(self):
     """Run the main UI loop."""
@@ -99,7 +99,7 @@ class PlainMenu(Menu):
   def draw(self, time):
     """Draw the menu."""
     # Clear the screen
-    glClearColor(0, 0, 1, 1)
+    glClearColor(0, 0, 0, 1)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     # Reset the modelview matrix
@@ -116,23 +116,63 @@ class PlainMenu(Menu):
       glTexCoord2d(0.0, 1.0); glVertex2d(-5.0, 3.0);
     glEnd();
 
-class MainMenu(PlainMenu):
-  """The main menu"""
+class WelcomeScreen(PlainMenu):
+  """The welcome screen - splash"""
 
   def __init__(self, ui):
-    super(MainMenu, self).__init__(ui, "../assets/background.png")
+    super(WelcomeScreen, self).__init__(ui, "../assets/background.png")
 
   def userSelect(self):
     self._ui.pushState(LevelMenu(self._ui))
 
+class LevelButton(object):
+  """Faux button that indicates available level choices"""
+  def __init__(self, ui, imgfile):
+    self._ui = ui
+    self.__texture = Texture(imgfile)
+
 class LevelMenu(PlainMenu):
-  """The level menu"""
+  """The main level menu - interactable"""
 
   def __init__(self, ui):
-    super(LevelMenu, self).__init__(ui, "../assets/background2.png")
+    super(LevelMenu, self).__init__(ui, "../assets/levelmenu.png")
+    # contains a series of level buttons
+    level1button = LevelButton(ui, "../assets/level1mockbutton.png")
+
+  def handleEvents(self, events):
+    """Handle keyboard input for level selection. Returns True if the game should quit."""
+    for e in events:
+      if e.type == pygame.QUIT:
+        return True
+      elif e.type == pygame.KEYDOWN:
+        if e.key == pygame.K_UP:
+          self.userUp()
+        elif e.key == pygame.K_DOWN:
+          self.userDown()
+        #elif e.key == pygame.K_RETURN:
+        #  self.userSelect()
+        elif e.key == pygame.K_ESCAPE:
+          self.userBack()
+        elif e.key == pygame.K_1:
+          #self.userSelect("level100.csv")
+          #self._ui.pushState(Level(self._ui, "level100.csv"))
+          self.userSelectLevel("level00.csv")
+        elif e.key == pygame.K_q:
+          return True
+    return False
+
+  def userSelectLevel(self, csvfile):
+    self._ui.pushState(LevelScreen(self._ui, csvfile)) # push the state for that level splash screen
+
+class LevelScreen(PlainMenu):
+  """The level screen - splash"""
+
+  def __init__(self, ui, csvfile):
+    super(LevelScreen, self).__init__(ui, "../assets/background2.png")
+    self.csvfile = csvfile
 
   def userSelect(self):
-    self._ui.pushState(Level(self._ui, "level00.csv"))
+    self._ui.pushState(Level(self._ui, self.csvfile))
 
 def main():
   """Create and run the UI."""
