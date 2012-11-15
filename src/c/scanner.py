@@ -5,6 +5,8 @@ A scanner for ANSI C
 import new
 import string
 
+import error
+
 # General types
 class Position(tuple):
   """The position of a token or error in an input string"""
@@ -28,17 +30,10 @@ class Position(tuple):
   line = property(lambda self: self[0])
   col = property(lambda self: self[1])
 
-class ScanError(Exception):
+class ScanError(error.CompileError):
   """An error encountered while scanning a string"""
 
-  def __init__(self, pos, msg):
-    Exception.__init__(self, msg)
-    self.pos = pos
-
-  def __str__(self):
-    return "%s: %s" % (self.pos, self.message)
-
-class ScanWarning(ScanError):
+class ScanWarning(error.CompileWarning):
   """A warning raised while scanning a string"""
 
 # Token types
