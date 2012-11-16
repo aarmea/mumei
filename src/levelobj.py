@@ -226,6 +226,15 @@ class Barrier(LevelObject):
     self._sides[4].append("floor-top.png")
     self._sides[5].append("floor-top.png")
 
+class Skeleton(Barrier):
+  """RAWR"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+
+    self._sides[1].append("wall-floor.png")
+    self._sides[4].append("skeleton.png")
+
 class Wall(Barrier):
   """A vertical wall that blocks horizontal movement"""
 
@@ -292,6 +301,7 @@ NAMES = {
   "door" : Door,
   "barrier" : Barrier,
   "wall" : Wall,
+  "skeleton" : Skeleton,
   "floor" : Floor,
   # "fire" : Fire,
   # "actor" : Actor,
