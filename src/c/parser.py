@@ -578,12 +578,20 @@ stmt = mplus(mplus(mplus(mplus(compoundStmt, exprStmt), selectionStmt),
 stmtList = many1(stmt)
 stmtList0 = many(stmt)
 
-# identifier-list:
-#   identifier identifier-list-suffix?
-#
 # identifier-list-suffix:
 #   ',' identifier identifier-list-suffix?
-identifierList = mzero() # XXX Not implemented
+identifierListSuffix = (
+  mbind(commaToken, lambda _:
+  mbind(identifierToken, lambda id_:
+  mbind(option([], identifierListSuffix), lambda ids:
+  mreturn([id_] + ids)))))
+
+# identifier-list:
+#   identifier identifier-list-suffix?
+identifierList = (
+  mbind(identifierToken, lambda id_:
+  mbind(option([], identifierListSuffix), lambda ids:
+  mreturn([id_] + ids))))
 
 # parameter-declaration:
 #   declaration-specifiers declarator
@@ -847,7 +855,7 @@ def mkDecl(specs, inits):
   for init in inits:
     init.applySpecs(storageClassSpec, typeSpec)
 
-  return syntree.Decl(inits)
+  return syntree.Decl(specs[0].pos, inits)
 
 decl = (
   mbind(declSpecs, lambda specs:
@@ -862,7 +870,38 @@ declList0 = many(decl)
 
 # function-definition:
 #   declaration-specifiers? declarator declaration-list? compound-statement
+def mkKRParamDecl(id_):
+  """Return a default K&R parameter declaration for the given identifier."""
+  declarator_ = syntree.NameDeclarator(id_.val)
+  # K&R parameters are ints unless otherwise specified in the declaration list
+  declarator_.applySpecs(None, syntree.IntTypeSpec(None))
+  return syntree.ParamDecl(declarator_)
+
 def mkFunDef(specs, declarator_, decls, stmt):
+  """Return a function definition given a list of declaration specifiers, a
+  declarator, a declaration list, and a compound statement."""
+  # Substitute K&R function declarators
+  if isinstance(declarator_, syntree.KRFunDeclarator):
+    # Set up the default parameters
+    paramDict = dict([(id_.val, mkKRParamDecl(id_)) for id_ in declarator_.ids])
+    # Change the declaration for any parameters in the declaration list
+    for decl in decls:
+      # Declarations in the declaration list must also appear in the parameter
+      # list
+      for init in decl.inits:
+        if not init.id in paramDict:
+          raise CompileError(decl.pos, "declaration for parameter `%s', but no"
+            " such parameter" % init.id)
+
+        paramDict[init.id] = syntree.ParamDecl(init)
+
+    # Get the parameters in the order specified in the parameter list
+    params = [paramDict[id_.val] for id_ in declarator_.ids]
+
+    # Replace the declarator with a regular function declarator
+    declarator_ = syntree.FunDeclarator(declarator_.direct, params)
+
+  # Handle declaration specifiers
   storageClassSpec, typeSpec, signSpec, sizeSpec = normalizeDeclSpecs(specs)
 
   # The storage class specifier can only be extern or static for functions, and
@@ -880,7 +919,7 @@ def mkFunDef(specs, declarator_, decls, stmt):
 
   declarator_.applySpecs(storageClassSpec, typeSpec)
 
-  return syntree.FunDef(declarator_, decls, stmt)
+  return syntree.FunDef(declarator_, stmt)
 
 # We can't tell whether this is a function definition or a declaration until we
 # get to the compound statement, if any.
