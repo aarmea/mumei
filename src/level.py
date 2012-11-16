@@ -18,6 +18,17 @@ class Level(object):
     self._objects = [ [] ]
     self._startPos = (0, 0)
     self._doorPos = (0, 0)
+
+    # Temporary screen move stuff
+    self.t = 0.0
+    self.x = 0.0
+    self.y = 0.0
+    self.xrot = 15.0
+    self.yrot = 20.0
+    self.botx = 0
+    self.botz = 1
+
+    # Load level assets
     self.spritesheet = TileSet("../assets/", "spritesheet")
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelFile)
@@ -27,15 +38,6 @@ class Level(object):
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
-
-    # Temporary screen move stuff
-    self.t = 0.0
-    self.x = 0.0
-    self.y = 0.0
-    self.xrot = 0.0
-    self.yrot = 0.0
-    self.botx = 0
-    self.botz = 1
 
   def load(self, levelFile):
     """Load a level from a CSV file."""
@@ -73,6 +75,8 @@ class Level(object):
         # Convert the temporary objects to the 2D list self._objects
         self._objects[int(obj._pos[0])-1][int(obj._pos[1])-1] = obj
 
+      self.x = -self._width / 2
+      self.y = -self._height / 2
 
       print "Level: loaded", levelFile
       file.close()
@@ -129,7 +133,7 @@ class Level(object):
     glLoadIdentity()
 
     # Temporary screen move stuff
-    glTranslate(self.x, self.y, 0)
+    glTranslate(self.x * 3 / 2 - 0.5, (self.y - 1), 0)
     glRotate(self.xrot, 1, 0, 0)
     glRotate(self.yrot, 0, 1, 0)
 
