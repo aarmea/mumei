@@ -107,6 +107,7 @@ class PlainMenu(Menu):
     glLoadIdentity()
 
     # Draw the menu quad
+    glEnable(GL_TEXTURE_2D)
     self.__texture.bind()
     glBegin(GL_QUADS);
     if True:
