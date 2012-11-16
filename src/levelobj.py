@@ -160,16 +160,48 @@ class Ladder(Transport):
 
   def __init__(self, pos, spritesheet):
     self._uinit(pos, spritesheet)
-
+    self._sides[1].append("wall.png")
     self._sides[1].append("ladder.png")
+
+class LadderLeft(Transport):
+  """A ladder"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+    self._sides[1].append("wall.png")
+    self._sides[4].append("ladder.png")
+
+class LadderLeftFloor(Transport):
+  """A ladder"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+    self._sides[1].append("wall-floor.png")
+    self._sides[4].append("ladder.png")
+
+class LadderRight(Transport):
+  """A ladder"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+    self._sides[1].append("wall.png")
+    self._sides[5].append("ladder.png")
+
+class LadderRightFloor(Transport):
+  """A ladder"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+    self._sides[1].append("wall-floor.png")
+    self._sides[5].append("ladder.png")
 
 class LadderOnFloor(Transport):
   """A ladder"""
 
   def __init__(self, pos, spritesheet):
     self._uinit(pos, spritesheet)
-
-    self._sides[1].append("ladder-floor.png")
+    self._sides[1].append("wall.png")
+    self._sides[4].append("ladder-floor.png")
 
 class Door(Transport):
   """A door, which is usually the level's goal"""
@@ -253,6 +285,10 @@ NAMES = {
   "start" : Start,
   "ladder" : Ladder,
   "ladderF" : LadderOnFloor,
+  "ladderL" :LadderLeft,
+  "ladderLF" : LadderLeftFloor,
+  "ladderR" : LadderRight,
+  "ladderRF" : LadderRightFloor,
   "door" : Door,
   "barrier" : Barrier,
   "wall" : Wall,
