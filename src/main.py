@@ -141,7 +141,7 @@ class LevelMenu(PlainMenu):
 
   def handleEvents(self, events):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
-    LevelOne = ["level100.csv", "level101.csv", "level102.csv", "level103.csv", "level104.csv"]
+    MasterLevelDictonary = [ ["level100.csv", "level101.csv", "level102.csv", "level103.csv", "level104.csv"], ["level200.csv", "level201.csv", "level202.csv", "level203.csv", "level204.csv"] ]
     for e in events:
       if e.type == pygame.QUIT:
         return True
@@ -157,7 +157,7 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_1:
           #self.userSelect("level100.csv")
           #self._ui.pushState(Level(self._ui, "level100.csv"))
-          self.userSelectLevel(LevelOne[0])
+          self.userSelectLevel(MasterLevelDictonary[0][0])
         elif e.key == pygame.K_q:
           return True
     return False
