@@ -157,7 +157,7 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_1:
           #self.userSelect("level100.csv")
           #self._ui.pushState(Level(self._ui, "level100.csv"))
-          self.userSelectLevel(MasterLevelDictonary[0][0])
+          self.userSelectLevel(MasterLevelDictonary[0][4])
         elif e.key == pygame.K_q:
           return True
     return False
