@@ -103,7 +103,7 @@ class TextEditor(TextBox):
       self._buffer.insert(row+1, self._buffer[row][col:])
       self._buffer[row] = self._buffer[row][:col]
       self._cursorPos = (row+1, 0)
-    elif key < 256:
+    elif 0x20 < key and key < 0x7E:
       # Printable keys
       try:
         self._buffer[row].insert(col, uni)
