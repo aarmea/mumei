@@ -121,7 +121,7 @@ def comp(s):
     return tactrans.translate(tac)
   except scanner.ScanError, e:
     raise CompileError("scan error: %s" % e)
-  except parser.SyntaxError, e:
+  except parser.ParseError, e:
     raise CompileError("syntax error: %s" % e)
   except error.CompileError, e:
     raise CompileError("compile error: %s" % e)
