@@ -254,22 +254,36 @@ class Instruction(object):
     return decorator
 
   @classmethod
-  def fromopcode(cls, opcode):
+  def fromOpcode(cls, opcode):
     """Return an instruction type for the given opcode."""
     return cls._opcodes[opcode]
 
   @classmethod
-  def frommnemonic(cls, mnemonic):
+  def fromMnemonic(cls, mnemonic):
     """Return an instruction type for the given mnemonic."""
     return cls._mnemonics[mnemonic.upper()]
 
   @staticmethod
   def setFlags(proc, val):
-    """Set the flags register for the result of an operation."""
+    """Set the flags register for the given raw result value. This value may
+    be larger than WORD_BITS."""
     flags = 0
 
-    if not val:
+    zero = not bool(val)
+    carry = bool(val >> proc.WORD_BITS)
+    sign = bool(val >> (proc.WORD_BITS - 1))
+    overflow = val >= 2**(proc.WORD_BITS - 1) or -val > 2**(proc.WORD_BITS - 1)
+
+    if zero:
       flags |= Processor.FLAG_ZERO
+    if carry:
+      flags |= Processor.FLAG_CARRY
+    if sign != overflow:
+      flags |= Processor.FLAG_LESS
+    if sign:
+      flags |= Processor.FLAG_SIGN
+    if overflow:
+      flags |= Processor.FLAG_OVERFLOW
 
     proc.setReg(Processor.REG_FL, flags)
 
@@ -280,7 +294,7 @@ class Instruction(object):
 
     opcode = inst >> 12
     try:
-      opcls = cls.fromopcode(opcode)
+      opcls = cls.fromOpcode(opcode)
     except KeyError:
       raise InstructionError("invalid opcode")
     opa = Operand.decode((inst >> 6) & 0o77, seq)
@@ -348,8 +362,9 @@ class If(Instruction):
 class Add(Instruction):
   def execute(self, proc):
     def f(a, b):
-      a = (a + b) & proc.WORD_MASK
-      self.setFlags(proc, a)
+      c = a + b
+      self.setFlags(proc, c)
+      a = c & proc.WORD_MASK
       return (a, b)
 
     self._withOps(proc, f)
@@ -358,8 +373,9 @@ class Add(Instruction):
 class Sub(Instruction):
   def execute(self, proc):
     def f(a, b):
-      a = (a - b) & proc.WORD_MASK
-      self.setFlags(proc, a)
+      c = a - b
+      self.setFlags(proc, c)
+      a = c & proc.WORD_MASK
       return (a, b)
 
     self._withOps(proc, f)
@@ -436,6 +452,11 @@ class Processor(object):
 
   # Flag bits
   FLAG_ZERO = 2**0
+  FLAG_CARRY = 2**1
+  FLAG_LESS = 2**2
+
+  FLAG_SIGN = 2**4
+  FLAG_OVERFLOW = 2**5
 
   def __init__(self, memWords):
     """Initialize the memory array and set the processor to a known state."""
