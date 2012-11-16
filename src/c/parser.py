@@ -19,7 +19,7 @@ def setMinimumRecursionLimit(minLimit):
 
 # This module relies heavily on recursion, so ensure that the stack is larger
 # than the default.
-setMinimumRecursionLimit(10000)
+setMinimumRecursionLimit(20000)
 
 def partition(pred, iterable):
   """Return a pair of lists of elements that do and do not satisfy the
@@ -578,12 +578,20 @@ stmt = mplus(mplus(mplus(mplus(compoundStmt, exprStmt), selectionStmt),
 stmtList = many1(stmt)
 stmtList0 = many(stmt)
 
-# identifier-list:
-#   identifier identifier-list-suffix?
-#
 # identifier-list-suffix:
 #   ',' identifier identifier-list-suffix?
-identifierList = mzero() # XXX Not implemented
+identifierListSuffix = (
+  mbind(commaToken, lambda _:
+  mbind(identifierToken, lambda id_:
+  mbind(option([], identifierListSuffix), lambda ids:
+  mreturn([id_] + ids)))))
+
+# identifier-list:
+#   identifier identifier-list-suffix?
+identifierList = (
+  mbind(identifierToken, lambda id_:
+  mbind(option([], identifierListSuffix), lambda ids:
+  mreturn([id_] + ids))))
 
 # parameter-declaration:
 #   declaration-specifiers declarator
@@ -594,7 +602,7 @@ def mkParamDecl(specs, declarator_):
   return syntree.ParamDecl(declarator_)
 
 paramDecl = (
-  mbind(lambda *a: declSpecs(*a), lambda specs: # deferred
+  mbind(lambda *a: declSpecs(*a), lambda specs: # defer
   mbind(declarator, lambda declarator_:
   mreturn(mkParamDecl(specs, declarator_)))))
 
@@ -647,6 +655,26 @@ pointer = (
 #   '[' constant-expression? ']' direct-declarator-suffix? # XXX Not implemented
 #   '(' parameter-type-list ')' direct-declarator-suffix?
 #   '(' identifier-list? ')' direct-declarator-suffix?
+paramDirectDeclaratorSuffixLook = lookAhead(
+  mbind(lparenToken, lambda _:
+    paramTypeList))
+paramDirectDeclaratorSuffix = (
+  mbind(try_(paramDirectDeclaratorSuffixLook), lambda _:
+  mbind(lparenToken, lambda _:
+  mbind(paramTypeList, lambda params:
+  mbind(rparenToken, lambda _:
+  mreturn(syntree.ParamDeclaratorSuffix(params)))))))
+krDirectDeclaratorSuffix = (
+  mbind(lparenToken, lambda _:
+  mbind(option([], identifierList), lambda ids:
+  mbind(rparenToken, lambda _:
+  mreturn(syntree.KRDeclaratorSuffix(ids))))))
+directDeclaratorSuffix = mplus(paramDirectDeclaratorSuffix,
+  krDirectDeclaratorSuffix)
+
+# direct-declarator:
+#   identifier direct-declarator-suffix?
+#   '(' declarator ')' direct-declarator-suffix?
 nameDirectDeclarator = (
   mbind(identifierToken, lambda id_:
   mreturn(syntree.NameDeclarator(id_.val))))
@@ -655,22 +683,6 @@ nestedDirectDeclarator = (
   mbind(declarator, lambda declarator:
   mbind(rparenToken, lambda _:
   mreturn(declarator)))))
-paramDirectDeclaratorSuffix = (
-  mbind(lparenToken, lambda _:
-  mbind(paramTypeList, lambda params:
-  mbind(rparenToken, lambda _:
-  mreturn(syntree.ParamDeclaratorSuffix(params))))))
-nameDirectDeclaratorSuffix = (
-  mbind(lparenToken, lambda _:
-  mbind(option([], identifierList), lambda ids:
-  mbind(rparenToken, lambda _:
-  mreturn(syntree.NameDeclaratorSuffix(ids))))))
-directDeclaratorSuffix = mplus(paramDirectDeclaratorSuffix,
-  nameDirectDeclaratorSuffix)
-
-# direct-declarator:
-#   identifier direct-declarator-suffix?
-#   '(' declarator ')' direct-declarator-suffix?
 directDeclarator = (
   mbind(mplus(nameDirectDeclarator, nestedDirectDeclarator), lambda direct:
   mbind(many(directDeclaratorSuffix), lambda suffixes:
@@ -684,7 +696,7 @@ def mkPointerDeclarator(cvs, direct):
     cvs, direct)
 
 pointerDeclarator = (
-  mbind(lookAhead(try_(starToken)), lambda _:
+  mbind(try_(lookAhead(starToken)), lambda _:
   mbind(pointer, lambda cvs:
   mbind(directDeclarator, lambda direct:
   mreturn(mkPointerDeclarator(cvs, direct))))))
@@ -843,7 +855,7 @@ def mkDecl(specs, inits):
   for init in inits:
     init.applySpecs(storageClassSpec, typeSpec)
 
-  return syntree.Decl(inits)
+  return syntree.Decl(specs[0].pos, inits)
 
 decl = (
   mbind(declSpecs, lambda specs:
@@ -858,7 +870,38 @@ declList0 = many(decl)
 
 # function-definition:
 #   declaration-specifiers? declarator declaration-list? compound-statement
+def mkKRParamDecl(id_):
+  """Return a default K&R parameter declaration for the given identifier."""
+  declarator_ = syntree.NameDeclarator(id_.val)
+  # K&R parameters are ints unless otherwise specified in the declaration list
+  declarator_.applySpecs(None, syntree.IntTypeSpec(None))
+  return syntree.ParamDecl(declarator_)
+
 def mkFunDef(specs, declarator_, decls, stmt):
+  """Return a function definition given a list of declaration specifiers, a
+  declarator, a declaration list, and a compound statement."""
+  # Substitute K&R function declarators
+  if isinstance(declarator_, syntree.KRFunDeclarator):
+    # Set up the default parameters
+    paramDict = dict([(id_.val, mkKRParamDecl(id_)) for id_ in declarator_.ids])
+    # Change the declaration for any parameters in the declaration list
+    for decl in decls:
+      # Declarations in the declaration list must also appear in the parameter
+      # list
+      for init in decl.inits:
+        if not init.id in paramDict:
+          raise CompileError(decl.pos, "declaration for parameter `%s', but no"
+            " such parameter" % init.id)
+
+        paramDict[init.id] = syntree.ParamDecl(init)
+
+    # Get the parameters in the order specified in the parameter list
+    params = [paramDict[id_.val] for id_ in declarator_.ids]
+
+    # Replace the declarator with a regular function declarator
+    declarator_ = syntree.FunDeclarator(declarator_.direct, params)
+
+  # Handle declaration specifiers
   storageClassSpec, typeSpec, signSpec, sizeSpec = normalizeDeclSpecs(specs)
 
   # The storage class specifier can only be extern or static for functions, and
@@ -876,7 +919,7 @@ def mkFunDef(specs, declarator_, decls, stmt):
 
   declarator_.applySpecs(storageClassSpec, typeSpec)
 
-  return syntree.FunDef(declarator_, decls, stmt)
+  return syntree.FunDef(declarator_, stmt)
 
 # We can't tell whether this is a function definition or a declaration until we
 # get to the compound statement, if any.

@@ -220,7 +220,8 @@ class TACGenerator(object):
       if self.env.outer is None:
         self.env[init.id] = GlobalVar(id_)
         # If this is not a function declaration, label it and reserve space
-        if not isinstance(init, syntree.FunDeclarator):
+        if not (isinstance(init, syntree.FunDeclarator) or
+          isinstance(init, syntree.KRFunDeclarator)):
           self.code.append(Label(id_))
           self.code.append(Word(UNINITIALIZED_WORD))
       # Otherwise, if this declaration is local, then map it to a temporary

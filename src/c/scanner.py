@@ -863,6 +863,8 @@ class CScanner(Scanner):
         return cconsume(self._slash)
       elif c == '%':
         return cconsume(self._percent)
+      elif c == '~':
+        return cconsume(self._main, (NotToken(pos),))
       elif c == '&':
         return cconsume(self._amp)
       elif c == '^':

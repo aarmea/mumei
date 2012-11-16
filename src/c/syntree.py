@@ -101,14 +101,13 @@ class ExternalDecl(object):
 class FunDef(ExternalDecl):
   """A function definition"""
 
-  def __init__(self, declarator, decls, stmt):
+  def __init__(self, declarator, stmt):
     self.declarator = declarator
-    self.decls = decls
     self.stmt = stmt
 
   def __repr__(self):
-    return ("%s(declarator=%r, decls=%r, stmt=%r)" % (type(self).__name__,
-      self.declarator, self.decls, self.stmt))
+    return ("%s(declarator=%r, stmt=%r)" % (type(self).__name__,
+      self.declarator, self.stmt))
 
 # Declarations
 
@@ -116,11 +115,12 @@ class FunDef(ExternalDecl):
 class Decl(object):
   """A declaration"""
 
-  def __init__(self, inits):
+  def __init__(self, pos, inits):
+    self.pos = pos
     self.inits = inits
 
   def __repr__(self):
-    return "%s(inits=%r)" % (type(self).__name__, self.inits)
+    return "%s(pos=%r, inits=%r)" % (type(self).__name__, self.pos, self.inits)
 
 class DeclSpec(object):
   """A declaration specifier"""
@@ -416,7 +416,7 @@ class ParamDeclaratorSuffix(DirectDeclaratorSuffix):
     declarator."""
     return FunDeclarator(direct, self.params)
 
-class NameDeclaratorSuffix(DirectDeclaratorSuffix):
+class KRDeclaratorSuffix(DirectDeclaratorSuffix):
   """A K&R-style names-only declarator suffix"""
 
   def __init__(self, ids):
@@ -430,7 +430,7 @@ class NameDeclaratorSuffix(DirectDeclaratorSuffix):
     declarator."""
     return KRFunDeclarator(direct, self.ids)
 
-class ParamDecl(Decl):
+class ParamDecl(object):
   """A parameter declaration"""
 
   def __init__(self, declarator):
