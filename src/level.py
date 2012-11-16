@@ -87,31 +87,36 @@ class Level(object):
           self.__ui.popState()
           break
 
-        # Temporary screen move stuff
-        elif e.key == pygame.K_LEFT:
-          self.x -= 0.5
-        elif e.key == pygame.K_RIGHT:
-          self.x += 0.5
-        elif e.key == pygame.K_UP:
-          self.y += 0.5
-        elif e.key == pygame.K_DOWN:
-          self.y -= 0.5
-        elif e.key == pygame.K_w:
-          self.xrot -= 5
-        elif e.key == pygame.K_s:
-          self.xrot += 5
-        elif e.key == pygame.K_a:
-          self.yrot -= 5
-        elif e.key == pygame.K_d:
-          self.yrot += 5
-        elif e.key == pygame.K_i:
-          pass
-        elif e.key == pygame.K_j:
-          self._player.relMove(self, (-1, 0))
-        elif e.key == pygame.K_k:
-          pass
-        elif e.key == pygame.K_l:
-          self._player.relMove(self, (1, 0))
+        # Temporary screen move stuff, trigger with right alt
+        elif pygame.key.get_mods() & pygame.KMOD_RALT:
+          if e.key == pygame.K_LEFT:
+            self.x -= 0.5
+          elif e.key == pygame.K_RIGHT:
+            self.x += 0.5
+          elif e.key == pygame.K_UP:
+            self.y += 0.5
+          elif e.key == pygame.K_DOWN:
+            self.y -= 0.5
+          elif e.key == pygame.K_w:
+            self.xrot -= 5
+          elif e.key == pygame.K_s:
+            self.xrot += 5
+          elif e.key == pygame.K_a:
+            self.yrot -= 5
+          elif e.key == pygame.K_d:
+            self.yrot += 5
+          elif e.key == pygame.K_i:
+            pass
+          elif e.key == pygame.K_j:
+            self._player.relMove(self, (-1, 0))
+          elif e.key == pygame.K_k:
+            pass
+          elif e.key == pygame.K_l:
+            self._player.relMove(self, (1, 0))
+
+        else:
+          # Send all other keypresses to the text editor
+          self._text.handleKeyPress(e.key, e.unicode)
     return False
 
   def draw(self, time):
