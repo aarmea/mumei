@@ -18,10 +18,10 @@ def visitable(cls):
       return visitor.visitFoo(self)
   """
 
-  def accept(self, visitor):
+  def accept(self, visitor, *args):
     # Grab the visitXXX function
     visit = getattr(visitor, "visit%s" % cls.__name__)
-    return visit(self)
+    return visit(self, *args)
 
   # Add the accept function to the class
   setattr(cls, "accept", accept)

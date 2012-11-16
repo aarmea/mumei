@@ -28,10 +28,10 @@ class TACGenerator(object):
 
   visitXXX functions accept a syntax tree node and return a node-specific value.
 
-  visitXXX functions for expressions return a pair containing a variable that
-  holds the value of the expression and a variable that holds the address of the
-  result (for expressions returning lvalues, or None if the result is an
-  rvalue).
+  visitXXX functions for expressions accept a syntax tree node and a boolean
+  parameter that determines whether to return an lvalue or an rvalue variable.
+  In the case of an lvalue, a variable containing the address of the result is
+  returned.
   """
 
   def __init__(self):
@@ -53,37 +53,48 @@ class TACGenerator(object):
     """Remove the current environment from the environment stack"""
     self.env = self.env.outer
 
-  def visitConstExpr(self, node):
+  def visitConstExpr(self, node, lvalue=False):
     """Generate code for a constant expression"""
+    # A constant is not an lvalue
+    if lvalue:
+      return None
+
     # Allocate a temporary variable for the constant
     var = next(self.varGen)
     # Assign the constant value to the variable
     self.code.append(Assign(var, node.val))
 
-    return (var, None)
+    return var
 
-  def visitVarExpr(self, node):
+  def visitVarExpr(self, node, lvalue=False):
     """Generate code for a variable expression"""
     # Look up the variable binding
     var = self.env.find(node.id)[node.id]
-    # Generate a variable containing the address of the result since this is an
-    # lvalue.
-    addrVar = next(self.varGen)
-    self.code.append(AddressOf(addrVar, var))
 
-    return (var, addrVar)
+    if lvalue:
+      # Generate a variable containing the address of the result
+      addrVar = next(self.varGen)
+      self.code.append(AddressOf(addrVar, var))
 
-  def visitCallExpr(self, node):
+      return addrVar
+    else:
+      return var
+
+  def visitCallExpr(self, node, lvalue=False):
     """Generate code for a function call expression"""
+    # The result of a call is not an lvalue
+    if lvalue:
+      return None
+
     # Allocate a temporary variable for the return value
     var = next(self.varGen)
     # Generate code to grab the function address
-    _, funAddrVar = node.funExpr.accept(self)
+    funAddrVar = node.funExpr.accept(self, True)
 
     # Generate code for the expressions used as function arguments, pushing the
     # actual arguments on the parameter stack.
     for expr in node.argExprs:
-      argVar, _ = expr.accept(self)
+      argVar = expr.accept(self)
       self.code.append(PushParam(argVar))
 
     # Generate the call instruction
@@ -91,61 +102,76 @@ class TACGenerator(object):
     # Clean up the stack
     self.code.append(PopParams(len(node.argExprs)))
 
-    return (var, None)
+    return var
 
-  def visitDerefExpr(self, node):
+  def visitDerefExpr(self, node, lvalue=False):
     """Generate code for a dereference expression"""
-    # Allocate a temporary variable for the value at the memory location.
-    var = next(self.varGen)
     # Generate code for the expression to dereference
-    addrVar, _ = node.expr.accept(self)
-    # Load the value at the memory location into the temporary variable.
-    self.code.append(Load(var, addrVar))
+    addrVar = node.expr.accept(self)
 
-    return (var, addrVar)
+    if lvalue:
+      return addrVar
+    else:
+      # Allocate a temporary variable for the value at the memory location.
+      var = next(self.varGen)
+      # Load the value at the memory location into the temporary variable.
+      self.code.append(Load(var, addrVar))
 
-  def visitAssignExpr(self, node):
+      return var
+
+  def visitAssignExpr(self, node, lvalue=False):
     """Generate code for an assignment expression"""
-    # Generate code to the address of the variable (can only assign to an
-    # lvalue)
-    _, addrVar = node.lexpr.accept(self)
+    # The result of an assignment is not an lvalue
+    if lvalue:
+      return None
+
+    # Generate code for the address of the variable
+    addrVar = node.lexpr.accept(self, True)
     # Generate code for the right side of the assignment
-    rvar, _ = node.rexpr.accept(self)
+    rvar = node.rexpr.accept(self)
     # Store the right side result in the lvalue
     self.code.append(Store(addrVar, rvar))
 
-    return (rvar, None)
+    return rvar
 
-  def visitLessThanExpr(self, node):
+  def visitLessThanExpr(self, node, lvalue=False):
     """Generate code for a less-than expression"""
+    # The result of a less-than expression is not an lvalue
+    if lvalue:
+      return None
+
     # Allocate a temporary variable for the result
     var = next(self.varGen)
     # Generate code for the left side of the comparison
-    lvar, _ = node.lexpr.accept(self)
+    lvar = node.lexpr.accept(self)
     # Generate code for the right side of the comparison
-    rvar, _ = node.rexpr.accept(self)
+    rvar = node.rexpr.accept(self)
     # Generate the comparison instruction
     self.code.append(LessThan(var, lvar, rvar))
 
-    return (var, None)
+    return var
 
-  def visitAddExpr(self, node):
+  def visitAddExpr(self, node, lvalue=False):
     """Generate code for an addition expression"""
+    # The result of an addition expression is not an lvalue
+    if lvalue:
+      return None
+
     # Allocate a temporary variable for the result
     var = next(self.varGen)
     # Generate code for the left side of the expression
-    lvar, _ = node.lexpr.accept(self)
+    lvar = node.lexpr.accept(self)
     # Generate code for the right side of the expression
-    rvar, _ = node.rexpr.accept(self)
+    rvar = node.rexpr.accept(self)
     # Generate an addition instruction
     self.code.append(Add(var, lvar, rvar))
 
-    return (var, None)
+    return var
 
   def visitReturnStmt(self, node):
     """Generate code for a return statement"""
     # Generate code for the expression to return
-    var, _ = node.expr.accept(self)
+    var = node.expr.accept(self)
     # Generate the function epilogue
     self.code.append(EndFunc(var))
 
@@ -157,7 +183,7 @@ class TACGenerator(object):
     end_ = next(self.labelGen)
 
     # Generate code for the conditional expression
-    var, _ = node.expr.accept(self)
+    var = node.expr.accept(self)
     # Generate a jump to the else part on zero
     self.code.append(IfZeroJump(var, else_.id))
     # Generate code for the true part
@@ -181,7 +207,7 @@ class TACGenerator(object):
     # Generate a label for the beginning of the loop
     self.code.append(Label(begin_.id))
     # Generate code for the conditional expression
-    var, _ = node.expr.accept(self)
+    var = node.expr.accept(self)
     # Generate an instruction to jump to the end of the loop on zero
     self.code.append(IfZeroJump(var, end_.id))
     # Generate code for the body of the loop
