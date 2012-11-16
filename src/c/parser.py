@@ -19,7 +19,7 @@ def setMinimumRecursionLimit(minLimit):
 
 # This module relies heavily on recursion, so ensure that the stack is larger
 # than the default.
-setMinimumRecursionLimit(10000)
+setMinimumRecursionLimit(20000)
 
 def partition(pred, iterable):
   """Return a pair of lists of elements that do and do not satisfy the
