@@ -7,6 +7,11 @@ import re
 import select
 import sys
 
+import c.error as error
+import c.scanner as scanner
+import c.parser as parser
+import c.tacgen as tacgen
+import vm.tactrans as tactrans
 import vm.bytecode as bytecode
 
 helpstr = """Command prompt:
@@ -17,10 +22,15 @@ helpstr = """Command prompt:
      |   `-- command
      `-- cursor location in memory (hex)
 
+ >>> 08: comp int f(int x) { return x + 9; }
+              ^-- C program
+
 Commands:
  ?, help         Display this message
  a, asm  <inst>  Assemble an instruction and store the resulting bytecode at
                   the current location
+ c, comp <prog>  Compile a C program and store the resulting bytecode
+                  at the current location
     dis  <addr>  Disassemble the instruction at the given address (hex)
  d, dump         Dump the current processor state
  g, go   <addr>  Set the current location to the given memory address (hex)
@@ -102,6 +112,22 @@ def disasm(proc, addr):
   seq = proc.memSeq(addr)
   return str(bytecode.Instruction.decode(seq))
 
+def comp(s):
+  """Compile a C program and return its instruction words."""
+  try:
+    ts = list(scanner.tokens(scanner.scan(s)))
+    ast = parser.parse(ts)
+    tac = ast.accept(tacgen.TACGenerator())
+    return tactrans.translate(tac)
+  except scanner.ScanError, e:
+    raise CompileError("scan error: %s" % e)
+  except parser.SyntaxError, e:
+    raise CompileError("syntax error: %s" % e)
+  except error.CompileError, e:
+    raise CompileError("compile error: %s" % e)
+  except NotImplementedError, e:
+    raise CompileError("not implemented: %s" % e)
+
 def dump(proc):
   """Dump a processor's state."""
   width = 8
@@ -162,6 +188,19 @@ def main():
               print "Assembled %d words at %02X" % (len(words), addr)
             except AssembleError, e:
               print "Assembly error: %s" % e
+        elif lcmd == "c" or lcmd == "comp":
+          if len(parts) != 2:
+            print "Usage: comp <program>"
+          else:
+            addr = cursor
+            try:
+              words = comp(parts[1])
+              for word in words:
+                proc.setMem(cursor, word)
+                cursor = (cursor + 1) % proc.memWords
+              print "Compiled %d words at %02X" % (len(words), addr)
+            except CompileError, e:
+              print "Compile error: %s" % e
         elif lcmd == "dis":
           parts = line.split()
           if len(parts) != 2:
