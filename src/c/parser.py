@@ -594,7 +594,7 @@ def mkParamDecl(specs, declarator_):
   return syntree.ParamDecl(declarator_)
 
 paramDecl = (
-  mbind(lambda *a: declSpecs(*a), lambda specs: # deferred
+  mbind(lambda *a: declSpecs(*a), lambda specs: # defer
   mbind(declarator, lambda declarator_:
   mreturn(mkParamDecl(specs, declarator_)))))
 
@@ -647,6 +647,26 @@ pointer = (
 #   '[' constant-expression? ']' direct-declarator-suffix? # XXX Not implemented
 #   '(' parameter-type-list ')' direct-declarator-suffix?
 #   '(' identifier-list? ')' direct-declarator-suffix?
+paramDirectDeclaratorSuffixLook = lookAhead(
+  mbind(lparenToken, lambda _:
+    paramTypeList))
+paramDirectDeclaratorSuffix = (
+  mbind(try_(paramDirectDeclaratorSuffixLook), lambda _:
+  mbind(lparenToken, lambda _:
+  mbind(paramTypeList, lambda params:
+  mbind(rparenToken, lambda _:
+  mreturn(syntree.ParamDeclaratorSuffix(params)))))))
+krDirectDeclaratorSuffix = (
+  mbind(lparenToken, lambda _:
+  mbind(option([], identifierList), lambda ids:
+  mbind(rparenToken, lambda _:
+  mreturn(syntree.KRDeclaratorSuffix(ids))))))
+directDeclaratorSuffix = mplus(paramDirectDeclaratorSuffix,
+  krDirectDeclaratorSuffix)
+
+# direct-declarator:
+#   identifier direct-declarator-suffix?
+#   '(' declarator ')' direct-declarator-suffix?
 nameDirectDeclarator = (
   mbind(identifierToken, lambda id_:
   mreturn(syntree.NameDeclarator(id_.val))))
@@ -655,22 +675,6 @@ nestedDirectDeclarator = (
   mbind(declarator, lambda declarator:
   mbind(rparenToken, lambda _:
   mreturn(declarator)))))
-paramDirectDeclaratorSuffix = (
-  mbind(lparenToken, lambda _:
-  mbind(paramTypeList, lambda params:
-  mbind(rparenToken, lambda _:
-  mreturn(syntree.ParamDeclaratorSuffix(params))))))
-nameDirectDeclaratorSuffix = (
-  mbind(lparenToken, lambda _:
-  mbind(option([], identifierList), lambda ids:
-  mbind(rparenToken, lambda _:
-  mreturn(syntree.NameDeclaratorSuffix(ids))))))
-directDeclaratorSuffix = mplus(paramDirectDeclaratorSuffix,
-  nameDirectDeclaratorSuffix)
-
-# direct-declarator:
-#   identifier direct-declarator-suffix?
-#   '(' declarator ')' direct-declarator-suffix?
 directDeclarator = (
   mbind(mplus(nameDirectDeclarator, nestedDirectDeclarator), lambda direct:
   mbind(many(directDeclaratorSuffix), lambda suffixes:
@@ -684,7 +688,7 @@ def mkPointerDeclarator(cvs, direct):
     cvs, direct)
 
 pointerDeclarator = (
-  mbind(lookAhead(try_(starToken)), lambda _:
+  mbind(try_(lookAhead(starToken)), lambda _:
   mbind(pointer, lambda cvs:
   mbind(directDeclarator, lambda direct:
   mreturn(mkPointerDeclarator(cvs, direct))))))

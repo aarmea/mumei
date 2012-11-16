@@ -416,7 +416,7 @@ class ParamDeclaratorSuffix(DirectDeclaratorSuffix):
     declarator."""
     return FunDeclarator(direct, self.params)
 
-class NameDeclaratorSuffix(DirectDeclaratorSuffix):
+class KRDeclaratorSuffix(DirectDeclaratorSuffix):
   """A K&R-style names-only declarator suffix"""
 
   def __init__(self, ids):
