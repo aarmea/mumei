@@ -88,7 +88,7 @@ def asm(s):
     raise AssembleError("syntax error")
 
   try:
-    opcls = bytecode.Instruction.frommnemonic(mo.group(1))
+    opcls = bytecode.Instruction.fromMnemonic(mo.group(1))
   except KeyError:
     raise AssembleError("unknown instruction")
 
