@@ -240,7 +240,7 @@ class Level(object):
     glLoadIdentity()
 
     # Temporary screen move stuff
-    glTranslate(self.x * 3 / 2 - 0.5, (self.y - 1), 0)
+    glTranslate(self.x * 3 / 2 - 0.5, (self.y + 2), 0)
     glRotate(self.xrot, 1, 0, 0)
     glRotate(self.yrot, 0, 1, 0)
 
