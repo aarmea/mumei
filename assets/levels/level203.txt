@@ -1,0 +1,17 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+  int x: an integer value that represents the current
+         x coordinate of the robot
+
+  distx(): a function that returns the distance from 
+           robot to the goal
+
+  colorchange(int color): a function that changes the 
+                          robot's eye color depending on
+                          the integer specified
+    0 - Gray (default) 
+    1 - Red
+    2 - Blue
+    3 - Green

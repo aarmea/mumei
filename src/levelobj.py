@@ -161,10 +161,9 @@ class Ladder(Transport):
 
   def __init__(self, pos, spritesheet):
     self._uinit(pos, spritesheet)
-    self._sides[1].append("wall.png")
-    self._sides[1].append("ladder.png")
 
-class LadderLeft(Transport):
+
+class LadderLeft(Ladder):
   """A ladder"""
 
   def __init__(self, pos, spritesheet):
@@ -172,7 +171,7 @@ class LadderLeft(Transport):
     self._sides[1].append("wall.png")
     self._sides[4].append("ladder.png")
 
-class LadderLeftFloor(Transport):
+class LadderLeftFloor(Ladder):
   """A ladder"""
 
   def __init__(self, pos, spritesheet):
@@ -180,7 +179,7 @@ class LadderLeftFloor(Transport):
     self._sides[1].append("wall-floor.png")
     self._sides[4].append("ladder.png")
 
-class LadderRight(Transport):
+class LadderRight(Ladder):
   """A ladder"""
 
   def __init__(self, pos, spritesheet):
@@ -188,7 +187,7 @@ class LadderRight(Transport):
     self._sides[1].append("wall.png")
     self._sides[5].append("ladder.png")
 
-class LadderRightFloor(Transport):
+class LadderRightFloor(Ladder):
   """A ladder"""
 
   def __init__(self, pos, spritesheet):
