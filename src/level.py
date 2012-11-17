@@ -40,13 +40,14 @@ class Level(object):
 
   levelDir = "../assets/levels/"
 
-  def __init__(self, ui, levelFile):
+  def __init__(self, ui, levelName):
     self.__ui = ui
     self._height = 0
     self._width = 0
     self._objects = [ [] ]
     self._startPos = (0, 0)
     self._doorPos = (0, 0)
+    self._helpText = ""
 
     # Temporary screen move stuff
     self.t = 0.0
@@ -60,10 +61,10 @@ class Level(object):
     # Load level assets
     self.spritesheet = TileSet("../assets/", "spritesheet")
     self.charset = CharacterSet("../assets/font.png")
-    self.load(levelFile)
+    self.load(levelName)
 
     self._text = TextEditor((0, 5.75), (51, 48), self.charset, SAMPLE_CODE)
-    self._debug = TextBox((-8, -1), (51, 21), self.charset, SAMPLE_CODE)
+    self._debug = TextBox((-8, -1), (51, 21), self.charset, self._helpText)
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
@@ -71,10 +72,10 @@ class Level(object):
     self._vars = {}
     self.procRunning = False
 
-  def load(self, levelFile):
-    """Load a level from a CSV file."""
-    with open(self.levelDir + levelFile, 'rb') as file:
-      csvFile = csv.reader(file)
+  def load(self, levelName):
+    """Load a level from a level base name."""
+    with open(self.levelDir + levelName + ".csv", 'rb') as levelfile:
+      csvFile = csv.reader(levelfile)
       objects = []
       for y, row in enumerate(csvFile):
         # Update the level's dimensions
@@ -110,8 +111,11 @@ class Level(object):
       self.x = -self._width / 2
       self.y = -self._height / 2
 
-      print "Level: loaded", levelFile
-      file.close()
+      with open(self.levelDir + levelName + ".txt", 'rb') as helptext:
+        self._helpText = helptext.read()
+        helptext.close()
+
+      print "Level: loaded", levelName
 
   def compile(self):
     """Compile the source code in the text box, loading it into the

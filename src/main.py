@@ -145,9 +145,9 @@ class LevelMenu(PlainMenu):
 
   def handleEvents(self, events):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
-    MasterLevelDictonary = [ ["level100.csv", "level101.csv", "level102.csv", "level103.csv", "level104.csv"], 
-                             ["level200.csv", "level201.csv", "level202.csv", "level203.csv", "level204.csv"],
-                             ["level300.csv", "level301.csv", "level302.csv", "level303.csv", "level304.csv"] ] 
+    MasterLevelDictonary = [ ["level100", "level101", "level102", "level103", "level104"],
+                             ["level200", "level201", "level202", "level203", "level204"],
+                             ["level300", "level301", "level302", "level303", "level304"] ]
     for e in events:
       if e.type == pygame.QUIT:
         return True
@@ -170,18 +170,18 @@ class LevelMenu(PlainMenu):
           return True
     return False
 
-  def userSelectLevel(self, csvfile):
-    self._ui.pushState(LevelScreen(self._ui, csvfile)) # push the state for that level splash screen
+  def userSelectLevel(self, basename):
+    self._ui.pushState(LevelScreen(self._ui, basename)) # push the state for that level splash screen
 
 class LevelScreen(PlainMenu):
   """The level screen - splash"""
 
-  def __init__(self, ui, csvfile):
+  def __init__(self, ui, basename):
     super(LevelScreen, self).__init__(ui, "../assets/background2.png")
-    self.csvfile = csvfile
+    self.basename = basename
 
   def userSelect(self):
-    self._ui.pushState(Level(self._ui, self.csvfile))
+    self._ui.pushState(Level(self._ui, self.basename))
 
 def main():
   """Create and run the UI."""
