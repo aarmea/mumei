@@ -1,0 +1,11 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+  moveX(int distance): is a function which 
+                       moves robot right 
+                       one block
+  climb(): climbs the length of the latter
+           as long as it is at the base
+
+  

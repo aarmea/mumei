@@ -1,0 +1,8 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+  moveX(): is a functionwhich moves 
+           robot right one block
+
+  
