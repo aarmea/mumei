@@ -14,6 +14,7 @@ class LevelObject(object):
   _dHealth = 0
   _blocking = False
 
+  _walkSpeed = 0
   _moving = False
   _moveStep = (1.0, 1.0)
   _dest = (0, 0)
@@ -51,8 +52,8 @@ class LevelObject(object):
         return
 
       self._dest = (self._pos[0] + dx, self._pos[1] + dy)
-      self._moveStep = (float(self._dest[0] - self._pos[0]) / 16, 
-                        float(self._dest[1] - self._pos[1]) / 16)
+      self._moveStep = (float(self._dest[0] - self._pos[0])*self._walkSpeed, 
+                        float(self._dest[1] - self._pos[1])*self._walkSpeed)
       self._moving = True
 
   def onActorCollide(self, actor):
@@ -279,8 +280,7 @@ class Actor(LevelObject):
   """The player and enemies"""
 
   _blocking = True
-  _walkSpeed = 1
-  _jumpSpeed = 1
+  _walkSpeed = 0.25
   health = 100  
   maxHealth = 100
 
