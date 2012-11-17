@@ -20,6 +20,10 @@ class TextBox(object):
     self._buffer = [list(thing) for thing in text.split("\n")]
     self._cursorPos = (len(self._buffer)-1, len(self._buffer[-1]))
 
+  def _getText(self):
+    """Return a string containing the contents of the buffer."""
+    return "\n".join("".join(row) for row in self._buffer)
+
   def draw(self):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
@@ -52,6 +56,8 @@ class TextBox(object):
         self._charset.tileCoord(char, 0, 1)
         glVertex3f(col, -line+1, 0)
     glEnd()
+
+  text = property(_getText)
 
 class TextEditor(TextBox):
   """An OpenGL text editor"""

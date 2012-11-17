@@ -91,6 +91,9 @@ class Level(object):
           self.__ui.popState()
           break
 
+        elif e.key == pygame.K_F5:
+          print self._text.text
+
         # Temporary screen move stuff, trigger with right alt
         elif pygame.key.get_mods() & pygame.KMOD_RALT:
           if e.key == pygame.K_LEFT:
