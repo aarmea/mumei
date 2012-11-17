@@ -2,9 +2,38 @@ import csv
 from OpenGL.GL import *
 import pygame
 
+import c.error
+import c.scanner
+import c.parser
+import c.tacgen
+import vm.tactrans
+import vm.bytecode
+
 import levelobj
 from textureatlas import *
 from textbox import *
+
+SAMPLE_CODE = """extern int move;
+
+int main()
+{
+  int i;
+
+  while (1) {
+    i = 0;
+    while (i < 4) {
+      move = 1;
+      i = i + 1;
+    }
+    while (i < 8) {
+      move = 0xFFFF;
+      i = i + 1;
+    }
+  }
+
+  return 0;
+}
+"""
 
 class Level(object):
   """A level"""
@@ -33,11 +62,13 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelFile)
 
-    self._text = TextEditor((0, 5.75), (32, 48), self.charset,
-                            "This is some text.\nIt's not pretty.\n...but.")
+    self._text = TextEditor((0, 5.75), (32, 48), self.charset, SAMPLE_CODE)
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
+
+    self._vars = {}
+    self.procRunning = False
 
   def load(self, levelFile):
     """Load a level from a CSV file."""
@@ -81,6 +112,59 @@ class Level(object):
       print "Level: loaded", levelFile
       file.close()
 
+  def compile(self):
+    """Compile the source code in the text box, loading it into the
+    processor."""
+    # Get the source code
+    source = self._text.text
+
+    print "Compiling..."
+
+    # Compile
+    try:
+      tokens = list(c.scanner.tokens(c.scanner.scan(source)))
+      syntree = c.parser.parse(tokens)
+      tac = syntree.accept(c.tacgen.TACGenerator())
+      words, labels = vm.tactrans.translate(tac)
+    except c.error.CompileError, e:
+      print "compile error:", e
+      return False
+    except BaseException, e:
+      print "unhandled compile error:", e
+      return False
+
+    print "Code compiled successfully"
+
+    # Create a new processor
+    self._proc = vm.bytecode.Processor(memWords=256)
+
+    # Load the bytecode into memory
+    for addr, word in enumerate(words):
+      self._proc.setMem(addr, word)
+
+    print "Linking..."
+
+    # Link to the bytecode
+    self._vars = {}
+    for var in ("main", "move"):
+      try:
+        self._vars[var] = labels[var]
+      except KeyError, e:
+        print "undefined reference to `%s'" % e.args[0]
+        return False
+
+    # Set IP to the entry point
+    entry = self._vars["main"]
+    self._proc.setReg(self._proc.REG_IP, entry)
+
+    # Set the default value for move
+    moveAddr = self._vars["move"]
+    self._proc.setMem(moveAddr, 0)
+
+    print "Code linked successfully"
+
+    return True
+
   def handleEvents(self, events):
     """Handle keyboard input."""
     for e in events:
@@ -92,7 +176,7 @@ class Level(object):
           break
 
         elif e.key == pygame.K_F5:
-          print self._text.text
+          self.procRunning = self.compile()
 
         # Temporary screen move stuff, trigger with right alt
         elif pygame.key.get_mods() & pygame.KMOD_RALT:
@@ -128,6 +212,25 @@ class Level(object):
 
   def draw(self, time):
     """Render the level interface."""
+    # Step the processor
+    if self.procRunning:
+      try:
+        self._proc.step()
+      except BaseException, e:
+        self.procRunning = False
+        print "processor error:", e
+
+      # Get the current move
+      moveAddr = self._vars["move"]
+      move = self._proc.getMem(moveAddr)
+
+      # Sign extend
+      if (move >= 0x8000):
+        move = ~move + 0xFFFF;
+
+      # Move the player
+      self._player.relMove(self, (move, 0))
+
     # Draw
     glClearColor(0, 0, 1, 1)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
