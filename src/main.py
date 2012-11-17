@@ -136,7 +136,7 @@ class LevelMenu(PlainMenu):
   """The main level menu - interactable"""
 
   def __init__(self, ui):
-    super(LevelMenu, self).__init__(ui, "../assets/levelmenu.png")
+    super(LevelMenu, self).__init__(ui, "../assets/levelmenu2.png")
     # contains a series of level buttons
     level1button = LevelButton(ui, "../assets/level1mockbutton.png")
 
