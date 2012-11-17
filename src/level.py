@@ -63,6 +63,7 @@ class Level(object):
     self.load(levelFile)
 
     self._text = TextEditor((0, 5.75), (51, 48), self.charset, SAMPLE_CODE)
+    self._debug = TextBox((-8, -1), (51, 21), self.charset, SAMPLE_CODE)
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
@@ -253,3 +254,6 @@ class Level(object):
 
     # Draw the editor
     self._text.draw()
+
+    # Draw the debug view
+    self._debug.draw()
