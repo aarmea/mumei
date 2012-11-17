@@ -2,6 +2,6 @@ wall,floor,floor,floor,floor,floor,floor,floor,wall
 wall,back,back,back,back,back,back,back,wall
 wall,back,back,back,back,back,back,back,wall
 wall,back,back,back,back,back,back,back,wall
-wall,back,back,back,back,back,back,back,wall
-wall,start,backF,backF,backF,backF,backF,door,wall
+wall,start,back,back,back,back,back,back,wall
+wall,doorR,backF,backF,backF,backF,backF,backF,wall
 floor,floor,floor,floor,floor,floor,floor,floor,floor

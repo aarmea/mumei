@@ -211,6 +211,22 @@ class Door(Transport):
 
     self._sides[1].append("door.png")
 
+class DoorR(Transport):
+  """A door, which is usually the level's goal"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+
+    self._sides[1].append("doorR.png")
+
+class DoorG(Transport):
+  """A door, which is usually the level's goal"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+
+    self._sides[1].append("doorG.png")
+
 class Barrier(LevelObject):
   """A barrier that blocks the player"""
 
@@ -299,6 +315,8 @@ NAMES = {
   "ladderR" : LadderRight,
   "ladderRF" : LadderRightFloor,
   "door" : Door,
+  "doorR" : DoorR,
+  "doorG" :DoorG,
   "barrier" : Barrier,
   "wall" : Wall,
   "skeleton" : Skeleton,

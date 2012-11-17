@@ -1,0 +1,6 @@
+int C : an integer value that 
+        represents the robot's eyes
+  1 - Red
+  2 - Blue
+  3 - Green
+  4 - Gray (default) 
