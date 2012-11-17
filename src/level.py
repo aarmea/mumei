@@ -62,7 +62,7 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelFile)
 
-    self._text = TextEditor((0, 5.75), (43, 48), self.charset, SAMPLE_CODE)
+    self._text = TextEditor((0, 5.75), (51, 48), self.charset, SAMPLE_CODE)
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
