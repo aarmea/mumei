@@ -315,8 +315,8 @@ NAMES = {
   "ladderR" : LadderRight,
   "ladderRF" : LadderRightFloor,
   "door" : Door,
-  "doorR" : DoorR
-  "doorG" :DoorG
+  "doorR" : DoorR,
+  "doorG" :DoorG,
   "barrier" : Barrier,
   "wall" : Wall,
   "skeleton" : Skeleton,
