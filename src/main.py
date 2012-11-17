@@ -126,6 +126,38 @@ class WelcomeScreen(PlainMenu):
   def userSelect(self):
     self._ui.pushState(LevelMenu(self._ui))
 
+class TutorialScreen(PlainMenu):
+  """The tutorial screen - splash"""
+
+  def __init__(self, ui, csvfile, tutorialfiles):
+    super(TutorialScreen, self).__init__(ui, tutorialfiles) # contains series of imagefiles
+    #self.lastpage = lastpage # is it the last page of the tutorial?
+    self.csvfile = csvfile
+    self.tutorialfiles = tutorialfiles
+
+  def handleEvents(self, events):
+    """Handle keyboard input for skipping through tutorial. Returns True if the game should quit."""
+    for e in events:
+        if e.type == pygame.QUIT:
+          return True
+        elif e.type == pygame.KEYDOWN:
+          #if e.key == pygame.K_UP:
+          #  self.userUp()
+          #elif e.key == pygame.K_DOWN:
+          #  self.userDown()
+          if e.key == pygame.K_ESCAPE:
+            self.userBack()
+          elif e.key == pygame.K_SPACE:
+            self.userSkip()
+          elif e.key == pygame.K_q:
+            return True
+    return False
+
+  def userSkip(self):
+    """ Move on to level """
+    #self._ui.pushState(TutorialScreen(self._ui, lastpage, imgfile))
+    self._ui.pushState(LevelScreen(self._ui, self.csvfile)) # push the state for that level splash screen
+
 class LevelButton(object):
   """Faux button that indicates available level choices"""
   def __init__(self, ui, imgfile):
@@ -144,7 +176,9 @@ class LevelMenu(PlainMenu):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
     MasterLevelDictonary = [ ["level100.csv", "level101.csv", "level102.csv", "level103.csv", "level104.csv"], 
                              ["level200.csv", "level201.csv", "level202.csv", "level203.csv", "level204.csv"],
-                             ["level300.csv", "level301.csv", "level302.csv", "level303.csv", "level304.csv"] ] 
+                             ["level300.csv", "level301.csv", "level302.csv", "level303.csv", "level304.csv"] ]
+    MasterTutorialDictionary = [ ["../assets/intro_screen.png", "../assets/masterLevel1tutorial.png"] ]
+
     for e in events:
       if e.type == pygame.QUIT:
         return True
@@ -158,7 +192,7 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_ESCAPE:
           self.userBack()
         elif e.key == pygame.K_1:
-          self.userSelectLevel(MasterLevelDictonary[0][0])
+          self.userSelectLevel(MasterLevelDictonary[0][0], MasterTutorialDictionary[0][0])
         elif e.key == pygame.K_2:
           self.userSelectLevel(MasterLevelDictonary[1][0])
         elif e.key == pygame.K_3:
@@ -167,8 +201,10 @@ class LevelMenu(PlainMenu):
           return True
     return False
 
-  def userSelectLevel(self, csvfile):
-    self._ui.pushState(LevelScreen(self._ui, csvfile)) # push the state for that level splash screen
+  def userSelectLevel(self, csvfile, tutorialfiles):
+    self._ui.pushState(TutorialScreen(self._ui, csvfile, tutorialfiles))
+    #self._ui.pushState(LevelScreen(self._ui, csvfile)) # push the state for that level splash screen
+    # TutorialScreen will push the level state intstead..
 
 class LevelScreen(PlainMenu):
   """The level screen - splash"""
