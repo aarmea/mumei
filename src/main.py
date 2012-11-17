@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import threading
 from OpenGL.GL import *
 import pygame
 
@@ -186,4 +187,7 @@ def main():
   ui.run()
 
 if __name__ == "__main__":
-  main()
+  # Windows 64 fix, see http://stackoverflow.com/questions/2917210/
+  threading.stack_size(67108864)
+  thread = threading.Thread(target=main)
+  thread.start()
