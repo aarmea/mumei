@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import threading
+import os
+
 from OpenGL.GL import *
 import pygame
 
@@ -187,7 +189,12 @@ def main():
   ui.run()
 
 if __name__ == "__main__":
-  # Windows 64 fix, see http://stackoverflow.com/questions/2917210/
-  threading.stack_size(67108864)
-  thread = threading.Thread(target=main)
-  thread.start()
+  print "Mumei running on", os.name
+  if os.name == "nt":
+    print "Increasing the stack size to 64MB..."
+    # Windows 64 fix, see http://stackoverflow.com/questions/2917210/
+    threading.stack_size(67108864)
+    thread = threading.Thread(target=main)
+    thread.start()
+  else:
+    main()
