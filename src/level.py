@@ -68,6 +68,7 @@ class Level(object):
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
+    # self._player.relMove(self, (0, -1))
 
     self._vars = {}
     self.procRunning = False
@@ -252,6 +253,9 @@ class Level(object):
     for row in self._objects:
       for block in row:
         block.draw()
+
+    # Gravity
+    self._player.relMove(self, (0, -1))
 
     # Draw the movable objects
     self._player.draw()

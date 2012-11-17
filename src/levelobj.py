@@ -50,7 +50,7 @@ class LevelObject(object):
                         [int(self._pos[1] + dy - 1)]._blocking):
         return
 
-      self._dest = (self._pos[0] + dx, self._pos[1], + dy)
+      self._dest = (self._pos[0] + dx, self._pos[1] + dy)
       self._moveStep = (float(self._dest[0] - self._pos[0]) / 16, 
                         float(self._dest[1] - self._pos[1]) / 16)
       self._moving = True
