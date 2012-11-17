@@ -79,7 +79,8 @@ def _getAddrOperand(localVars, patches, patchOff, var):
     assert False
 
 def translate(tac):
-  """Translate a three-address code sequence to a bytecode sequence."""
+  """Translate a three-address code sequence to a bytecode sequence, returning
+  the bytecode and a dictionary of labels for external linkage."""
   code = []
 
   def appendInst(inst):
@@ -329,4 +330,4 @@ def translate(tac):
     assert code[off] == PATCH_WORD
     code[off] = labels[label]
 
-  return code
+  return (code, labels)
