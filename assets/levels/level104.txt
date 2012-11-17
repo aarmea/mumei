@@ -1,0 +1,19 @@
+int x: an integer value representing
+       the robots's x coordinate
+  0 - starting position
+
+int y: an integer value representing
+       the robots's y coordinate
+  0 - starting position
+
+int disty: an integer value 
+           representing how high 
+           the robot needs to climb
+
+int c: an integer value representing
+       the robot's eye color
+  0 - Gray (default) 
+  1 - Red
+  2 - Blue
+  3 - Green
+  
