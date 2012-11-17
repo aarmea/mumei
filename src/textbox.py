@@ -10,6 +10,9 @@ from textureatlas import *
 class TextBox(object):
   """A read-only OpenGL text box"""
 
+  CHOPL, CHOPR = 0.125, 0.875
+  SCALEX = abs(CHOPL-CHOPR)
+
   def __init__(self, pos, size, charset, text):
     self._buffer = []
     self._pos = pos
@@ -44,17 +47,17 @@ class TextBox(object):
           char = " "
 
         # Draw a quad
-        self._charset.tileCoord(char, 0, 0)
-        glVertex3f(col, -line, 0)
+        self._charset.tileCoord(char, self.CHOPL, 0)
+        glVertex3f(col*self.SCALEX, -line, 0)
 
-        self._charset.tileCoord(char, 1, 0)
-        glVertex3f(col+1, -line, 0)
+        self._charset.tileCoord(char, self.CHOPR, 0)
+        glVertex3f((col+1)*self.SCALEX, -line, 0)
 
-        self._charset.tileCoord(char, 1, 1)
-        glVertex3f(col+1, -line+1, 0)
+        self._charset.tileCoord(char, self.CHOPR, 1)
+        glVertex3f((col+1)*self.SCALEX, -line+1, 0)
 
-        self._charset.tileCoord(char, 0, 1)
-        glVertex3f(col, -line+1, 0)
+        self._charset.tileCoord(char, self.CHOPL, 1)
+        glVertex3f(col*self.SCALEX, -line+1, 0)
     glEnd()
 
   text = property(_getText)
@@ -125,9 +128,9 @@ class TextEditor(TextBox):
     glBegin(GL_QUADS)
     if True:
       glColor4f(1, 1, 1, 1)
-      glVertex3f(self._cursorPos[1]+0.2, -self._cursorPos[0], 0)
-      glVertex3f(self._cursorPos[1]+0.8, -self._cursorPos[0], 0)
-      glVertex3f(self._cursorPos[1]+0.8, -self._cursorPos[0]+0.125, 0)
-      glVertex3f(self._cursorPos[1]+0.2, -self._cursorPos[0]+0.125, 0)
+      glVertex3f((self._cursorPos[1]+0.2)*self.SCALEX, -self._cursorPos[0], 0)
+      glVertex3f((self._cursorPos[1]+0.8)*self.SCALEX, -self._cursorPos[0], 0)
+      glVertex3f((self._cursorPos[1]+0.8)*self.SCALEX, -self._cursorPos[0]+0.125, 0)
+      glVertex3f((self._cursorPos[1]+0.2)*self.SCALEX, -self._cursorPos[0]+0.125, 0)
     glEnd()
 
