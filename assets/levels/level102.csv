@@ -1,7 +1,7 @@
 wall,floor,floor,floor,floor,floor,floor,floor,wall
 wall,back,back,back,back,back,back,back,wall
-wall,back,back,back,back,back,back,door,wall
-wall,back,back,back,back,back,ladderR,floor,wall
-wall,back,back,back,back,back,ladderR,back,wall
-wall,start,backF,backF,backF,backF,ladderRF,backF,wall
+wall,back,back,back,back,back,back,back,wall
+wall,back,back,back,back,back,back,back,wall
+wall,back,back,back,back,back,back,back,wall
+wall,start,backF,backF,backF,backF,backF,doorG,wall
 floor,floor,floor,floor,floor,floor,floor,floor,floor
