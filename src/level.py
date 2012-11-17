@@ -62,7 +62,8 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelFile)
 
-    self._text = TextEditor((0, 5.75), (43, 48), self.charset, SAMPLE_CODE)
+    self._text = TextEditor((0, 5.75), (51, 48), self.charset, SAMPLE_CODE)
+    self._debug = TextBox((-8, -1), (51, 21), self.charset, SAMPLE_CODE)
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
@@ -239,7 +240,7 @@ class Level(object):
     glLoadIdentity()
 
     # Temporary screen move stuff
-    glTranslate(self.x * 3 / 2 - 0.5, (self.y - 1), 0)
+    glTranslate(self.x * 3 / 2 - 0.5, (self.y + 2), 0)
     glRotate(self.xrot, 1, 0, 0)
     glRotate(self.yrot, 0, 1, 0)
 
@@ -253,3 +254,6 @@ class Level(object):
 
     # Draw the editor
     self._text.draw()
+
+    # Draw the debug view
+    self._debug.draw()

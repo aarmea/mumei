@@ -10,7 +10,8 @@ from textureatlas import *
 class TextBox(object):
   """A read-only OpenGL text box"""
 
-  CHOPL, CHOPR = 0.125, 0.875
+  # CHOPL, CHOPR = 0.125, 0.875
+  CHOPL, CHOPR = 0.1875, 0.8125
   SCALEX = abs(CHOPL-CHOPR)
 
   def __init__(self, pos, size, charset, text):
@@ -36,6 +37,7 @@ class TextBox(object):
     self._charset.bind()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glEnable(GL_TEXTURE_2D)
     glDisable(GL_DEPTH_TEST)
 
     glBegin(GL_QUADS)
