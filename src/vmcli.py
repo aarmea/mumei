@@ -118,7 +118,8 @@ def comp(s):
     ts = list(scanner.tokens(scanner.scan(s)))
     ast = parser.parse(ts)
     tac = ast.accept(tacgen.TACGenerator())
-    return tactrans.translate(tac)
+    words, _ = tactrans.translate(tac)
+    return words
   except scanner.ScanError, e:
     raise CompileError("scan error: %s" % e)
   except parser.ParseError, e:
