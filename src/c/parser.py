@@ -276,6 +276,7 @@ addToken = token(lambda t: isinstance(t, scanner.AddToken))
 subToken = token(lambda t: isinstance(t, scanner.SubToken))
 starToken = token(lambda t: isinstance(t, scanner.StarToken))
 ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
+orToken = token(lambda t: isinstance(t, scanner.OrToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
 
@@ -479,12 +480,21 @@ andExpr = (
 #   '^' and-expression exclusive-or-expression-suffix? # XXX Not implemented
 exclOrExpr = andExpr
 
+# inclusive-or-expression-suffix:
+#   '|' exclusive-or-expression inclusive-of-expression-suffix?
+inclOrExprSuffix = (
+  mbind(orToken, lambda _:
+  mbind(exclOrExpr, lambda expr_:
+  mbind(option([], inclOrExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
+
 # inclusive-or-expression:
 #   exclusive-or-expression inclusive-of-expression-suffix?
-#
-# inclusive-or-expression-suffix:
-#   '|' exclusive-or-expression inclusive-of-expression-suffix? # XXX Not impl.
-inclOrExpr = exclOrExpr
+inclOrExpr = (
+  mbind(exclOrExpr, lambda expr_:
+  mbind(option([], inclOrExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.OrExpr(lexpr, rexpr), exprs, expr_)))))
 
 # logical-and-expression:
 #   inclusive-or-expression logical-and-expression-suffix? # XXX Not implemented
