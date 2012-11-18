@@ -260,11 +260,11 @@ class MainMenu(PlainMenu):
     # Switch to the level select menu
     self._ui.pushState(LevelMenu(self._ui))
 
-class TutorialScreen(PlainMenu):
+class Tutorials(PlainMenu):
   """The tutorial screen - splash"""
 
   def __init__(self, ui, basename, tutorialfiles):
-    super(TutorialScreen, self).__init__(ui, tutorialfiles) # contains series of imagefiles
+    super(Tutorials, self).__init__(ui, tutorialfiles[0]) # contains series of imagefiles
     self.basename = basename
     self.tutorialfiles = tutorialfiles
 
@@ -274,12 +274,27 @@ class TutorialScreen(PlainMenu):
       if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_SPACE:
           self.userSkip()
+        elif e.key == pygame.K_RIGHT:
+          self.userNext()
 
-    return super(TutorialScreen, self).handleEvents(events)
+    return super(Tutorials, self).handleEvents(events)
 
   def userSkip(self):
     """ Move on to level """
     self._ui.pushState(LevelScreen(self._ui, self.basename)) # push the state for that level splash screen
+
+  def userNext(self):
+    """ Move to next tutorial screen"""
+    if(len(self.tutorialfiles) > 1): # one left after this, go to next
+      self.tutorialfiles.reverse() # flip order, now first is top
+      self.tutorialfiles.pop() # pop off the top
+      self.tutorialfiles.reverse() # flip back to proper order
+      self._ui.pushState(Tutorials(self._ui, self.basename, self.tutorialfiles))
+    else: # none left, go to level
+      self._ui.pushState(LevelScreen(self._ui, self.basename))
+
+
+
 
 class LevelButton(object):
   """Faux button that indicates available level choices"""
@@ -320,7 +335,7 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_ESCAPE:
           self.userBack()
         elif e.key == pygame.K_1:
-          self.userSelectLevel(self.levelList[0][0], self.tutList[0][0])
+          self.userSelectLevel(self.levelList[0][0], self.tutList[0])
         elif e.key == pygame.K_2:
           self.userSelectLevel(self.levelList[1][0])
         elif e.key == pygame.K_3:
@@ -332,7 +347,7 @@ class LevelMenu(PlainMenu):
     return False
 
   def userSelectLevel(self, basename, tutorialfiles):
-    self._ui.pushState(TutorialScreen(self._ui, basename, tutorialfiles))
+    self._ui.pushState(Tutorials(self._ui, basename, tutorialfiles))
     # TutorialScreen will push the level state intstead..
 
 class LevelScreen(PlainMenu):
