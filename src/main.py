@@ -48,11 +48,6 @@ class UI(object):
     active state."""
     self.stateStack.pop()
 
-  #def drawBackground(self, r, g, b):
-  #  """Fill the background with the given color."""
-  #  glClearColor(r, g, b, 1)
-  #  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
   def run(self):
     """Run the main UI loop."""
     quit = False
