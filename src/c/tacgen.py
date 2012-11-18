@@ -112,6 +112,44 @@ class TACGenerator(object):
 
     return var
 
+  def visitPreIncExpr(self, node, lvalue=False):
+    """Generate code for a pre-increment expression"""
+    # The result of a pre-increment expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    rvar = next(self.varGen)
+    # Generate code for the value of the variable
+    var = node.expr.accept(self)
+    # Generate code for the address of the variable
+    addrVar = node.expr.accept(self, True)
+    # Generate the increment instruction
+    self.code.append(Add(rvar, var, 1))
+    # Store the result in the lvalue
+    self.code.append(Store(addrVar, rvar))
+
+    return rvar
+
+  def visitPreDecExpr(self, node, lvalue=False):
+    """Generate code for a pre-decrement expression"""
+    # The result of a pre-decrement expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    rvar = next(self.varGen)
+    # Generate code for the value of the variable
+    var = node.expr.accept(self)
+    # Generate code for the address of the variable
+    addrVar = node.expr.accept(self, True)
+    # Generate the decrement instruction
+    self.code.append(Sub(rvar, var, 1))
+    # Store the result in the lvalue
+    self.code.append(Store(addrVar, rvar))
+
+    return rvar
+
   def visitAddrOfExpr(self, node, lvalue=False):
     """Generate code for an address-of expression"""
     # The result of an address-of expression is not an lvalue

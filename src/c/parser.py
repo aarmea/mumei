@@ -265,6 +265,8 @@ wcharToken = token(lambda t: isinstance(t, scanner.WCharToken))
 floatToken = token(lambda t: isinstance(t, scanner.FloatToken))
 doubleToken = token(lambda t: isinstance(t, scanner.DoubleToken))
 longDoubleToken = token(lambda t: isinstance(t, scanner.LongDoubleToken))
+incrementToken = token(lambda t: isinstance(t, scanner.IncrementToken))
+decrementToken = token(lambda t: isinstance(t, scanner.DecrementToken))
 semicolonToken = token(lambda t: isinstance(t, scanner.SemicolonToken))
 lcurlyToken = token(lambda t: isinstance(t, scanner.LCurlyToken))
 rcurlyToken = token(lambda t: isinstance(t, scanner.RCurlyToken))
@@ -368,8 +370,8 @@ postfixExpr = (
 
 # unary-expression:
 #   postfix-expression
-#   '++' unary-expression # XXX Not implemented
-#   '--' unary-expression # XXX Not implemented
+#   '++' unary-expression
+#   '--' unary-expression
 #   unary-operator cast-expression
 #   'sizeof' unary-expression # XXX Not implemented
 #   'sizeof' '(' type-name ')' # XXX Not implemented
@@ -381,6 +383,14 @@ postfixExpr = (
 #   '-'
 #   '~'
 #   '!' # XXX Not implemented
+preIncExpr = (
+  mbind(incrementToken, lambda _:
+  mbind(unaryExpr, lambda expr_:
+  mreturn(syntree.PreIncExpr(expr_)))))
+preDecExpr = (
+  mbind(decrementToken, lambda _:
+  mbind(unaryExpr, lambda expr_:
+  mreturn(syntree.PreDecExpr(expr_)))))
 addrOfExpr = (
   mbind(ampersandToken, lambda _:
   mbind(castExpr, lambda expr_:
@@ -398,8 +408,8 @@ notExpr = (
   mbind(notToken, lambda _:
   mbind(castExpr, lambda expr_:
   mreturn(syntree.NotExpr(expr_)))))
-unaryExpr = mplus(mplus(mplus(mplus(mplus(postfixExpr, addrOfExpr),
-  derefExpr), plusExpr), minusExpr), notExpr)
+unaryExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(postfixExpr, preIncExpr),
+  preDecExpr), addrOfExpr), derefExpr), plusExpr), minusExpr), notExpr)
 
 # cast-expression:
 #   unary-expression

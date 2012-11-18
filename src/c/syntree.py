@@ -622,6 +622,14 @@ class UnaryExpr(Expr):
     return "%s(expr=%r)" % (type(self).__name__, self.expr)
 
 @visitable
+class PreIncExpr(UnaryExpr):
+  """A pre-increment expression"""
+
+@visitable
+class PreDecExpr(UnaryExpr):
+  """A pre-decrement expression"""
+
+@visitable
 class AddrOfExpr(UnaryExpr):
   """An address-of expression"""
 
