@@ -8,12 +8,9 @@ ___________________________________________________
                    distance specified 
                    by an integer value
 
-  int floorExist: will have the value of 
-                  1 when the floor tile 
-                  exists, 0 otherwise
-  
-  wait(): a function that halts the robot
-          for one second
-
-  climb(): climbs the length of the ladder
+  int adjacentTo: integer value which is one
+                  when adjacent to a skeleton
+ 
+  punch(): knock a skeleton out of the way
+           only works when adjacent
   

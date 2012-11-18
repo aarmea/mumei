@@ -3,7 +3,7 @@
   F1 - hints     F2  - clear text
 ___________________________________________________ 
   
-  moveX(int dist): is a function which 
+  moveX(int distance): is a function which 
                    moves robot right a 
                    distance specified 
                    by an integer value
@@ -11,9 +11,20 @@ ___________________________________________________
   int floorExist: will have the value of 
                   1 when the floor tile 
                   exists, 0 otherwise
+
+  climb(): climbs the length of the ladder
   
   wait(): a function that halts the robot
           for one second
 
-  climb(): climbs the length of the ladder
-  
+  int doorcolor: this integer changes its 
+               values based on the door's 
+               current color
+               Not for the user to change
+
+  int c: an integer that represents the eye 
+       color of the robot
+    0 - Gray (default) 
+    1 - Red
+    2 - Blue
+    3 - Green
