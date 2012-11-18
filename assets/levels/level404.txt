@@ -1,0 +1,17 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+  
+  moveX(int dist): is a function which 
+                   moves robot right a 
+                   distance specified 
+                   by an integer value
+
+  int FlameRemaining: the amount of safe time remaing
+                      only 2 or greater will ensure safe
+                      crossing
+
+  wait(): a function which causes the robot to 
+          wait for 1 second
+  
