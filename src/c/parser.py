@@ -276,6 +276,7 @@ addToken = token(lambda t: isinstance(t, scanner.AddToken))
 subToken = token(lambda t: isinstance(t, scanner.SubToken))
 starToken = token(lambda t: isinstance(t, scanner.StarToken))
 ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
+xorToken = token(lambda t: isinstance(t, scanner.XorToken))
 orToken = token(lambda t: isinstance(t, scanner.OrToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
@@ -473,12 +474,21 @@ andExpr = (
   mreturn(reduce(lambda lexpr, rexpr:
     syntree.AndExpr(lexpr, rexpr), exprs, expr_)))))
 
+# exclusive-or-expression-suffix:
+#   '^' and-expression exclusive-or-expression-suffix?
+exclOrExprSuffix = (
+  mbind(xorToken, lambda _:
+  mbind(andExpr, lambda expr_:
+  mbind(option([], exclOrExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
+
 # exclusive-or-expression:
 #   and-expression exclusive-or-expression-suffix?
-#
-# exclusive-or-expression-suffix:
-#   '^' and-expression exclusive-or-expression-suffix? # XXX Not implemented
-exclOrExpr = andExpr
+exclOrExpr = (
+  mbind(andExpr, lambda expr_:
+  mbind(option([], exclOrExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.XorExpr(lexpr, rexpr), exprs, expr_)))))
 
 # inclusive-or-expression-suffix:
 #   '|' exclusive-or-expression inclusive-of-expression-suffix?

@@ -167,6 +167,10 @@ class TACGenerator(object):
     """Generate code for a bitwise AND expression"""
     return self.visitBinOpExpr(node, lvalue, And)
 
+  def visitXorExpr(self, node, lvalue=False):
+    """Generate code for a bitwise XOR expression"""
+    return self.visitBinOpExpr(node, lvalue, Xor)
+
   def visitOrExpr(self, node, lvalue=False):
     """Generate code for a bitwise OR expression"""
     return self.visitBinOpExpr(node, lvalue, Or)

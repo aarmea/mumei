@@ -597,6 +597,10 @@ class AndExpr(BinaryExpr):
   """A bitwise AND expression"""
 
 @visitable
+class XorExpr(BinaryExpr):
+  """A bitwise XOR expression"""
+
+@visitable
 class OrExpr(BinaryExpr):
   """A bitwise OR expression"""
 
