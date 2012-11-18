@@ -112,6 +112,15 @@ class TACGenerator(object):
 
     return var
 
+  def visitAddrOfExpr(self, node, lvalue=False):
+    """Generate code for an address-of expression"""
+    # The result of an address-of expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Generate code for the address of the expression result
+    return node.expr.accept(self, True)
+
   def visitDerefExpr(self, node, lvalue=False):
     """Generate code for a dereference expression"""
     # Generate code for the expression to dereference

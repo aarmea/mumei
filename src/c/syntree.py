@@ -622,6 +622,10 @@ class UnaryExpr(Expr):
     return "%s(expr=%r)" % (type(self).__name__, self.expr)
 
 @visitable
+class AddrOfExpr(UnaryExpr):
+  """An address-of expression"""
+
+@visitable
 class DerefExpr(UnaryExpr):
   """A dereference expression"""
 
