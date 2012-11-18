@@ -216,7 +216,20 @@ class Door(Transport):
   def __init__(self, pos, spritesheet):
     self._uinit(pos, spritesheet)
 
-    self._sides[1].append("door.png")
+    self.color = 0
+
+  def __getColor(self):
+    return self.__color
+
+  def __setColor(self, color):
+    self.__color = color
+
+    # Change the sprites to those with the given color
+    colorStr = COLORS[color]
+    self._sides[0] = []
+    self._sides[0].append("door%s.png" % colorStr)
+
+  color = property(__getColor, __setColor)
 
 class DoorR(Transport):
   """A door, which is usually the level's goal"""
