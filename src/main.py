@@ -278,8 +278,9 @@ class LevelMenu(PlainMenu):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
     MasterLevelDictonary = [ ["level100", "level101", "level102", "level103", "level104"],
                              ["level200", "level201", "level202", "level203", "level204"],
-                             ["level300", "level301", "level302", "level303", "level304"] ]
-    for e in events:
+                             ["level300", "level301", "level302", "level303", "level304"],
+                             ["level400", "level401", "level402", "level403", "level404"] ]
+    for e in events: 
       if e.type == pygame.QUIT:
         return True
       elif e.type == pygame.KEYDOWN:
@@ -292,11 +293,13 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_ESCAPE:
           self.userBack()
         elif e.key == pygame.K_1:
-          self.userSelectLevel(MasterLevelDictonary[0][2])
+          self.userSelectLevel(MasterLevelDictonary[0][0])
         elif e.key == pygame.K_2:
           self.userSelectLevel(MasterLevelDictonary[1][0])
         elif e.key == pygame.K_3:
           self.userSelectLevel(MasterLevelDictonary[2][0])
+        elif e.key == pygame.K_4:
+          self.userSelectLevel(MasterLevelDictonary[3][0])
         elif e.key == pygame.K_q:
           return True
     return False

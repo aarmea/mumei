@@ -251,6 +251,20 @@ class Skeleton(Barrier):
     self._sides[1].append("wall-floor.png")
     self._sides[4].append("skeleton.png")
 
+class Pickle(Barrier):
+  """RAWR"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+
+    self._sides[1].append("wall-floor.png")
+    self._sides[4].append("pickle.png")
+    self._sides[0].append("pickle.png")
+    self._sides[3].append("pickle.png")
+    self._sides[2].append("pickle.png")
+    self._sides[5].append("pickle.png")
+    
+
 class Wall(Barrier):
   """A vertical wall that blocks horizontal movement"""
 
@@ -320,6 +334,7 @@ NAMES = {
   "wall" : Wall,
   "skeleton" : Skeleton,
   "floor" : Floor,
+  "pickle" :Pickle,
   # "fire" : Fire,
   # "actor" : Actor,
   # "player" : Player,
