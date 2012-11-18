@@ -12,3 +12,14 @@ ___________________________________________________
   
   wait(): a function that halts the robot
           for one second
+
+  int Flame: an integer value that has a value
+            of 1 when the flame is up, and 0
+            otherwise
+
+  int adjacentTo: integer value which is one
+                  when adjacent to a skeleton
+ 
+  punch(): knock a skeleton out of the way
+           only works when adjacent
+
