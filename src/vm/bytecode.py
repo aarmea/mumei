@@ -218,10 +218,16 @@ class ShortImmOperand(Operand):
       or val >= 2**(self.OPSPEC_SHORT_IMM_BITS - 1)):
       raise InstructionError("short-form immediate value out of range")
 
-    self.val = val
+    self.val = val & Processor.WORD_MASK
 
   def __str__(self):
-    return "$%X" % self.val
+    val = self.val
+
+    # If the value is signed, then convert it to a negative number
+    if val >= 2**(Processor.WORD_BITS - 1):
+      val = ~val + Processor.WORD_MASK
+
+    return "$%X" % val
 
   def encode(self):
     return ((self.val & self.OPSPEC_SHORT_IMM_MASK)
