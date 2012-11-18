@@ -4,7 +4,7 @@ extern int color;
 
 int main ()
 {
-
+  color = 2;
   /* Your code here */
 
 
