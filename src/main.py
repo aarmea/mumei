@@ -135,8 +135,8 @@ class PlainMenu(Menu):
 class CharacterSelectMenu(PlainMenu):
   """A screen that allows the user to select their character's appearance"""
 
-  NHAIRS = 3
-  NHEADS = 2
+  NHAIRS = 6
+  NHEADS = 4
   NSHIRTS = 2
   NPANTS = 2
 
