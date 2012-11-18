@@ -20,6 +20,9 @@ class TextBox(object):
     self._size = size
     self._charset = charset
 
+    self._setText(text)
+
+  def _setText(self, text):
     # Convert the text input into the _chars array of strings
     self._buffer = [list(thing) for thing in text.split("\n")]
     self._cursorPos = (len(self._buffer)-1, len(self._buffer[-1]))
@@ -68,7 +71,6 @@ class TextEditor(TextBox):
   """An OpenGL text editor"""
 
   def handleKeyPress(self, key, uni=-1):
-    print "Editor keypress:", key, uni
     # If the unicode character was not given, generate it from the key
     if uni == -1:
       uni = chr(key)
@@ -109,6 +111,18 @@ class TextEditor(TextBox):
       else:
         self._buffer[row].pop(col-1)
         self._cursorPos = (row, col-1)
+    elif key == pygame.K_DELETE:
+      # Backspace
+      if col == len(self._buffer[row]):
+        # End of line
+
+        # Do nothing if at the end of the document
+        if row == len(self._buffer)-1: return
+
+        self._buffer[row].extend(self._buffer[row+1])
+        self._buffer.pop(row+1)
+      else:
+        self._buffer[row].pop(col)
     elif key == pygame.K_RETURN:
       # Enter/Return
       self._buffer.insert(row+1, self._buffer[row][col:])

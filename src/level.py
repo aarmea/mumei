@@ -47,6 +47,7 @@ class Level(object):
     self._objects = [ [] ]
     self._startPos = (0, 0)
     self._doorPos = (0, 0)
+    self._sampleCode = SAMPLE_CODE
     self._helpText = ""
 
     # Temporary screen move stuff
@@ -63,7 +64,7 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelName)
 
-    self._text = TextEditor((0, 5.75), (51, 48), self.charset, SAMPLE_CODE)
+    self._text = TextEditor((0, 5.75), (51, 48), self.charset, self._sampleCode)
     self._debug = TextBox((-8, -1), (51, 21), self.charset, self._helpText)
 
     # Spawn a player
@@ -117,6 +118,10 @@ class Level(object):
         helptext.close()
 
       print "Level: loaded", levelName
+
+  def resetCode(self):
+    """Reset the code in the editor to the sample code."""
+    self._text._setText(self._sampleCode)
 
   def compile(self):
     """Compile the source code in the text box, loading it into the
@@ -180,6 +185,9 @@ class Level(object):
         if e.key == pygame.K_ESCAPE:
           self.__ui.popState()
           break
+
+        elif e.key == pygame.K_F2:
+          self.resetCode()
 
         elif e.key == pygame.K_F5:
           self.procRunning = self.compile()

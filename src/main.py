@@ -14,6 +14,7 @@ class UI(object):
 
   def __init__(self):
     pygame.init()
+    pygame.key.set_repeat(250, 50)
 
     self.screen = pygame.display.set_mode((1024, 768), pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption("Mumei")
