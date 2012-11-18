@@ -64,9 +64,10 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelName)
 
-    self._lines = LineNumbers((0, 5.75), 48, self.charset)
-    self._text = TextEditor((0.625, 5.75), (47, 48), self.charset, self._sampleCode)
-    self._debug = TextBox((-8, -1), (51, 21), self.charset, self._helpText)
+    self._lines = LineNumbers((0, 5.75), 47, self.charset)
+    self._text = TextEditor((0.625, 5.75), (47, 47), self.charset, self._sampleCode)
+    self._debug = TextBox((-8, -1), (51, 20), self.charset, self._helpText)
+    self._status = TextBox((-8, -6), (102, 1), self.charset, "Ready")
 
     # Spawn a player
     self._player = levelobj.Player(self._startPos, self.spritesheet)
@@ -130,7 +131,7 @@ class Level(object):
     # Get the source code
     source = self._text.text
 
-    print "Compiling..."
+    self._status._setText("Compiling...")
 
     # Compile
     try:
@@ -139,13 +140,13 @@ class Level(object):
       tac = syntree.accept(c.tacgen.TACGenerator())
       words, labels = vm.tactrans.translate(tac)
     except c.error.CompileError, e:
-      print "compile error:", e
+      self._status._setText("Compile error: %s" % e)
       return False
     except BaseException, e:
-      print "unhandled compile error:", e
+      self._status._setText("Unhandled compile error: %s" % e)
       return False
 
-    print "Code compiled successfully"
+    self._status._setText("Code compiled successfully")
 
     # Create a new processor
     self._proc = vm.bytecode.Processor(memWords=256)
@@ -154,7 +155,7 @@ class Level(object):
     for addr, word in enumerate(words):
       self._proc.setMem(addr, word)
 
-    print "Linking..."
+    self._status._setText("Linking...")
 
     # Link to the bytecode
     self._vars = {}
@@ -162,7 +163,7 @@ class Level(object):
       try:
         self._vars[var] = labels[var]
       except KeyError, e:
-        print "undefined reference to `%s'" % e.args[0]
+        self._status._setText("Undefined reference to `%s'" % e.args[0])
         return False
 
     # Set IP to the entry point
@@ -173,7 +174,7 @@ class Level(object):
     moveAddr = self._vars["move"]
     self._proc.setMem(moveAddr, 0)
 
-    print "Code linked successfully"
+    self._status._setText("Code linked successfully")
 
     return True
 
@@ -275,3 +276,6 @@ class Level(object):
 
     # Draw the debug view
     self._debug.draw()
+
+    # Draw the status bar
+    self._status.draw()
