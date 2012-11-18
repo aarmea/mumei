@@ -260,6 +260,27 @@ class MainMenu(PlainMenu):
     # Switch to the level select menu
     self._ui.pushState(LevelMenu(self._ui))
 
+class TutorialScreen(PlainMenu):
+  """The tutorial screen - splash"""
+
+  def __init__(self, ui, basename, tutorialfiles):
+    super(TutorialScreen, self).__init__(ui, tutorialfiles) # contains series of imagefiles
+    self.basename = basename
+    self.tutorialfiles = tutorialfiles
+
+  def handleEvents(self, events):
+    """Handle keyboard input for skipping through tutorial. Returns True if the game should quit."""
+    for e in events:
+      if e.type == pygame.KEYDOWN:
+        if e.key == pygame.K_SPACE:
+          self.userSkip()
+
+    return super(TutorialScreen, self).handleEvents(events)
+
+  def userSkip(self):
+    """ Move on to level """
+    self._ui.pushState(LevelScreen(self._ui, self.basename)) # push the state for that level splash screen
+
 class LevelButton(object):
   """Faux button that indicates available level choices"""
   def __init__(self, ui, imgfile):
@@ -270,7 +291,7 @@ class LevelMenu(PlainMenu):
   """The main level menu - interactable"""
 
   def __init__(self, ui):
-    super(LevelMenu, self).__init__(ui, "../assets/levelmenu.png")
+    super(LevelMenu, self).__init__(ui, "../assets/levelmenu2.png")
     # contains a series of level buttons
     level1button = LevelButton(ui, "../assets/level1mockbutton.png")
 
@@ -280,7 +301,9 @@ class LevelMenu(PlainMenu):
                              ["level200", "level201", "level202", "level203", "level204"],
                              ["level300", "level301", "level302", "level303", "level304"],
                              ["level400", "level401", "level402", "level403", "level404"] ]
-    for e in events: 
+    MasterTutorialDictionary = [ ["../assets/intro_screen.png", "../assets/masterLevel1tutorial.png"] ]
+
+    for e in events:
       if e.type == pygame.QUIT:
         return True
       elif e.type == pygame.KEYDOWN:
@@ -293,7 +316,7 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_ESCAPE:
           self.userBack()
         elif e.key == pygame.K_1:
-          self.userSelectLevel(MasterLevelDictonary[0][0])
+          self.userSelectLevel(MasterLevelDictonary[0][0], MasterTutorialDictionary[0][0])
         elif e.key == pygame.K_2:
           self.userSelectLevel(MasterLevelDictonary[1][0])
         elif e.key == pygame.K_3:
@@ -304,8 +327,9 @@ class LevelMenu(PlainMenu):
           return True
     return False
 
-  def userSelectLevel(self, basename):
-    self._ui.pushState(LevelScreen(self._ui, basename)) # push the state for that level splash screen
+  def userSelectLevel(self, basename, tutorialfiles):
+    self._ui.pushState(TutorialScreen(self._ui, basename, tutorialfiles))
+    # TutorialScreen will push the level state intstead..
 
 class LevelScreen(PlainMenu):
   """The level screen - splash"""
