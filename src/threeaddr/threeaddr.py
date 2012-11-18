@@ -300,6 +300,14 @@ class Or(BinOp):
   """An operation that takes the bitwise OR of two source operands, storing the
   result in the destination"""
 
+class Mul(BinOp):
+  """An operation that multiplities two source operands, storing the result in
+  the destination"""
+
+class Div(BinOp):
+  """An operation that divides two source operands, storing the result in the
+  destination"""
+
 class Add(BinOp):
   """An operation that adds two source operands, storing the result in the
   destination"""

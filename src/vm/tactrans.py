@@ -492,6 +492,37 @@ def translate(tac):
         Xor(dstOp, ShortImmOperand(-1))
       )
 
+    elif isinstance(inst, threeaddr.Mul):
+      # This is separate from the other binary operations because it modifies
+      # both of its operands.
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
+
+      # Load the first variable into X0
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), srcOpA)
+      )
+
+      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
+
+      # Loaf the second variable into X1
+      appendInst(
+        Set(RegOperand(Processor.REG_X1), srcOpB)
+      )
+
+      # Generate the operation
+      appendInst(
+        Mul(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_X1))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy X0 into the destination variable
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_X0))
+      )
+
     elif isinstance(inst, threeaddr.BinOp):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
@@ -510,6 +541,8 @@ def translate(tac):
         oper = Xor
       elif isinstance(inst, threeaddr.Or):
         oper = Or
+      elif isinstance(inst, threeaddr.Div):
+        oper = Div
       elif isinstance(inst, threeaddr.Add):
         oper = Add
       elif isinstance(inst, threeaddr.Sub):
