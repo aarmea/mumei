@@ -283,6 +283,8 @@ def translate(tac):
 
       if isinstance(inst, threeaddr.And):
         oper = And
+      elif isinstance(inst, threeaddr.Or):
+        oper = Or
       elif isinstance(inst, threeaddr.Add):
         oper = Add
       elif isinstance(inst, threeaddr.Sub):

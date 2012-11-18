@@ -256,6 +256,10 @@ class And(BinOp):
   """An operation that takes the bitwise AND of two source operands, storing the
   result in the destination"""
 
+class Or(BinOp):
+  """An operation that takes the bitwise OR of two source operands, storing the
+  result in the destination"""
+
 class Add(BinOp):
   """An operation that adds two source operands, storing the result in the
   destination"""
