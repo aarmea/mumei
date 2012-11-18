@@ -575,6 +575,8 @@ class AssignExpr(Expr):
     return ("%s(op=%r, lexpr=%r, rexpr=%r" % (type(self).__name__, self.op,
       self.lexpr, self.rexpr))
 
+  pos = property(lambda self: self.lexpr.pos)
+
 # XXX More expressions
 
 class BinaryExpr(Expr):
@@ -587,6 +589,8 @@ class BinaryExpr(Expr):
   def __repr__(self):
     return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
       self.rexpr))
+
+  pos = property(lambda self: self.lexpr.pos)
 
 @visitable
 class LessThanExpr(BinaryExpr):
@@ -615,11 +619,12 @@ class SubExpr(BinaryExpr):
 class UnaryExpr(Expr):
   """A unary expression"""
 
-  def __init__(self, expr):
+  def __init__(self, pos, expr):
+    self.pos = pos
     self.expr = expr
 
   def __repr__(self):
-    return "%s(expr=%r)" % (type(self).__name__, self.expr)
+    return "%s(pos=%r, expr=%r)" % (type(self).__name__, self.pos, self.expr)
 
 @visitable
 class PreIncExpr(UnaryExpr):
@@ -636,6 +641,10 @@ class AddrOfExpr(UnaryExpr):
 @visitable
 class DerefExpr(UnaryExpr):
   """A dereference expression"""
+
+@visitable
+class PlusExpr(UnaryExpr):
+  """A unary plus expression"""
 
 @visitable
 class NegExpr(UnaryExpr):
@@ -660,6 +669,8 @@ class CallExpr(PostfixExpr):
     return ("%s(funExpr=%r, argExprs=%r)" % (type(self).__name__, self.funExpr,
       self.argExprs))
 
+  pos = property(lambda self: self.funExpr.pos)
+
 class PrimaryExpr(Expr):
   """A primary expression"""
 
@@ -678,12 +689,14 @@ class VarExpr(PrimaryExpr):
 class ConstExpr(PrimaryExpr):
   """A constant expression"""
 
-  def __init__(self, type_, val):
+  def __init__(self, pos, type_, val):
+    self.pos = pos
     self.type = type_
     self.val = val
 
   def __repr__(self):
-    return "%s(type_=%r, val=%r)" % (type(self).__name__, self.type, self.val)
+    return "%s(pos=%r, type_=%r, val=%r)" % (type(self).__name__, self.pos,
+      self.type, self.val)
 
 class StringLiteralExpr(PrimaryExpr):
   """A string literal expression"""

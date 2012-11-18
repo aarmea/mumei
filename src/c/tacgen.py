@@ -46,6 +46,16 @@ class TACGenerator(object):
     # The current environment
     self.env = Env()
 
+  def __genLValue(self, expr, label):
+    """Generate code to get an address from an expression, raising an error if
+    the expression is not an lvalue."""
+    addrVar = expr.accept(self, True)
+
+    if addrVar is None:
+      raise CompileError(expr.pos, "lvalue required as %s" % label)
+
+    return addrVar
+
   def _pushEnv(self):
     """Push an empty environment onto the environment stack"""
     self.env = Env(self.env)
@@ -99,6 +109,11 @@ class TACGenerator(object):
     # Generate code to grab the function address
     funAddrVar = node.funExpr.accept(self, True)
 
+    # Check for invalid functions
+    # XXX This should be done in the type checker
+    if funAddrVar is None:
+      raise CompileError(node.funExpr.pos, "called object is not a function")
+
     # Generate code for the expressions used as function arguments, pushing the
     # actual arguments on the parameter stack.
     for expr in node.argExprs:
@@ -123,7 +138,7 @@ class TACGenerator(object):
     # Generate code for the value of the variable
     var = node.expr.accept(self)
     # Generate code for the address of the variable
-    addrVar = node.expr.accept(self, True)
+    addrVar = self.__genLValue(node.expr, "increment operand")
     # Generate the increment instruction
     self.code.append(Add(rvar, var, 1))
     # Store the result in the lvalue
@@ -142,7 +157,7 @@ class TACGenerator(object):
     # Generate code for the value of the variable
     var = node.expr.accept(self)
     # Generate code for the address of the variable
-    addrVar = node.expr.accept(self, True)
+    addrVar = self.__genLValue(node.expr, "decrement operand")
     # Generate the decrement instruction
     self.code.append(Sub(rvar, var, 1))
     # Store the result in the lvalue
@@ -157,7 +172,7 @@ class TACGenerator(object):
       return None
 
     # Generate code for the address of the expression result
-    return node.expr.accept(self, True)
+    return self.__genLValue(node.expr, "unary `&' operand")
 
   def visitDerefExpr(self, node, lvalue=False):
     """Generate code for a dereference expression"""
@@ -173,6 +188,14 @@ class TACGenerator(object):
       self.code.append(Load(var, addrVar))
 
       return var
+
+  def visitPlusExpr(self, node, lvalue=False):
+    """Generate code for a unary plus expression"""
+    # The result of a unary plus expression is not an lvalue
+    if lvalue:
+      return None
+
+    return node.expr.accept(self)
 
   def visitNegExpr(self, node, lvalue=False):
     """Generate code for a negation expression"""
@@ -211,7 +234,7 @@ class TACGenerator(object):
       return None
 
     # Generate code for the address of the variable
-    addrVar = node.lexpr.accept(self, True)
+    addrVar = self.__genLValue(node.lexpr, "left operand of assignment")
     # Generate code for the right side of the assignment
     rvar = node.rexpr.accept(self)
     # Store the right side result in the lvalue

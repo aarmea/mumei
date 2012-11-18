@@ -294,31 +294,31 @@ varExpr = (
   mreturn(syntree.VarExpr(id_.pos, id_.val))))
 intExpr = (
   mbind(intToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.IntType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.IntType(), const.val))))
 longExpr = (
   mbind(longToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.LongType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.LongType(), const.val))))
 uintExpr = (
   mbind(uintToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.UIntType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.UIntType(), const.val))))
 ulongExpr = (
   mbind(ulongToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.ULongType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.ULongType(), const.val))))
 floatExpr = (
   mbind(floatToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.FloatType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.FloatType(), const.val))))
 doubleExpr = (
   mbind(doubleToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.DoubleType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.DoubleType(), const.val))))
 longDoubleExpr = (
   mbind(longDoubleToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.LongDoubleType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.LongDoubleType(), const.val))))
 charExpr = (
   mbind(charToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.CharType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.CharType(), const.val))))
 wcharExpr = (
   mbind(wcharToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.WCharType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.WCharType(), const.val))))
 constExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(mplus(intExpr,
   longExpr), uintExpr), ulongExpr), floatExpr), doubleExpr), longDoubleExpr),
   charExpr), wcharExpr)
@@ -384,30 +384,33 @@ postfixExpr = (
 #   '~'
 #   '!' # XXX Not implemented
 preIncExpr = (
-  mbind(incrementToken, lambda _:
+  mbind(incrementToken, lambda t:
   mbind(unaryExpr, lambda expr_:
-  mreturn(syntree.PreIncExpr(expr_)))))
+  mreturn(syntree.PreIncExpr(t.pos, expr_)))))
 preDecExpr = (
-  mbind(decrementToken, lambda _:
+  mbind(decrementToken, lambda t:
   mbind(unaryExpr, lambda expr_:
-  mreturn(syntree.PreDecExpr(expr_)))))
+  mreturn(syntree.PreDecExpr(t.pos, expr_)))))
 addrOfExpr = (
-  mbind(ampersandToken, lambda _:
+  mbind(ampersandToken, lambda t:
   mbind(castExpr, lambda expr_:
-  mreturn(syntree.AddrOfExpr(expr_)))))
+  mreturn(syntree.AddrOfExpr(t.pos, expr_)))))
 derefExpr = (
-  mbind(starToken, lambda _:
+  mbind(starToken, lambda t:
   mbind(castExpr, lambda expr_:
-  mreturn(syntree.DerefExpr(expr_)))))
-plusExpr = mbind(addToken, lambda _: castExpr)
+  mreturn(syntree.DerefExpr(t.pos, expr_)))))
+plusExpr = (
+  mbind(addToken, lambda t:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.PlusExpr(t.pos, expr_)))))
 minusExpr = (
-  mbind(subToken, lambda _:
+  mbind(subToken, lambda t:
   mbind(castExpr, lambda expr_:
-  mreturn(syntree.NegExpr(expr_)))))
+  mreturn(syntree.NegExpr(t.pos, expr_)))))
 notExpr = (
-  mbind(notToken, lambda _:
+  mbind(notToken, lambda t:
   mbind(castExpr, lambda expr_:
-  mreturn(syntree.NotExpr(expr_)))))
+  mreturn(syntree.NotExpr(t.pos, expr_)))))
 unaryExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(postfixExpr, preIncExpr),
   preDecExpr), addrOfExpr), derefExpr), plusExpr), minusExpr), notExpr)
 
