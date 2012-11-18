@@ -6,6 +6,6 @@ ___________________________________________________
           represents the robot's eyes
     0 - Gray (default) 
     1 - Red
-    2 - Blue
-    3 - Green
+    2 - Green
+    3 - Blue
   

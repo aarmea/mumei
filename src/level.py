@@ -13,6 +13,8 @@ import levelobj
 from textureatlas import *
 from textbox import *
 
+EPSILON = 0.01
+
 class Level(object):
   """A level"""
 
@@ -205,6 +207,22 @@ class Level(object):
           # Send all other keypresses to the text editor
           self._text.handleKeyPress(e.key, e.unicode)
     return False
+
+  def checkWin(self):
+    """Check if the level is completed."""
+    # The player should not be moving
+    if self._player._moving:
+      return False
+
+    # The player should be at the destination door
+    if abs(self._player._pos[0]-self._doorPos[0]) > EPSILON and \
+       abs(self._player._pos[1]-self._doorPos[1]) > EPSILON:
+      return False
+
+    # The player's color should be the same as the door's color
+    
+
+    return True
 
   def draw(self, time):
     """Render the level interface."""
