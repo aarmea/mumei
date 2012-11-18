@@ -93,7 +93,7 @@ class LineNumbers(TextBox):
   def __init__(self, pos, lines, charset):
     rows, cols = lines, len(str(lines))
     string = ""
-    for num in xrange(lines):
+    for num in xrange(1, lines+1):
       string += '|' + str(num).rjust(cols, ' ') + "|\n"
     super(LineNumbers, self).__init__(pos, (cols+2, rows), charset, string)
 
