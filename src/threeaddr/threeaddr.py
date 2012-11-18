@@ -252,6 +252,10 @@ class BinOp(tuple):
   srcb = property(lambda self: self[2])
   """The second source operand"""
 
+class And(BinOp):
+  """An operation that takes the bitwise AND of two source operands, storing the
+  result in the destination"""
+
 class Add(BinOp):
   """An operation that adds two source operands, storing the result in the
   destination"""

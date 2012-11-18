@@ -281,7 +281,9 @@ def translate(tac):
 
       srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
 
-      if isinstance(inst, threeaddr.Add):
+      if isinstance(inst, threeaddr.And):
+        oper = And
+      elif isinstance(inst, threeaddr.Add):
         oper = Add
       elif isinstance(inst, threeaddr.Sub):
         oper = Sub
