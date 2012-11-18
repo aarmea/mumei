@@ -212,26 +212,6 @@ class Call(tuple):
   target = property(lambda self: self[1])
   """The address of the procedure to call"""
 
-class LessThan(tuple):
-  """An operation that sets the result to non-zero if the first operand is less
-  than the second, otherwise zero."""
-
-  def __new__(cls, dst, srca, srcb):
-    return tuple.__new__(cls, (dst, srca, srcb))
-
-  def __repr__(self):
-    return ("%s(dst=%r, srca=%r, srcb=%r)" % (type(self).__name__, self.dst,
-      self.srca, self.srcb))
-
-  dst = property(lambda self: self[0])
-  """The destination operand"""
-
-  srca = property(lambda self: self[1])
-  """The first source operand"""
-
-  srcb = property(lambda self: self[2])
-  """The second source operand"""
-
 class BinOp(tuple):
   """An operation on two source operands that stores the result in the
   destination"""
@@ -251,6 +231,10 @@ class BinOp(tuple):
 
   srcb = property(lambda self: self[2])
   """The second source operand"""
+
+class LessThan(BinOp):
+  """An operation that sets the result to non-zero if the first operand is less
+  than the second, otherwise zero."""
 
 class And(BinOp):
   """An operation that takes the bitwise AND of two source operands, storing the
