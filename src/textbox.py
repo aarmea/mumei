@@ -27,6 +27,7 @@ class TextBox(object):
     # Convert the text input into the _chars array of strings
     self._buffer = [list(thing) for thing in text.split("\n")]
     self._cursorPos = (len(self._buffer)-1, len(self._buffer[-1]))
+    self.update()
 
   def _getText(self):
     """Return a string containing the contents of the buffer."""
