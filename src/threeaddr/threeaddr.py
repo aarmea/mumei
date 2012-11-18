@@ -212,6 +212,22 @@ class Call(tuple):
   target = property(lambda self: self[1])
   """The address of the procedure to call"""
 
+class Neg(tuple):
+  """An operation that negates the source operand, storing the result in the
+  destination"""
+
+  def __new__(cls, dst, src):
+    return tuple.__new__(cls, (dst, src))
+
+  def __repr__(self):
+    return "%s(dst=%r, src=%r)" % (type(self).__name__, self.dst, self.src)
+
+  dst = property(lambda self: self[0])
+  """The destination address"""
+
+  src = property(lambda self: self[1])
+  """The source operand"""
+
 class Not(tuple):
   """An operation that takes the bitwise NOT of the source operand, storing
   the result in the destination"""
