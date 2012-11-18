@@ -1,0 +1,17 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+  
+ moveX(int dist): is a function which 
+                   moves robot right a 
+                   distance specified 
+                   by an integer value
+
+ int Flame: an integer value that has a value
+            of 1 when the flame is up, and 0
+            otherwise
+
+  wait(): a function which causes the robot to 
+          wait for 1 second
+  
