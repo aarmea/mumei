@@ -282,6 +282,7 @@ ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
 xorToken = token(lambda t: isinstance(t, scanner.XorToken))
 orToken = token(lambda t: isinstance(t, scanner.OrToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
+greaterThanToken = token(lambda t: isinstance(t, scanner.GreaterThanToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
 
 # primary-expression:
@@ -461,22 +462,28 @@ shiftExpr = additiveExpr
 
 # relational-expression-suffix:
 #   '<' shift-expression relational-expression-suffix?
-#   '>' shift-expression relational-expression-suffix? # XXX Not implemented
+#   '>' shift-expression relational-expression-suffix?
 #   '<=' shift-expression relational-expression-suffix? # XXX Not implemented
 #   '>=' shift-expression relational-expression-suffix? # XXX Not implemented
-relExprSuffix = (
+lessExprSuffix = (
   mbind(lessThanToken, lambda _:
   mbind(shiftExpr, lambda expr_:
   mbind(option([], relExprSuffix), lambda exprs:
-  mreturn([expr_] + exprs)))))
+  mreturn([(syntree.LessThanExpr, expr_)] + exprs)))))
+greaterExprSuffix = (
+  mbind(greaterThanToken, lambda _:
+  mbind(shiftExpr, lambda expr_:
+  mbind(option([], relExprSuffix), lambda exprs:
+  mreturn([(syntree.GreaterThanExpr, expr_)] + exprs)))))
+relExprSuffix = mplus(lessExprSuffix, greaterExprSuffix)
 
 # relational-expression:
 #   shift-expression relational-expression-suffix?
 relExpr = (
   mbind(shiftExpr, lambda expr_:
   mbind(option([], relExprSuffix), lambda exprs:
-  mreturn(reduce(lambda lexpr, rexpr:
-    syntree.LessThanExpr(lexpr, rexpr), exprs, expr_))))) # XXX Only handles '<'
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
 
 # equality-expression:
 #   relational-expression equality-expression-suffix?
