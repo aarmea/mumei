@@ -309,6 +309,17 @@ class TACGenerator(object):
     """Generate code for a subtraction expression"""
     return self.visitBinOpExpr(node, lvalue, Sub)
 
+  def visitCommaExpr(self, node, lvalue=False):
+    """Generate code for a comma expression"""
+    # The result of a comma expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Generate code for the left expression
+    node.lexpr.accept(self)
+    # Generate code for the right expression
+    return node.rexpr.accept(self)
+
   def visitReturnStmt(self, node):
     """Generate code for a return statement"""
     # Generate code for the expression to return

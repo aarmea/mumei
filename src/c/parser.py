@@ -579,12 +579,21 @@ assignExpr_ = (
   mreturn(syntree.AssignExpr(lexpr, None, rexpr)))))))
 assignExpr = mplus(assignExpr_, condExpr)
 
+# expression-suffix:
+#   ',' assignment-expression expression-suffix?
+exprSuffix = (
+  mbind(commaToken, lambda _:
+  mbind(assignExpr, lambda expr_:
+  mbind(option([], exprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
+
 # expression:
 #   assignment-expression expression-suffix?
-#
-# expression-suffix:
-#   ',' assignment-expression expression-suffix? # XXX Not implemented
-expr = assignExpr
+expr = (
+  mbind(assignExpr, lambda expr_:
+  mbind(option([], exprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.CommaExpr(lexpr, rexpr), exprs, expr_)))))
 
 # jump-statement:
 #   'goto' identifier ';' # XXX Not implemented

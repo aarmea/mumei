@@ -551,6 +551,7 @@ class ReturnStmt(JumpStmt):
 class Expr(object):
   """An expression"""
 
+@visitable
 class CommaExpr(Expr):
   """A comma expression"""
 
@@ -561,6 +562,8 @@ class CommaExpr(Expr):
   def __repr__(self):
     return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
       self.rexpr))
+
+  pos = property(lambda self: self.lexpr.pos)
 
 @visitable
 class AssignExpr(Expr):
