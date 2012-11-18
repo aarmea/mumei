@@ -404,7 +404,7 @@ class TACGenerator(object):
       # If this declaration is in the global scope, then add its name to the
       # environment
       if self.env.outer is None:
-        self.env[init.id] = GlobalVar(id_)
+        self.env[id_] = GlobalVar(id_)
         # If this is not a function declaration, label it and reserve space
         if not (isinstance(init, syntree.FunDeclarator) or
           isinstance(init, syntree.KRFunDeclarator)):
@@ -417,6 +417,11 @@ class TACGenerator(object):
 
   def visitFunDef(self, node):
     """Generate code for a function definition"""
+    # Add the function to the environment if it isn't already there
+    id_ = node.declarator.id
+    if id_ not in self.env:
+      self.env[id_] = GlobalVar(id_)
+
     # Swap out the code buffer to grab the function code
     realCode = self.code
     self.code = []
