@@ -1,4 +1,6 @@
-move()
+moveX(int distance);
+extern int FloorTileExists = 1;
+wait();
 
 int main ()
 {
