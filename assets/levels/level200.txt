@@ -8,11 +8,4 @@ ___________________________________________________
                    distance specified 
                    by an integer value
 
-  int floorExist: will have the value of 
-                  1 when the floor tile 
-                  exists, 0 otherwise
-  
-  wait(): a function that halts the robot
-          for one second
-
   
