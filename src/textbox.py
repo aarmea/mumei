@@ -15,6 +15,7 @@ class TextBox(object):
   SCALEX = abs(CHOPL-CHOPR)
 
   def __init__(self, pos, size, charset, text):
+    self.__displayList = None
     self._buffer = []
     self._pos = pos
     self._size = size
@@ -31,7 +32,19 @@ class TextBox(object):
     """Return a string containing the contents of the buffer."""
     return "\n".join("".join(row) for row in self._buffer)
 
-  def draw(self):
+  def update(self):
+    """Update the display list"""
+    # Free the old display list
+    if self.__displayList is not None:
+      glDeleteLists(self.__displayList, 1)
+
+    # Create a new display list
+    self.__displayList = glGenLists(1)
+    glNewList(self.__displayList, GL_COMPILE)
+    self.render()
+    glEndList()
+
+  def render(self):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     glTranslatef(self._pos[0], self._pos[1], 0)
@@ -64,6 +77,12 @@ class TextBox(object):
         self._charset.tileCoord(char, self.CHOPL, 1)
         glVertex3f(col*self.SCALEX, -line+1, 0)
     glEnd()
+
+  def draw(self):
+    if self.__displayList is None:
+      self.update()
+
+    glCallList(self.__displayList)
 
   text = property(_getText)
 
@@ -121,6 +140,7 @@ class TextEditor(TextBox):
       else:
         self._buffer[row].pop(col-1)
         self._cursorPos = (row, col-1)
+      self.update()
     elif key == pygame.K_DELETE:
       # Backspace
       if col == len(self._buffer[row]):
@@ -133,11 +153,13 @@ class TextEditor(TextBox):
         self._buffer.pop(row+1)
       else:
         self._buffer[row].pop(col)
+      self.update()
     elif key == pygame.K_RETURN:
       # Enter/Return
       self._buffer.insert(row+1, self._buffer[row][col:])
       self._buffer[row] = self._buffer[row][:col]
       self._cursorPos = (row+1, 0)
+      self.update()
     elif key >= 0x20 and key <= 0x7E:
       # Printable keys
       try:
@@ -145,6 +167,7 @@ class TextEditor(TextBox):
       except IndexError:
         self._buffer[row].append(uni)
       self._cursorPos = (row, col+1)
+      self.update()
 
   def draw(self):
     super(TextEditor, self).draw()
