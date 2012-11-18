@@ -604,6 +604,14 @@ class GreaterThanExpr(BinaryExpr):
   """A greater-than expression"""
 
 @visitable
+class EqualExpr(BinaryExpr):
+  """An equal-to expression"""
+
+@visitable
+class NotEqualExpr(BinaryExpr):
+  """A not-equal-to expression"""
+
+@visitable
 class AndExpr(BinaryExpr):
   """A bitwise AND expression"""
 

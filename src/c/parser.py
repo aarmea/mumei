@@ -281,6 +281,8 @@ notToken = token(lambda t: isinstance(t, scanner.NotToken))
 ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
 xorToken = token(lambda t: isinstance(t, scanner.XorToken))
 orToken = token(lambda t: isinstance(t, scanner.OrToken))
+equalToken = token(lambda t: isinstance(t, scanner.EqualToken))
+notEqualToken = token(lambda t: isinstance(t, scanner.NotEqualToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
 greaterThanToken = token(lambda t: isinstance(t, scanner.GreaterThanToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
@@ -492,13 +494,28 @@ relExpr = (
   mreturn(reduce(lambda lexpr, (type_, rexpr):
     type_(lexpr, rexpr), exprs, expr_)))))
 
+# equality-expression-suffix:
+#   '==' relational-expression equality-expression-suffix?
+#   '!=' relational-expression equality-expression-suffix?
+equalExprSuffix = (
+  mbind(equalToken, lambda _:
+  mbind(relExpr, lambda expr_:
+  mbind(option([], equalExprSuffix), lambda exprs:
+  mreturn([(syntree.EqualExpr, expr_)] + exprs)))))
+notEqualExprSuffix = (
+  mbind(notEqualToken, lambda _:
+  mbind(relExpr, lambda expr_:
+  mbind(option([], notEqualExprSuffix), lambda exprs:
+  mreturn([(syntree.NotEqualExpr, expr_)] + exprs)))))
+equalityExprSuffix = mplus(equalExprSuffix, notEqualExprSuffix)
+
 # equality-expression:
 #   relational-expression equality-expression-suffix?
-#
-# equality-expression-suffix:
-#   '==' relational-expression equality-expression-suffix? # XXX Not implemented
-#   '!=' relational-expression equality-expression-suffix? # XXX Not implemented
-equalityExpr = relExpr
+equalityExpr = (
+  mbind(relExpr, lambda expr_:
+  mbind(option([], equalityExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
 
 # and-expression-suffix:
 #   '&' equality-expression and-expression-suffix?
