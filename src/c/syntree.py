@@ -661,19 +661,33 @@ class NotExpr(UnaryExpr):
 class PostfixExpr(Expr):
   """A postfix expression"""
 
+  def __init__(self, expr):
+    self.expr = expr
+
+  def __repr__(self):
+    return "%s(expr=%r, argExprs=%r)" % (type(self).__name__, self.expr)
+
+  pos = property(lambda self: self.expr.pos)
+
 @visitable
 class CallExpr(PostfixExpr):
   """A function call expression"""
 
-  def __init__(self, funExpr, argExprs):
-    self.funExpr = funExpr
+  def __init__(self, expr, argExprs):
+    PostfixExpr.__init__(self, expr)
     self.argExprs = argExprs
 
   def __repr__(self):
-    return ("%s(funExpr=%r, argExprs=%r)" % (type(self).__name__, self.funExpr,
+    return ("%s(expr=%r, argExprs=%r)" % (type(self).__name__, self.expr,
       self.argExprs))
 
-  pos = property(lambda self: self.funExpr.pos)
+@visitable
+class PostIncExpr(PostfixExpr):
+  """A post-increment expression"""
+
+@visitable
+class PostDecExpr(PostfixExpr):
+  """A post-decrement expression"""
 
 class PrimaryExpr(Expr):
   """A primary expression"""

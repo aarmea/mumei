@@ -98,6 +98,58 @@ class TACGenerator(object):
     else:
       return var
 
+  def visitIncExpr(self, node, lvalue, post):
+    """Generate code for an increment expression"""
+    # The result of an increment expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    rvar = next(self.varGen)
+    # Generate code for the value of the variable
+    var = node.expr.accept(self)
+    # Generate code for the address of the variable
+    addrVar = self.__genLValue(node.expr, "increment operand")
+    # Generate the increment instruction
+    self.code.append(Add(rvar, var, 1))
+    # Store the result in the lvalue
+    self.code.append(Store(addrVar, rvar))
+
+    if post:
+      return var
+    else:
+      return rvar
+
+  def visitDecExpr(self, node, lvalue, post):
+    """Generate code for a decrement expression"""
+    # The result of a decrement expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    rvar = next(self.varGen)
+    # Generate code for the value of the variable
+    var = node.expr.accept(self)
+    # Generate code for the address of the variable
+    addrVar = self.__genLValue(node.expr, "decrement operand")
+    # Generate the decrement instruction
+    self.code.append(Sub(rvar, var, 1))
+    # Store the result in the lvalue
+    self.code.append(Store(addrVar, rvar))
+
+    if post:
+      return var
+    else:
+      return rvar
+
+  def visitPostIncExpr(self, node, lvalue=False):
+    """Generate code for a post-increment expression"""
+    return self.visitIncExpr(node, lvalue, True)
+
+  def visitPostDecExpr(self, node, lvalue=False):
+    """Generate code for a post-decrement expression"""
+    return self.visitDecExpr(node, lvalue, True)
+
   def visitCallExpr(self, node, lvalue=False):
     """Generate code for a function call expression"""
     # The result of a call is not an lvalue
@@ -107,12 +159,12 @@ class TACGenerator(object):
     # Allocate a temporary variable for the return value
     var = next(self.varGen)
     # Generate code to grab the function address
-    funAddrVar = node.funExpr.accept(self, True)
+    funAddrVar = node.expr.accept(self, True)
 
     # Check for invalid functions
     # XXX This should be done in the type checker
     if funAddrVar is None:
-      raise CompileError(node.funExpr.pos, "called object is not a function")
+      raise CompileError(node.expr.pos, "called object is not a function")
 
     # Generate code for the expressions used as function arguments, pushing the
     # actual arguments on the parameter stack.
@@ -129,41 +181,11 @@ class TACGenerator(object):
 
   def visitPreIncExpr(self, node, lvalue=False):
     """Generate code for a pre-increment expression"""
-    # The result of a pre-increment expression is not an lvalue
-    if lvalue:
-      return None
-
-    # Allocate a temporary variable for the result
-    rvar = next(self.varGen)
-    # Generate code for the value of the variable
-    var = node.expr.accept(self)
-    # Generate code for the address of the variable
-    addrVar = self.__genLValue(node.expr, "increment operand")
-    # Generate the increment instruction
-    self.code.append(Add(rvar, var, 1))
-    # Store the result in the lvalue
-    self.code.append(Store(addrVar, rvar))
-
-    return rvar
+    return self.visitIncExpr(node, lvalue, False)
 
   def visitPreDecExpr(self, node, lvalue=False):
     """Generate code for a pre-decrement expression"""
-    # The result of a pre-decrement expression is not an lvalue
-    if lvalue:
-      return None
-
-    # Allocate a temporary variable for the result
-    rvar = next(self.varGen)
-    # Generate code for the value of the variable
-    var = node.expr.accept(self)
-    # Generate code for the address of the variable
-    addrVar = self.__genLValue(node.expr, "decrement operand")
-    # Generate the decrement instruction
-    self.code.append(Sub(rvar, var, 1))
-    # Store the result in the lvalue
-    self.code.append(Store(addrVar, rvar))
-
-    return rvar
+    return self.visitDecExpr(node, lvalue, False)
 
   def visitAddrOfExpr(self, node, lvalue=False):
     """Generate code for an address-of expression"""

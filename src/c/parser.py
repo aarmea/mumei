@@ -350,24 +350,31 @@ argExprList = (
 #   '(' argument-expression-list? ')' postfix-expression-suffix?
 #   ',' identifier postfix-expression-suffix? # XXX Not implemented
 #   '->' identifier postfix-expression-suffix? # XXX Not implemented
-#   '++' postfix-expression-suffix? # XXX Not implemented
-#   '--' postfix-expression-suffix? # XXX Not implemented
-funPostExprSuffix = (
+#   '++' postfix-expression-suffix?
+#   '--' postfix-expression-suffix?
+funPostfixExprSuffix = (
   mbind(lparenToken, lambda _:
   mbind(option([], argExprList), lambda argExprs:
   mbind(rparenToken, lambda _:
-  mbind(option([], funPostExprSuffix), lambda argExprss:
-  mreturn([argExprs] + argExprss))))))
-
-postfixExprSuffix = funPostExprSuffix
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn([lambda expr_: syntree.CallExpr(expr_, argExprs)] + exprs))))))
+incPostfixExprSuffix = (
+  mbind(incrementToken, lambda _:
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn([syntree.PostIncExpr] + exprs))))
+decPostfixExprSuffix = (
+  mbind(decrementToken, lambda _:
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn([syntree.PostDecExpr] + exprs))))
+postfixExprSuffix = mplus(mplus(funPostfixExprSuffix, incPostfixExprSuffix),
+  decPostfixExprSuffix)
 
 # postfix-expression:
 #   primary-expression postfix-expression-suffix?
 postfixExpr = (
   mbind(primaryExpr, lambda expr_:
-  mbind(option([], funPostExprSuffix), lambda argExprss:
-  mreturn(reduce(lambda funExpr, argExprs:
-    syntree.CallExpr(funExpr, argExprs), argExprss, expr_)))))
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn(reduce(lambda expr_, type_: type_(expr_), exprs, expr_)))))
 
 # unary-expression:
 #   postfix-expression
