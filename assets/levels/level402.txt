@@ -1,0 +1,18 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+  
+  moveX(int distance): is a function which 
+                   moves robot right a 
+                   distance specified 
+                   by an integer value
+
+  int floorExist: will have the value of 
+                  1 when the floor tile 
+                  exists, 0 otherwise
+
+  climb(): climbs the length of the ladder
+  
+  wait(): a function that halts the robot
+          for one second
