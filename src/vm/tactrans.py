@@ -269,7 +269,7 @@ def translate(tac):
         Set(dstOp, RegOperand(Processor.REG_FL))
       )
 
-    elif isinstance(inst, threeaddr.Add):
+    elif isinstance(inst, threeaddr.BinOp):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
       srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
@@ -281,9 +281,16 @@ def translate(tac):
 
       srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
 
-      # Add the second variable to X0
+      if isinstance(inst, threeaddr.Add):
+        oper = Add
+      elif isinstance(inst, threeaddr.Sub):
+        oper = Sub
+      else:
+        raise NotImplementedError(inst) # XXX
+
+      # Generate the operation
       appendInst(
-        Add(RegOperand(Processor.REG_X0), srcOpB)
+        oper(RegOperand(Processor.REG_X0), srcOpB)
       )
 
       dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)

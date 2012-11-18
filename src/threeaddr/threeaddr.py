@@ -232,8 +232,8 @@ class LessThan(tuple):
   srcb = property(lambda self: self[2])
   """The second source operand"""
 
-class Add(tuple):
-  """An operation that adds two source operands, storing the result in the
+class BinOp(tuple):
+  """An operation on two source operands that stores the result in the
   destination"""
 
   def __new__(cls, dst, srca, srcb):
@@ -251,6 +251,14 @@ class Add(tuple):
 
   srcb = property(lambda self: self[2])
   """The second source operand"""
+
+class Add(BinOp):
+  """An operation that adds two source operands, storing the result in the
+  destination"""
+
+class Sub(BinOp):
+  """An operation that subtracts two source operands, storing the result in
+  the destination"""
 
 class Jump(tuple):
   """An operation that jumps to the given target"""
