@@ -297,7 +297,7 @@ class LevelMenu(PlainMenu):
     ["level400", "level401", "level402", "level403", "level404"]
   ]
   tutList = [
-    ["../assets/intro_screen.png", "../assets/masterLevel1tutorial.png"]
+    ["../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png"]
   ]
 
   def __init__(self, ui):
@@ -307,7 +307,6 @@ class LevelMenu(PlainMenu):
 
   def handleEvents(self, events):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
-
     for e in events:
       if e.type == pygame.QUIT:
         return True
