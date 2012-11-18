@@ -276,6 +276,8 @@ class Tutorials(PlainMenu):
           self.userSkip()
         elif e.key == pygame.K_RIGHT:
           self.userNext()
+        elif e.key == pygame.K_LEFT:
+          self.userBack()
 
     return super(Tutorials, self).handleEvents(events)
 
