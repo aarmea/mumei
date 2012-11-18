@@ -243,23 +243,55 @@ def translate(tac):
     elif isinstance(inst, threeaddr.LessThan):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
+      srcOpA, patchOff = _getOperand(localVars, patches, len(code), inst.srca)
+      srcOpB, _ = _getOperand(localVars, patches, patchOff, inst.srcb)
 
-      # Copy the first variable into X0
+      # Subtract the second variable from the first variable
       appendInst(
-        Set(RegOperand(Processor.REG_X0), srcOpA)
-      )
-
-      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
-
-      # Subtract the second variable from X0
-      appendInst(
-        Sub(RegOperand(Processor.REG_X0), srcOpB)
+        Sub(srcOpA, srcOpB)
       )
 
       # Mask the less-than flag in the flags register
       appendInst(
         And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_LESS))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
+    elif isinstance(inst, threeaddr.GreaterThan):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      srcOpA, patchOff = _getOperand(localVars, patches, len(code), inst.srca)
+      srcOpB, _ = _getOperand(localVars, patches, patchOff, inst.srcb)
+
+      # Subtract the second variable from the first variable
+      appendInst(
+        Sub(srcOpA, srcOpB)
+      )
+
+      # Mask the less-than and zero flags in the flags register
+      appendInst(
+        And(
+          RegOperand(Processor.REG_FL),
+          ShortImmOperand(Processor.FLAG_LESS | Processor.FLAG_ZERO)
+        )
+      )
+
+      # Copy the flags temporarily
+      # XXX The flags register should probably be updated if it isn't the
+      # destination operand of an instruction.
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_FL))
+      )
+
+      # Check whether the flags are zero
+      appendInst(
+        Or(RegOperand(Processor.REG_X0), ShortImmOperand(0))
       )
 
       dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
