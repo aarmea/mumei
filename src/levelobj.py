@@ -8,6 +8,13 @@ from textureatlas import *
 
 EPSILON = 0.01
 
+COLORS = {
+  0 : "",
+  1 : "R",
+  2 : "G",
+  3 : "B"
+}
+
 class LevelObject(object):
   """The base level object"""
 
@@ -288,16 +295,37 @@ class Actor(LevelObject):
 
     self._sides[0].append("skeleton.png")
 
+class Robot(Actor):
+  """The robot"""
+
+  def __init__(self, pos, spritesheet):
+    self._uinit(pos, spritesheet)
+
+    self.color = 0
+
+  def __getColor(self):
+    return self.__color
+
+  def __setColor(self, color):
+    self.__color = color
+
+    # Change the sprites to those with the given color
+    colorStr = COLORS[color]
+    self._sides[0] = []
+    self._sides[0].append("robot0%s.png" % colorStr)
+    self._sides[0].append("robot1%s.png" % colorStr)
+    self._sides[0].append("robot2%s.png" % colorStr)
+    self._sides[0].append("robot3%s.png" % colorStr)
+
+  color = property(__getColor, __setColor)
+
 class Player(Actor):
   """The player"""
 
   def __init__(self, pos, spritesheet):
     self._uinit(pos, spritesheet)
 
-    self._sides[0].append("robot0.png")
-    self._sides[0].append("robot1.png")
-    self._sides[0].append("robot2.png")
-    self._sides[0].append("robot3.png")
+    self._sides[0].append("person.png")
 
 # TODO: more objects
 
