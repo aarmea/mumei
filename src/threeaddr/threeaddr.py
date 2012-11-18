@@ -344,3 +344,20 @@ class IfZeroJump(tuple):
 
   target = property(lambda self: self[1])
   """The address of the jump target"""
+
+class IfNotZeroJump(tuple):
+  """An operation that jumps to the target address if the source operand is
+  non-zero"""
+
+  def __new__(cls, src, target):
+    return tuple.__new__(cls, (src, target))
+
+  def __repr__(self):
+    return ("%s(src=%r, target=%r)" % (type(self).__name__, self.src,
+      self.target))
+
+  src = property(lambda self: self[0])
+  """The source operand"""
+
+  target = property(lambda self: self[1])
+  """The address of the jump target"""

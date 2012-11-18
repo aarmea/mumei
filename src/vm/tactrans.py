@@ -590,6 +590,31 @@ def translate(tac):
         Set(RegOperand(Processor.REG_IP), targetOp)
       )
 
+    elif isinstance(inst, threeaddr.IfNotZeroJump):
+      srcOp, _ = _getOperand(localVars, patches, len(code), inst.src)
+
+      # Set the flags register
+      appendInst(
+        Or(ShortImmOperand(0), srcOp)
+      )
+
+      # Invert the zero flag
+      appendInst(
+        Xor(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      # Check the flags register
+      appendInst(
+        If(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      targetOp, _ = _getOperand(localVars, patches, len(code), inst.target)
+
+      # Jump to the given address
+      appendInst(
+        Set(RegOperand(Processor.REG_IP), targetOp)
+      )
+
     else:
       raise NotImplementedError(inst) # XXX
 
