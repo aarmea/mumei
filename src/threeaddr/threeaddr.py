@@ -265,12 +265,12 @@ class BinOp(tuple):
   """The second source operand"""
 
 class LessThan(BinOp):
-  """An operation that sets the result to non-zero if the first operand is less
-  than the second, otherwise zero"""
+  """An operation that sets the result to one if the first operand is less than
+  the second, otherwise zero"""
 
 class GreaterThan(BinOp):
-  """An operation that sets the result to non-zero if the first operand is
-  greater than the second, otherwise zero"""
+  """An operation that sets the result to one if the first operand is greater
+  than the second, otherwise zero"""
 
 class And(BinOp):
   """An operation that takes the bitwise AND of two source operands, storing the

@@ -256,6 +256,18 @@ def translate(tac):
         And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_LESS))
       )
 
+      # Copy the flags temporarily
+      # XXX The flags register should probably be updated if it isn't the
+      # destination operand of an instruction.
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_FL))
+      )
+
+      # Check whether the flags are non-zero
+      appendInst(
+        Xor(RegOperand(Processor.REG_X0), ShortImmOperand(Processor.FLAG_LESS))
+      )
+
       dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
 
       # Copy the flags register to the destination variable
