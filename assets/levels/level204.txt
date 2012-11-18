@@ -1,17 +1,18 @@
-                                                  +
-  F5 - run       ESC - quit                       +
-  F1 - hints     F2  - clear text                 +
-__________________________________________________+ 
-  moveX(int distance): is a function which        +
-                       moves robot right          +
-                       one block                  +
-                                                  +
-  climb(): climbs the length of the latter        +
-           as long as it is at the base           +
-                                                  +
-  int c: an integer that represents the color     +
-         of the robot's eyes                      +
-    0 - Gray (default)                            +
-    1 - Red                                       +
-    2 - Blue                                      +
-    3 - Green                                     +
+                                                  
+  F5 - run       ESC - quit                       
+  F1 - hints     F2  - clear text                 
+__________________________________________________ 
+  
+moveX(int distance): is a function which        
+                       moves robot right          
+                       one block                  
+                                                  
+  climb(): climbs the length of the latter        
+           as long as it is at the base           
+                                                  
+  int c: an integer that represents the color     
+         of the robot's eyes                      
+    0 - Gray (default)                            
+    1 - Red                                       
+    2 - Blue                                      
+    3 - Green                                     

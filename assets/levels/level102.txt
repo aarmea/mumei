@@ -1,6 +1,12 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+
 int x: an integer value representing
        the robots's x coordinate
   0 - starting position
+
 int c: an integer value representing
        the robot's eye color
   0 - Gray (default) 
