@@ -615,15 +615,19 @@ class SubExpr(BinaryExpr):
 class UnaryExpr(Expr):
   """A unary expression"""
 
-@visitable
-class DerefExpr(UnaryExpr):
-  """A dereference expression"""
-
   def __init__(self, expr):
     self.expr = expr
 
   def __repr__(self):
     return "%s(expr=%r)" % (type(self).__name__, self.expr)
+
+@visitable
+class DerefExpr(UnaryExpr):
+  """A dereference expression"""
+
+@visitable
+class NotExpr(UnaryExpr):
+  """A bitwise NOT expression"""
 
 class PostfixExpr(Expr):
   """A postfix expression"""
