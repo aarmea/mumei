@@ -126,10 +126,10 @@ class PlainMenu(Menu):
     self.__texture.bind()
     glBegin(GL_QUADS);
     if True:
-      glTexCoord2d(0.0, 0.0); glVertex2d(-5.0,-4.0);
-      glTexCoord2d(1.0, 0.0); glVertex2d( 5.0,-4.0);
-      glTexCoord2d(1.0, 1.0); glVertex2d( 5.0, 3.0);
-      glTexCoord2d(0.0, 1.0); glVertex2d(-5.0, 3.0);
+      glTexCoord2d(0.0, 0.0); glVertex2d(-6.0,-4.5);
+      glTexCoord2d(1.0, 0.0); glVertex2d( 6.0,-4.5);
+      glTexCoord2d(1.0, 1.0); glVertex2d( 6.0, 4.5);
+      glTexCoord2d(0.0, 1.0); glVertex2d(-6.0, 4.5);
     glEnd();
 
 class CharacterSelectMenu(PlainMenu):
@@ -197,7 +197,7 @@ class CharacterSelectMenu(PlainMenu):
     return super(CharacterSelectMenu, self).handleEvents(events)
 
   def userSelect(self):
-    self._ui.pushState(LevelMenu(self._ui))
+    self.userBack()
 
   def draw(self, time):
     """Draw the background image"""
@@ -239,7 +239,26 @@ class WelcomeScreen(PlainMenu):
     super(WelcomeScreen, self).__init__(ui, "../assets/background.png")
 
   def userSelect(self):
-    self._ui.pushState(CharacterSelectMenu(self._ui))
+    self._ui.popState()
+    self._ui.pushState(MainMenu(self._ui))
+
+class MainMenu(PlainMenu):
+  """The main menu screen"""
+
+  def __init__(self, ui):
+    super(MainMenu, self).__init__(ui, "../assets/mainmenu.png")
+
+  def handleEvents(self, events):
+    for e in events:
+      if e.type == pygame.KEYDOWN:
+        if e.key == pygame.K_c:
+          self._ui.pushState(CharacterSelectMenu(self._ui))
+
+    return super(MainMenu, self).handleEvents(events)
+
+  def userSelect(self):
+    # Switch to the level select menu
+    self._ui.pushState(LevelMenu(self._ui))
 
 class LevelButton(object):
   """Faux button that indicates available level choices"""
