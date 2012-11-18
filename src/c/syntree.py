@@ -626,6 +626,10 @@ class DerefExpr(UnaryExpr):
   """A dereference expression"""
 
 @visitable
+class NegExpr(UnaryExpr):
+  """A negation expression"""
+
+@visitable
 class NotExpr(UnaryExpr):
   """A bitwise NOT expression"""
 

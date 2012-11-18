@@ -378,7 +378,7 @@ postfixExpr = (
 #   '&' # XXX Not implemented
 #   '*'
 #   '+'
-#   '-' # XXX Not implemented
+#   '-'
 #   '~'
 #   '!' # XXX Not implemented
 derefExpr = (
@@ -386,11 +386,16 @@ derefExpr = (
   mbind(castExpr, lambda expr_:
   mreturn(syntree.DerefExpr(expr_)))))
 plusExpr = mbind(addToken, lambda _: castExpr)
+minusExpr = (
+  mbind(subToken, lambda _:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.NegExpr(expr_)))))
 notExpr = (
   mbind(notToken, lambda _:
   mbind(castExpr, lambda expr_:
   mreturn(syntree.NotExpr(expr_)))))
-unaryExpr = mplus(mplus(mplus(postfixExpr, derefExpr), plusExpr), notExpr)
+unaryExpr = mplus(mplus(mplus(mplus(postfixExpr, derefExpr), plusExpr),
+  minusExpr), notExpr)
 
 # cast-expression:
 #   unary-expression

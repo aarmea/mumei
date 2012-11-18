@@ -127,6 +127,21 @@ class TACGenerator(object):
 
       return var
 
+  def visitNegExpr(self, node, lvalue=False):
+    """Generate code for a negation expression"""
+    # The result of a negation expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    var = next(self.varGen)
+    # Generate code for the inner expression
+    rvar = node.expr.accept(self)
+    # Generate the instruction
+    self.code.append(Neg(var, rvar))
+
+    return var
+
   def visitNotExpr(self, node, lvalue=False):
     """Generate code for a bitwise NOT expression"""
     # The result of a bitwise NOT expression is not an lvalue
