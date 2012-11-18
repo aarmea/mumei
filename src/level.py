@@ -64,7 +64,8 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelName)
 
-    self._text = TextEditor((0, 5.75), (51, 48), self.charset, self._sampleCode)
+    self._lines = LineNumbers((0, 5.75), 48, self.charset)
+    self._text = TextEditor((0.625, 5.75), (47, 48), self.charset, self._sampleCode)
     self._debug = TextBox((-8, -1), (51, 21), self.charset, self._helpText)
 
     # Spawn a player
@@ -269,6 +270,7 @@ class Level(object):
     self._player.draw()
 
     # Draw the editor
+    self._lines.draw()
     self._text.draw()
 
     # Draw the debug view

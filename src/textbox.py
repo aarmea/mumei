@@ -67,6 +67,16 @@ class TextBox(object):
 
   text = property(_getText)
 
+class LineNumbers(TextBox):
+  """Line numbers that can be placed next to a TextBox or TextEditor"""
+
+  def __init__(self, pos, lines, charset):
+    rows, cols = lines, len(str(lines))
+    string = ""
+    for num in xrange(lines):
+      string += '|' + str(num).rjust(cols, ' ') + "|\n"
+    super(LineNumbers, self).__init__(pos, (cols+2, rows), charset, string)
+
 class TextEditor(TextBox):
   """An OpenGL text editor"""
 
