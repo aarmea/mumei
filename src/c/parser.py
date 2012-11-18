@@ -283,6 +283,7 @@ addToken = token(lambda t: isinstance(t, scanner.AddToken))
 subToken = token(lambda t: isinstance(t, scanner.SubToken))
 starToken = token(lambda t: isinstance(t, scanner.StarToken))
 divToken = token(lambda t: isinstance(t, scanner.DivToken))
+logicNotToken = token(lambda t: isinstance(t, scanner.LogicNotToken))
 notToken = token(lambda t: isinstance(t, scanner.NotToken))
 ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
 xorToken = token(lambda t: isinstance(t, scanner.XorToken))
@@ -398,7 +399,7 @@ postfixExpr = (
 #   '+'
 #   '-'
 #   '~'
-#   '!' # XXX Not implemented
+#   '!'
 preIncExpr = (
   mbind(incrementToken, lambda t:
   mbind(unaryExpr, lambda expr_:
@@ -427,8 +428,13 @@ notExpr = (
   mbind(notToken, lambda t:
   mbind(castExpr, lambda expr_:
   mreturn(syntree.NotExpr(t.pos, expr_)))))
-unaryExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(postfixExpr, preIncExpr),
-  preDecExpr), addrOfExpr), derefExpr), plusExpr), minusExpr), notExpr)
+logicNotExpr = (
+  mbind(logicNotToken, lambda t:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.LogicNotExpr(t.pos, expr_)))))
+unaryExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(mplus(postfixExpr,
+  preIncExpr), preDecExpr), addrOfExpr), derefExpr), plusExpr), minusExpr),
+  notExpr), logicNotExpr)
 
 # cast-expression:
 #   unary-expression

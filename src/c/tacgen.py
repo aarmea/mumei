@@ -249,6 +249,21 @@ class TACGenerator(object):
 
     return var
 
+  def visitLogicNotExpr(self, node, lvalue=False):
+    """Generate code for a logical NOT expression"""
+    # The result of a bitwise NOT expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    var = next(self.varGen)
+    # Generate code for the inner expression
+    rvar = node.expr.accept(self)
+    # Generate the instruction
+    self.code.append(Equal(var, rvar, 0))
+
+    return var
+
   def visitAssignExpr(self, node, lvalue=False):
     """Generate code for an assignment expression"""
     # The result of an assignment is not an lvalue

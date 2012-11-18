@@ -693,6 +693,10 @@ class NegExpr(UnaryExpr):
 class NotExpr(UnaryExpr):
   """A bitwise NOT expression"""
 
+@visitable
+class LogicNotExpr(UnaryExpr):
+  """A logical NOT expression"""
+
 class PostfixExpr(Expr):
   """A postfix expression"""
 
