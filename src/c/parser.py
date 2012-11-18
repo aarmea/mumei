@@ -280,6 +280,7 @@ rparenToken = token(lambda t: isinstance(t, scanner.RParenToken))
 addToken = token(lambda t: isinstance(t, scanner.AddToken))
 subToken = token(lambda t: isinstance(t, scanner.SubToken))
 starToken = token(lambda t: isinstance(t, scanner.StarToken))
+divToken = token(lambda t: isinstance(t, scanner.DivToken))
 notToken = token(lambda t: isinstance(t, scanner.NotToken))
 ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
 xorToken = token(lambda t: isinstance(t, scanner.XorToken))
@@ -432,26 +433,41 @@ unaryExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(postfixExpr, preIncExpr),
 #   '(' type-name ')' cast-expression
 castExpr = unaryExpr
 
+# multiplicative-expression-suffix:
+#   '*' cast-expression multiplicative-expression-suffix?
+#   '/' cast-expression multiplicative-expression-suffix?
+#   '%' cast-expression multiplicative-expression-suffix? # XXX Not implemented
+mulExprSuffix = (
+  mbind(starToken, lambda _:
+  mbind(castExpr, lambda expr_:
+  mbind(option([], multiplicativeExprSuffix), lambda exprs:
+  mreturn([(syntree.MulExpr, expr_)] + exprs)))))
+divExprSuffix = (
+  mbind(divToken, lambda _:
+  mbind(castExpr, lambda expr_:
+  mbind(option([], multiplicativeExprSuffix), lambda exprs:
+  mreturn([(syntree.DivExpr, expr_)] + exprs)))))
+multiplicativeExprSuffix = mplus(mulExprSuffix, divExprSuffix)
+
 # multiplicative-expression:
 #   cast-expression multiplicative-expression-suffix?
-#
-# multiplicative-expression-suffix:
-#   '*' cast-expression multiplicative-expression-suffix? # XXX Not implemented
-#   '/' cast-expression multiplicative-expression-suffix? # XXX Not implemented
-#   '%' cast-expression multiplicative-expression-suffix? # XXX Not implemented
-mulExpr = castExpr
+multiplicativeExpr = (
+  mbind(castExpr, lambda expr_:
+  mbind(option([], multiplicativeExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
 
 # additive-expression-suffix:
 #   '+' multiplicative-expression additive-expression-suffix?
 #   '-' multiplicative-expression additive-expression-suffix?
 addExprSuffix = (
   mbind(addToken, lambda _:
-  mbind(mulExpr, lambda expr_:
+  mbind(multiplicativeExpr, lambda expr_:
   mbind(option([], addExprSuffix), lambda exprs:
   mreturn([(syntree.AddExpr, expr_)] + exprs)))))
 subExprSuffix = (
   mbind(subToken, lambda _:
-  mbind(mulExpr, lambda expr_:
+  mbind(multiplicativeExpr, lambda expr_:
   mbind(option([], subExprSuffix), lambda exprs:
   mreturn([(syntree.SubExpr, expr_)] + exprs)))))
 additiveExprSuffix = mplus(addExprSuffix, subExprSuffix)
@@ -459,7 +475,7 @@ additiveExprSuffix = mplus(addExprSuffix, subExprSuffix)
 # additive-expression:
 #   multiplicative-expression additive-expression-suffix?
 additiveExpr = (
-  mbind(mulExpr, lambda expr_:
+  mbind(multiplicativeExpr, lambda expr_:
   mbind(option([], additiveExprSuffix), lambda exprs:
   mreturn(reduce(lambda lexpr, (type_, rexpr):
     type_(lexpr, rexpr), exprs, expr_)))))

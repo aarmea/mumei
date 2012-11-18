@@ -317,6 +317,14 @@ class TACGenerator(object):
     """Generate code for a bitwise OR expression"""
     return self.visitBinOpExpr(node, lvalue, Or)
 
+  def visitMulExpr(self, node, lvalue=False):
+    """Generate code for a multiplication expression"""
+    return self.visitBinOpExpr(node, lvalue, Mul)
+
+  def visitDivExpr(self, node, lvalue=False):
+    """Generate code for a division expression"""
+    return self.visitBinOpExpr(node, lvalue, Div)
+
   def visitAddExpr(self, node, lvalue=False):
     """Generate code for an addition expression"""
     return self.visitBinOpExpr(node, lvalue, Add)
