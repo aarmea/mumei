@@ -577,29 +577,28 @@ class AssignExpr(Expr):
 
 # XXX More expressions
 
+class BinaryExpr(Expr):
+  """A binary expression"""
+
+  def __init__(self, lexpr, rexpr):
+    self.lexpr = lexpr
+    self.rexpr = rexpr
+
+  def __repr__(self):
+    return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
+      self.rexpr))
+
 @visitable
-class LessThanExpr(Expr):
+class LessThanExpr(BinaryExpr):
   """A less-than expression"""
 
-  def __init__(self, lexpr, rexpr):
-    self.lexpr = lexpr
-    self.rexpr = rexpr
-
-  def __repr__(self):
-    return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
-      self.rexpr))
-
 @visitable
-class AddExpr(Expr):
+class AddExpr(BinaryExpr):
   """An addition expression"""
 
-  def __init__(self, lexpr, rexpr):
-    self.lexpr = lexpr
-    self.rexpr = rexpr
-
-  def __repr__(self):
-    return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
-      self.rexpr))
+@visitable
+class SubExpr(BinaryExpr):
+  """A subtraction expression"""
 
 class UnaryExpr(Expr):
   """A unary expression"""

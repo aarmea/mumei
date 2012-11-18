@@ -273,6 +273,7 @@ assignToken = token(lambda t: isinstance(t, scanner.AssignToken))
 lparenToken = token(lambda t: isinstance(t, scanner.LParenToken))
 rparenToken = token(lambda t: isinstance(t, scanner.RParenToken))
 addToken = token(lambda t: isinstance(t, scanner.AddToken))
+subToken = token(lambda t: isinstance(t, scanner.SubToken))
 starToken = token(lambda t: isinstance(t, scanner.StarToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
@@ -398,20 +399,26 @@ mulExpr = castExpr
 
 # additive-expression-suffix:
 #   '+' multiplicative-expression additive-expression-suffix?
-#   '-' multiplicative-expression additive-expression-suffix? # XXX Not implemented
+#   '-' multiplicative-expression additive-expression-suffix?
 addExprSuffix = (
   mbind(addToken, lambda _:
   mbind(mulExpr, lambda expr_:
   mbind(option([], addExprSuffix), lambda exprs:
-  mreturn([expr_] + exprs)))))
+  mreturn([(syntree.AddExpr, expr_)] + exprs)))))
+subExprSuffix = (
+  mbind(subToken, lambda _:
+  mbind(mulExpr, lambda expr_:
+  mbind(option([], subExprSuffix), lambda exprs:
+  mreturn([(syntree.SubExpr, expr_)] + exprs)))))
+additiveExprSuffix = mplus(addExprSuffix, subExprSuffix)
 
 # additive-expression:
 #   multiplicative-expression additive-expression-suffix?
-addExpr = (
+additiveExpr = (
   mbind(mulExpr, lambda expr_:
-  mbind(option([], addExprSuffix), lambda exprs:
-  mreturn(reduce(lambda lexpr, rexpr:
-    syntree.AddExpr(lexpr, rexpr), exprs, expr_)))))
+  mbind(option([], additiveExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
 
 # shift-expression:
 #   additive-expression shift-expression-suffix?
@@ -419,7 +426,7 @@ addExpr = (
 # shift-expression-suffix:
 #   '<<' additive-expression shift-expression-suffix? # XXX Not implemented
 #   '>>' additive-expression shift-expression-suffix? # XXX Not implemented
-shiftExpr = addExpr
+shiftExpr = additiveExpr
 
 # relational-expression-suffix:
 #   '<' shift-expression relational-expression-suffix?

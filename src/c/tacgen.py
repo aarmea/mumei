@@ -142,26 +142,9 @@ class TACGenerator(object):
 
     return rvar
 
-  def visitLessThanExpr(self, node, lvalue=False):
-    """Generate code for a less-than expression"""
-    # The result of a less-than expression is not an lvalue
-    if lvalue:
-      return None
-
-    # Allocate a temporary variable for the result
-    var = next(self.varGen)
-    # Generate code for the left side of the comparison
-    lvar = node.lexpr.accept(self)
-    # Generate code for the right side of the comparison
-    rvar = node.rexpr.accept(self)
-    # Generate the comparison instruction
-    self.code.append(LessThan(var, lvar, rvar))
-
-    return var
-
-  def visitAddExpr(self, node, lvalue=False):
-    """Generate code for an addition expression"""
-    # The result of an addition expression is not an lvalue
+  def visitBinOpExpr(self, node, lvalue, inst):
+    """Generate code for a binary operation expression"""
+    # The result of a binary operation expression is not an lvalue
     if lvalue:
       return None
 
@@ -171,10 +154,22 @@ class TACGenerator(object):
     lvar = node.lexpr.accept(self)
     # Generate code for the right side of the expression
     rvar = node.rexpr.accept(self)
-    # Generate an addition instruction
-    self.code.append(Add(var, lvar, rvar))
+    # Generate the instruction
+    self.code.append(inst(var, lvar, rvar))
 
     return var
+
+  def visitLessThanExpr(self, node, lvalue=False):
+    """Generate code for a less-than expression"""
+    return self.visitBinOpExpr(node, lvalue, LessThan)
+
+  def visitAddExpr(self, node, lvalue=False):
+    """Generate code for an addition expression"""
+    return self.visitBinOpExpr(node, lvalue, Add)
+
+  def visitSubExpr(self, node, lvalue=False):
+    """Generate code for a subtraction expression"""
+    return self.visitBinOpExpr(node, lvalue, Sub)
 
   def visitReturnStmt(self, node):
     """Generate code for a return statement"""
