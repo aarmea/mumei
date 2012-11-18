@@ -213,10 +213,10 @@ class LadderOnFloor(Transport):
 class Door(Transport):
   """A door, which is usually the level's goal"""
 
-  def __init__(self, pos, spritesheet):
+  def __init__(self, pos, spritesheet, color=0):
     self._uinit(pos, spritesheet)
 
-    self.color = 0
+    self.color = color
 
   def __getColor(self):
     return self.__color
@@ -226,26 +226,10 @@ class Door(Transport):
 
     # Change the sprites to those with the given color
     colorStr = COLORS[color]
-    self._sides[0] = []
-    self._sides[0].append("door%s.png" % colorStr)
+    self._sides[1] = []
+    self._sides[1].append("door%s.png" % colorStr)
 
   color = property(__getColor, __setColor)
-
-class DoorR(Transport):
-  """A door, which is usually the level's goal"""
-
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[1].append("doorR.png")
-
-class DoorG(Transport):
-  """A door, which is usually the level's goal"""
-
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[1].append("doorG.png")
 
 class Barrier(LevelObject):
   """A barrier that blocks the player"""
@@ -325,10 +309,10 @@ class Actor(LevelObject):
 class Robot(Actor):
   """The robot"""
 
-  def __init__(self, pos, spritesheet):
+  def __init__(self, pos, spritesheet, color=0):
     self._uinit(pos, spritesheet)
 
-    self.color = 0
+    self.color = color
 
   def __getColor(self):
     return self.__color
@@ -369,8 +353,8 @@ NAMES = {
   "ladderR" : LadderRight,
   "ladderRF" : LadderRightFloor,
   "door" : Door,
-  "doorR" : DoorR,
-  "doorG" :DoorG,
+  "doorR" : lambda pos, spritesheet: Door(pos, spritesheet, 1),
+  "doorG" : lambda pos, spritesheet: Door(pos, spritesheet, 2),
   "barrier" : Barrier,
   "wall" : Wall,
   "skeleton" : Skeleton,

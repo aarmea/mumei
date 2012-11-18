@@ -22,6 +22,7 @@ class Level(object):
 
   def __init__(self, ui, levelName):
     self.__ui = ui
+    self._levelName = levelName
     self._height = 0
     self._width = 0
     self._objects = [ [] ]
@@ -44,14 +45,17 @@ class Level(object):
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelName)
 
+    self.x = -self._width / 2
+    self.y = -self._height / 2
+
     self._lines = LineNumbers((0, 5.75), 47, self.charset)
     self._text = TextEditor((0.625, 5.75), (47, 47), self.charset, self._sampleCode)
     self._debug = TextBox((-8, -1), (51, 20), self.charset, self._helpText)
     self._status = TextBox((-8, -6), (102, 1), self.charset, "Ready")
 
     # Spawn a player
-    self._player = levelobj.Player(self._startPos, self.spritesheet)
-    # self._player.relMove(self, (0, -1))
+    self._robot = levelobj.Robot(self._startPos, self.spritesheet)
+    # self._robot.relMove(self, (0, -1))
 
     self._vars = {}
     self.procRunning = False
@@ -87,13 +91,11 @@ class Level(object):
 
         # Get the door position
         if isinstance(obj, levelobj.Door):
+          print "Door is at", obj._pos
           self._doorPos = obj._pos
 
         # Convert the temporary objects to the 2D list self._objects
         self._objects[int(obj._pos[0])-1][int(obj._pos[1])-1] = obj
-
-      self.x = -self._width / 2
-      self.y = -self._height / 2
 
       with open(self.levelDir + levelName + ".txt", 'rb') as helptext:
         self._helpText = helptext.read()
@@ -102,6 +104,15 @@ class Level(object):
         self._sampleCode = usercode.read()
 
       print "Level: loaded", levelName
+
+  def reset(self):
+    """Reset the level, leaving the code in place."""
+    self.procRunning = False
+    self._objects = [ [] ]
+    self._height = 0
+    self._width = 0
+    self.load(self._levelName)
+    self._robot = levelobj.Robot(self._startPos, self.spritesheet)
 
   def resetCode(self):
     """Reset the code in the editor to the sample code."""
@@ -197,11 +208,11 @@ class Level(object):
           elif e.key == pygame.K_i:
             pass
           elif e.key == pygame.K_j:
-            self._player.relMove(self, (-1, 0))
+            self._robot.relMove(self, (-1, 0))
           elif e.key == pygame.K_k:
             pass
           elif e.key == pygame.K_l:
-            self._player.relMove(self, (1, 0))
+            self._robot.relMove(self, (1, 0))
 
         else:
           # Send all other keypresses to the text editor
@@ -211,21 +222,26 @@ class Level(object):
   def checkWin(self):
     """Check if the level is completed."""
     # The player should not be moving
-    if self._player._moving:
+    if self._robot._moving:
       return False
 
     # The player should be at the destination door
-    if abs(self._player._pos[0]-self._doorPos[0]) > EPSILON and \
-       abs(self._player._pos[1]-self._doorPos[1]) > EPSILON:
+    if abs(self._robot._pos[0]-self._doorPos[0]) > EPSILON or \
+       abs(self._robot._pos[1]-self._doorPos[1]) > EPSILON:
       return False
 
     # The player's color should be the same as the door's color
-    
+    if self._robot.color != \
+       self._objects[int(self._doorPos[0])-1][int(self._doorPos[1])-1].color:
+      return False
 
     return True
 
   def draw(self, time):
     """Render the level interface."""
+    # Gravity
+    self._robot.relMove(self, (0, -1))
+
     # Step the processor
     if self.procRunning:
       try:
@@ -233,6 +249,14 @@ class Level(object):
       except BaseException, e:
         self.procRunning = False
         print "processor error:", e
+
+        # Check for the win condition and report it to the UI
+        if self.checkWin():
+          self._status._setText("Level completed")
+          return True
+        else:
+          self.reset()
+          self._status._setText("Level failed - try again")
 
       # Get the current move
       moveAddr = self._vars["move"]
@@ -243,7 +267,7 @@ class Level(object):
         move = ~move + 0xFFFF;
 
       # Move the player
-      self._player.relMove(self, (move, 0))
+      self._robot.relMove(self, (move, 0))
 
     # Draw
     glClearColor(0, 0, 0, 1)
@@ -262,11 +286,8 @@ class Level(object):
       for block in row:
         block.draw()
 
-    # Gravity
-    self._player.relMove(self, (0, -1))
-
     # Draw the movable objects
-    self._player.draw()
+    self._robot.draw()
 
     # Draw the editor
     self._lines.draw()
@@ -277,3 +298,6 @@ class Level(object):
 
     # Draw the status bar
     self._status.draw()
+
+    return False
+
