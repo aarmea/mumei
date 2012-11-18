@@ -280,6 +280,7 @@ class LevelMenu(PlainMenu):
                              ["level200", "level201", "level202", "level203", "level204"],
                              ["level300", "level301", "level302", "level303", "level304"],
                              ["level400", "level401", "level402", "level403", "level404"] ]
+    MasterTutorialDictionary = [ ["../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png"] ]
     for e in events: 
       if e.type == pygame.QUIT:
         return True
