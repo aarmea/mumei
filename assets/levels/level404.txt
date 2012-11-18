@@ -3,15 +3,15 @@
   F1 - hints     F2  - clear text
 ___________________________________________________ 
   
- moveX(int dist): is a function which 
+  moveX(int dist): is a function which 
                    moves robot right a 
                    distance specified 
                    by an integer value
 
- int Flame: an integer value that has a value
-            of 1 when the flame is up, and 0
-            otherwise
+  int FlameRemaining: the amount of safe time remaing
+                      only 2 or greater will ensure safe
+                      crossing
 
- wait(): a function which causes the robot to 
+  wait(): a function which causes the robot to 
           wait for 1 second
   

@@ -1,8 +1,10 @@
 int moveX(int distance);
-extern int FloorTileExists;
+extern int adjacentTo;
 int wait();
-extern int doorcolor;
-extern int color;
+int climb();
+int punch();
+extern int Flame;
+
 
 int main ()
 {
