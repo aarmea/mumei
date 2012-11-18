@@ -267,6 +267,8 @@ doubleToken = token(lambda t: isinstance(t, scanner.DoubleToken))
 longDoubleToken = token(lambda t: isinstance(t, scanner.LongDoubleToken))
 incrementToken = token(lambda t: isinstance(t, scanner.IncrementToken))
 decrementToken = token(lambda t: isinstance(t, scanner.DecrementToken))
+logicAndToken = token(lambda t: isinstance(t, scanner.LogicAndToken))
+logicOrToken = token(lambda t: isinstance(t, scanner.LogicOrToken))
 lessThanEqualToken = token(lambda t: isinstance(t, scanner.LessThanEqualToken))
 greaterThanEqualToken = token(lambda t: isinstance(t,
   scanner.GreaterThanEqualToken))
@@ -595,19 +597,37 @@ inclOrExpr = (
   mreturn(reduce(lambda lexpr, rexpr:
     syntree.OrExpr(lexpr, rexpr), exprs, expr_)))))
 
-# logical-and-expression:
-#   inclusive-or-expression logical-and-expression-suffix? # XXX Not implemented
-#
 # logical-and-expression-suffix:
 #   '&&' inclusive-or-expression logical-and-expression-suffix?
-logicAndExpr = inclOrExpr
+logicAndExprSuffix = (
+  mbind(logicAndToken, lambda _:
+  mbind(inclOrExpr, lambda expr_:
+  mbind(option([], logicAndExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
+
+# logical-and-expression:
+#   inclusive-or-expression logical-and-expression-suffix?
+logicAndExpr = (
+  mbind(inclOrExpr, lambda expr_:
+  mbind(option([], logicAndExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.LogicAndExpr(lexpr, rexpr), exprs, expr_)))))
+
+# logical-or-expression-suffix:
+#   '||' logical-and-expression logical-or-expression-suffix?
+logicOrExprSuffix = (
+  mbind(logicOrToken, lambda _:
+  mbind(logicAndExpr, lambda expr_:
+  mbind(option([], logicOrExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
 
 # logical-or-expression:
 #   logical-and-expression logical-or-expression-suffix?
-#
-# logical-or-expression-suffix:
-#   '||' logical-and-expression logical-or-expression-suffix? # XXX Not impl.
-logicOrExpr = logicAndExpr
+logicOrExpr = (
+  mbind(logicAndExpr, lambda expr_:
+  mbind(option([], logicOrExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.LogicOrExpr(lexpr, rexpr), exprs, expr_)))))
 
 # conditional-expression:
 #   logical-or-expression

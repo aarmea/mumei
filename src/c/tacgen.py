@@ -317,6 +317,64 @@ class TACGenerator(object):
     """Generate code for a bitwise OR expression"""
     return self.visitBinOpExpr(node, lvalue, Or)
 
+  def visitLogicOrExpr(self, node, lvalue=False):
+    """Generate code for a logical OR expression"""
+    # The result of a logical expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    var = next(self.varGen)
+    # Allocate a label for the end of the right expression
+    end_ = next(self.labelGen)
+
+    # Generate code for the left expression
+    lvar = node.lexpr.accept(self)
+    # Convert to bool (0 or 1)
+    self.code.append(NotEqual(var, lvar, 0))
+
+    # Short-circuit if the result is true
+    self.code.append(IfNotZeroJump(var, end_.id))
+
+    # Generate code for the right expression
+    rvar = node.rexpr.accept(self)
+    # Convert to bool (0 or 1)
+    self.code.append(NotEqual(var, rvar, 0))
+
+    # Generate the end label
+    self.code.append(Label(end_.id))
+
+    return var
+
+  def visitLogicAndExpr(self, node, lvalue=False):
+    """Generate code for a logical AND expression"""
+    # The result of a logical expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    var = next(self.varGen)
+    # Allocate a label for the end of the right expression
+    end_ = next(self.labelGen)
+
+    # Generate code for the left expression
+    lvar = node.lexpr.accept(self)
+    # Convert to bool (0 or 1)
+    self.code.append(NotEqual(var, lvar, 0))
+
+    # Short-circuit if the result is false
+    self.code.append(IfZeroJump(var, end_.id))
+
+    # Generate code for the right expression
+    rvar = node.rexpr.accept(self)
+    # Convert to bool (0 or 1)
+    self.code.append(NotEqual(var, rvar, 0))
+
+    # Generate the end label
+    self.code.append(Label(end_.id))
+
+    return var
+
   def visitMulExpr(self, node, lvalue=False):
     """Generate code for a multiplication expression"""
     return self.visitBinOpExpr(node, lvalue, Mul)
