@@ -313,6 +313,71 @@ def translate(tac):
         Set(dstOp, RegOperand(Processor.REG_FL))
       )
 
+    elif isinstance(inst, threeaddr.Equal):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
+
+      # Copy the first variable into a temporary register
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), srcOpA)
+      )
+
+      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
+
+      # Subtract the second variable from the first variable
+      appendInst(
+        Sub(RegOperand(Processor.REG_X0), srcOpB)
+      )
+
+      # Mask the zero flag in the flags register
+      appendInst(
+        And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      assert Processor.FLAG_ZERO == 1
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
+    elif isinstance(inst, threeaddr.NotEqual):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
+
+      # Copy the first variable into a temporary register
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), srcOpA)
+      )
+
+      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
+
+      # Subtract the second variable from the first variable
+      appendInst(
+        Sub(RegOperand(Processor.REG_X0), srcOpB)
+      )
+
+      # Mask the zero flag in the flags register
+      appendInst(
+        And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      # Negate the result
+      appendInst(
+        Xor(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      assert Processor.FLAG_ZERO == 1
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
     elif isinstance(inst, threeaddr.Neg):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 

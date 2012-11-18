@@ -272,6 +272,14 @@ class GreaterThan(BinOp):
   """An operation that sets the result to one if the first operand is greater
   than the second, otherwise zero"""
 
+class Equal(BinOp):
+  """An operation that sets the result to one if the first operand is equal to
+  the second, otherwise zero"""
+
+class NotEqual(BinOp):
+  """An operation that sets the result to one if the first operand is not equal
+  to the second, otherwise zero"""
+
 class And(BinOp):
   """An operation that takes the bitwise AND of two source operands, storing the
   result in the destination"""
