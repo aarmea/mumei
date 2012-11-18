@@ -163,6 +163,10 @@ class TACGenerator(object):
     """Generate code for a less-than expression"""
     return self.visitBinOpExpr(node, lvalue, LessThan)
 
+  def visitAndExpr(self, node, lvalue=False):
+    """Generate code for a bitwise AND expression"""
+    return self.visitBinOpExpr(node, lvalue, And)
+
   def visitAddExpr(self, node, lvalue=False):
     """Generate code for an addition expression"""
     return self.visitBinOpExpr(node, lvalue, Add)

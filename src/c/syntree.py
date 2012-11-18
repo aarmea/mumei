@@ -593,6 +593,10 @@ class LessThanExpr(BinaryExpr):
   """A less-than expression"""
 
 @visitable
+class AndExpr(BinaryExpr):
+  """A bitwise AND expression"""
+
+@visitable
 class AddExpr(BinaryExpr):
   """An addition expression"""
 

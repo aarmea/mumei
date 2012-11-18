@@ -275,6 +275,7 @@ rparenToken = token(lambda t: isinstance(t, scanner.RParenToken))
 addToken = token(lambda t: isinstance(t, scanner.AddToken))
 subToken = token(lambda t: isinstance(t, scanner.SubToken))
 starToken = token(lambda t: isinstance(t, scanner.StarToken))
+ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
 
@@ -453,14 +454,23 @@ relExpr = (
 # equality-expression-suffix:
 #   '==' relational-expression equality-expression-suffix? # XXX Not implemented
 #   '!=' relational-expression equality-expression-suffix? # XXX Not implemented
-eqExpr = relExpr
+equalityExpr = relExpr
+
+# and-expression-suffix:
+#   '&' equality-expression and-expression-suffix?
+andExprSuffix = (
+  mbind(ampersandToken, lambda _:
+  mbind(equalityExpr, lambda expr_:
+  mbind(option([], andExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
 
 # and-expression:
 #   equality-expression and-expression-suffix?
-#
-# and-expression-suffix:
-#   '&' equality-expression and-expression-suffix? # XXX Not implemented
-andExpr = eqExpr
+andExpr = (
+  mbind(equalityExpr, lambda expr_:
+  mbind(option([], andExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.AndExpr(lexpr, rexpr), exprs, expr_)))))
 
 # exclusive-or-expression:
 #   and-expression exclusive-or-expression-suffix?
