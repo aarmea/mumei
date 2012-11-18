@@ -276,6 +276,7 @@ semicolonToken = token(lambda t: isinstance(t, scanner.SemicolonToken))
 lcurlyToken = token(lambda t: isinstance(t, scanner.LCurlyToken))
 rcurlyToken = token(lambda t: isinstance(t, scanner.RCurlyToken))
 commaToken = token(lambda t: isinstance(t, scanner.CommaToken))
+colonToken = token(lambda t: isinstance(t, scanner.ColonToken))
 assignToken = token(lambda t: isinstance(t, scanner.AssignToken))
 lparenToken = token(lambda t: isinstance(t, scanner.LParenToken))
 rparenToken = token(lambda t: isinstance(t, scanner.RParenToken))
@@ -292,6 +293,7 @@ equalToken = token(lambda t: isinstance(t, scanner.EqualToken))
 notEqualToken = token(lambda t: isinstance(t, scanner.NotEqualToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
 greaterThanToken = token(lambda t: isinstance(t, scanner.GreaterThanToken))
+questionToken = token(lambda t: isinstance(t, scanner.QuestionToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
 
 # primary-expression:
@@ -637,8 +639,17 @@ logicOrExpr = (
 
 # conditional-expression:
 #   logical-or-expression
-#   logical-or-expression '?' expression ':' conditional-expression # XXX
-condExpr = logicOrExpr
+#   logical-or-expression '?' expression ':' conditional-expression
+condExprLook = lookAhead(mbind(logicOrExpr, lambda _: questionToken))
+condExpr_ = (
+  mbind(try_(condExprLook), lambda _:
+  mbind(logicOrExpr, lambda expr_:
+  mbind(questionToken, lambda _:
+  mbind(expr, lambda texpr:
+  mbind(colonToken, lambda _:
+  mbind(condExpr, lambda fexpr:
+  mreturn(syntree.CondExpr(expr_, texpr, fexpr)))))))))
+condExpr = mplus(condExpr_, logicOrExpr)
 
 # assignment-expression:
 #   conditional-expression

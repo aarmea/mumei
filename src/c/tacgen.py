@@ -279,6 +279,41 @@ class TACGenerator(object):
 
     return rvar
 
+  def visitCondExpr(self, node, lvalue=False):
+    """Generate code for a conditional expression"""
+    # The result of a conditional expression is not an lvalue
+    if lvalue:
+      return None
+
+    # Allocate a temporary variable for the result
+    var = next(self.varGen)
+    # Allocate a label for the false part
+    else_ = next(self.labelGen)
+    # Allocate a label for the end of the expression
+    end_ = next(self.labelGen)
+
+    # Generate code for the condition expression
+    cvar = node.expr.accept(self)
+    # Generate a jump to the else part on zero
+    self.code.append(IfZeroJump(cvar, else_.id))
+
+    # Generate code for the true part
+    tvar = node.texpr.accept(self)
+    self.code.append(Assign(var, tvar))
+    # Generate an instruction to jump to the end of the expression
+    self.code.append(Jump(end_.id))
+
+    # Generate a label for the false part
+    self.code.append(Label(else_.id))
+    # Generate code for the false part
+    fvar = node.fexpr.accept(self)
+    self.code.append(Assign(var, fvar))
+
+    # Generate a label for the end of the exprssion
+    self.code.append(Label(end_.id))
+
+    return var
+
   def visitBinOpExpr(self, node, lvalue, inst):
     """Generate code for a binary operation expression"""
     # The result of a binary operation expression is not an lvalue
@@ -431,19 +466,22 @@ class TACGenerator(object):
     # Allocate a label for the end of the statement
     end_ = next(self.labelGen)
 
-    # Generate code for the conditional expression
+    # Generate code for the condition expression
     var = node.expr.accept(self)
     # Generate a jump to the else part on zero
     self.code.append(IfZeroJump(var, else_.id))
+
     # Generate code for the true part
     node.tstmt.accept(self)
     # Generate an instruction to jump to the end of the statement
     self.code.append(Jump(end_.id))
+
     # Generate a label for the false part
     self.code.append(Label(else_.id))
     # Generate code for the false part, if any
     if node.fstmt:
       node.fstmt.accept(self)
+
     # Generate a label for the end of the statement
     self.code.append(Label(end_.id))
 
@@ -455,14 +493,17 @@ class TACGenerator(object):
     end_ = next(self.labelGen)
     # Generate a label for the beginning of the loop
     self.code.append(Label(begin_.id))
-    # Generate code for the conditional expression
+
+    # Generate code for the condition expression
     var = node.expr.accept(self)
     # Generate an instruction to jump to the end of the loop on zero
     self.code.append(IfZeroJump(var, end_.id))
+
     # Generate code for the body of the loop
     node.stmt.accept(self)
     # Generate a jump to the beginning of the loop
     self.code.append(Jump(begin_.id))
+
     # Generate a label for the end of the loop
     self.code.append(Label(end_.id))
 

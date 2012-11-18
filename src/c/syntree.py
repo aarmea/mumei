@@ -580,7 +580,20 @@ class AssignExpr(Expr):
 
   pos = property(lambda self: self.lexpr.pos)
 
-# XXX More expressions
+@visitable
+class CondExpr(Expr):
+  """A conditional expression"""
+
+  def __init__(self, expr, texpr, fexpr):
+    self.expr = expr
+    self.texpr = texpr
+    self.fexpr = fexpr
+
+  def __repr__(self):
+    return ("%s(expr=%r, texpr=%r, fexpr=%r)" % (type(self).__name__, self.expr,
+      self.texpr, self.fexpr))
+
+  pos = property(lambda self: self.expr.pos)
 
 class BinaryExpr(Expr):
   """A binary expression"""
