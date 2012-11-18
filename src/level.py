@@ -60,7 +60,7 @@ class Level(object):
     self.botz = 1
 
     # Load level assets
-    self.spritesheet = TileSet("../assets/", "spritesheet")
+    self.spritesheet = self.__ui.spritesheet
     self.charset = CharacterSet("../assets/font.png")
     self.load(levelName)
 

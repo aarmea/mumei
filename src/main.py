@@ -8,6 +8,7 @@ import pygame
 
 from level import Level
 from texture import Texture
+from textureatlas import TileSet
 
 class UI(object):
   """The main user interface object"""
@@ -25,8 +26,17 @@ class UI(object):
     glLoadIdentity()
     glOrtho(-1024 / 64 / 2, 1024 / 64 / 2, -768 / 64 / 2, 768 / 64 / 2, -10, 10)
 
-    # Set up the initial state
-    self.stateStack = [WelcomeScreen(self)] # welcome screen first...
+    # Load the tile set
+    self.spritesheet = TileSet("../assets/", "spritesheet")
+
+    # Set up the initial player state
+    self.hair = 0
+    self.head = 0
+    self.shirt = 0
+    self.pants = 0
+
+    # Set up the initial screen state
+    self.stateStack = [WelcomeScreen(self)]
 
   def pushState(self, state):
     """Add a state to the state stack. The new state will become the active
@@ -78,6 +88,7 @@ class Menu(object):
           self.userBack()
         elif e.key == pygame.K_q:
           return True
+
     return False
 
   def userUp(self):
@@ -121,6 +132,106 @@ class PlainMenu(Menu):
       glTexCoord2d(0.0, 1.0); glVertex2d(-5.0, 3.0);
     glEnd();
 
+class CharacterSelectMenu(PlainMenu):
+  """A screen that allows the user to select their character's appearance"""
+
+  NHAIRS = 3
+  NHEADS = 2
+  NSHIRTS = 2
+  NPANTS = 2
+
+  def __init__(self, ui):
+    PlainMenu.__init__(self, ui, "../assets/charactermenu.png")
+
+  def rebuildPlayer(self):
+    """Recreate the player sprite and reload the sprite sheet."""
+    playerSub = self._ui.spritesheet.subsurface("person.png")
+    hairSub = self._ui.spritesheet.subsurface(
+      "hair%d.png" % self._ui.hair).copy()
+    headSub = self._ui.spritesheet.subsurface(
+      "head%d.png" % self._ui.head).copy()
+    shirtSub = self._ui.spritesheet.subsurface(
+      "shirt%d.png" % self._ui.shirt).copy()
+    pantsSub = self._ui.spritesheet.subsurface(
+      "pants%d.png" % self._ui.pants).copy()
+
+    playerSub.fill((0, 0, 0, 0))
+    playerSub.blit(pantsSub, (0, 0))
+    playerSub.blit(headSub, (0, 0))
+    playerSub.blit(shirtSub, (0, 0))
+    playerSub.blit(hairSub, (0, 0))
+
+    self._ui.spritesheet.reload()
+
+  def handleEvents(self, events):
+    for e in events:
+      if e.type == pygame.KEYDOWN:
+        if e.key == pygame.K_w:
+          self._ui.hair = (self._ui.hair - 1) % self.NHAIRS
+          self.rebuildPlayer()
+        elif e.key == pygame.K_s:
+          self._ui.hair = (self._ui.hair + 1) % self.NHAIRS
+          self.rebuildPlayer()
+
+        elif e.key == pygame.K_e:
+          self._ui.head = (self._ui.head - 1) % self.NHEADS
+          self.rebuildPlayer()
+        elif e.key == pygame.K_d:
+          self._ui.head = (self._ui.head + 1) % self.NHEADS
+          self.rebuildPlayer()
+
+        elif e.key == pygame.K_r:
+          self._ui.shirt = (self._ui.shirt - 1) % self.NSHIRTS
+          self.rebuildPlayer()
+        elif e.key == pygame.K_f:
+          self._ui.shirt = (self._ui.shirt + 1) % self.NSHIRTS
+          self.rebuildPlayer()
+
+        elif e.key == pygame.K_t:
+          self._ui.pants = (self._ui.pants - 1) % self.NPANTS
+          self.rebuildPlayer()
+        elif e.key == pygame.K_g:
+          self._ui.pants = (self._ui.pants + 1) % self.NPANTS
+          self.rebuildPlayer()
+
+    return super(CharacterSelectMenu, self).handleEvents(events)
+
+  def userSelect(self):
+    self._ui.pushState(LevelMenu(self._ui))
+
+  def draw(self, time):
+    """Draw the background image"""
+    PlainMenu.draw(self, time)
+
+    glEnable(GL_ALPHA_TEST)
+    glAlphaFunc(GL_GREATER, 0.5)
+
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    glEnable(GL_DEPTH_TEST)
+
+    glEnable(GL_TEXTURE_2D)
+    self._ui.spritesheet.bind()
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE)
+
+    glBegin(GL_QUADS)
+    if True:
+      # Draw the sprite
+      self._ui.spritesheet.tileCoord("person.png", 0, 0)
+      glVertex3f(-2, -2.5, 1)
+
+      self._ui.spritesheet.tileCoord("person.png", 1, 0)
+      glVertex3f(2, -2.5, 1)
+
+      self._ui.spritesheet.tileCoord("person.png", 1, 1)
+      glVertex3f(2, 1.5, 1)
+
+      self._ui.spritesheet.tileCoord("person.png", 0, 1)
+      glVertex3f(-2, 1.5, 1)
+
+    glEnd()
+
 class WelcomeScreen(PlainMenu):
   """The welcome screen - splash"""
 
@@ -128,7 +239,7 @@ class WelcomeScreen(PlainMenu):
     super(WelcomeScreen, self).__init__(ui, "../assets/background.png")
 
   def userSelect(self):
-    self._ui.pushState(LevelMenu(self._ui))
+    self._ui.pushState(CharacterSelectMenu(self._ui))
 
 class LevelButton(object):
   """Faux button that indicates available level choices"""
@@ -162,7 +273,7 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_ESCAPE:
           self.userBack()
         elif e.key == pygame.K_1:
-          self.userSelectLevel(MasterLevelDictonary[0][0])
+          self.userSelectLevel(MasterLevelDictonary[0][2])
         elif e.key == pygame.K_2:
           self.userSelectLevel(MasterLevelDictonary[1][0])
         elif e.key == pygame.K_3:

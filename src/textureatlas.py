@@ -27,6 +27,14 @@ class TextureAtlas(object):
     self.__vtiles = self.__texture.h / self._tileh
     self.__ntiles = self.__htiles * self.__vtiles
 
+  def reload(self):
+    """Reload the backing texture from the surface data."""
+    self.__texture.reload()
+
+  def subsurface(self, rect):
+    """Return a subsurface for the given sprite."""
+    return self.__texture.surface.subsurface(rect)
+
   def bind(self):
     """Bind this tile set."""
     self.__texture.bind()
@@ -65,6 +73,12 @@ class TileSet(TextureAtlas):
 
     # Call the parent's constructor
     super(TileSet, self).__init__(texture, tilew, tileh)
+
+  def subsurface(self, spriteName):
+    """Return a subsurface for the given sprite."""
+    rect = pygame.Rect(self.__images[spriteName][1] +
+      (self._tilew, self._tileh))
+    return super(TileSet, self).subsurface(rect)
 
   def tileCoord(self, spriteName, u, v):
     """Set the texture coordinates for the given tile."""
