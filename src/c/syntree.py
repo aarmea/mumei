@@ -636,11 +636,12 @@ class PrimaryExpr(Expr):
 class VarExpr(PrimaryExpr):
   """A variable expression"""
 
-  def __init__(self, id_):
+  def __init__(self, pos, id_):
+    self.pos = pos
     self.id = id_
 
   def __repr__(self):
-    return "%s(id_=%r)" % (type(self).__name__, self.id)
+    return "%s(pos=%r, id_=%r)" % (type(self).__name__, self.pos, self.id)
 
 @visitable
 class ConstExpr(PrimaryExpr):

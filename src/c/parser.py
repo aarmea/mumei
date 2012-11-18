@@ -284,7 +284,7 @@ eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
 #   '(' expression ')'
 varExpr = (
   mbind(identifierToken, lambda id_:
-  mreturn(syntree.VarExpr(id_.val))))
+  mreturn(syntree.VarExpr(id_.pos, id_.val))))
 intExpr = (
   mbind(intToken, lambda const:
   mreturn(syntree.ConstExpr(syntree.IntType(), const.val))))

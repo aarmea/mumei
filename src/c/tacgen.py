@@ -4,6 +4,7 @@ A three-address code generator for a subset of ANSI C
 
 import itertools
 
+from error import CompileError
 import syntree
 from threeaddr.threeaddr import *
 
@@ -69,7 +70,14 @@ class TACGenerator(object):
   def visitVarExpr(self, node, lvalue=False):
     """Generate code for a variable expression"""
     # Look up the variable binding
-    var = self.env.find(node.id)[node.id]
+    varEnv = self.env.find(node.id)
+
+    # Check for undefined variables
+    # XXX This should be done before code generation
+    if varEnv is None:
+      raise CompileError(node.pos, "`%s' undeclared" % node.id)
+
+    var = varEnv[node.id]
 
     if lvalue:
       # Generate a variable containing the address of the result
