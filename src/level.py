@@ -13,28 +13,6 @@ import levelobj
 from textureatlas import *
 from textbox import *
 
-SAMPLE_CODE = """extern int move;
-
-int main()
-{
-  int i;
-
-  while (1) {
-    i = 0;
-    while (i < 4) {
-      move = 1;
-      i = i + 1;
-    }
-    while (i < 8) {
-      move = 0xFFFF;
-      i = i + 1;
-    }
-  }
-
-  return 0;
-}
-"""
-
 class Level(object):
   """A level"""
 
@@ -47,7 +25,7 @@ class Level(object):
     self._objects = [ [] ]
     self._startPos = (0, 0)
     self._doorPos = (0, 0)
-    self._sampleCode = SAMPLE_CODE
+    self._sampleCode = ""
     self._helpText = ""
 
     # Temporary screen move stuff
@@ -117,7 +95,9 @@ class Level(object):
 
       with open(self.levelDir + levelName + ".txt", 'rb') as helptext:
         self._helpText = helptext.read()
-        helptext.close()
+
+      with open(self.levelDir + levelName + ".c", 'rb') as usercode:
+        self._sampleCode = usercode.read()
 
       print "Level: loaded", levelName
 
