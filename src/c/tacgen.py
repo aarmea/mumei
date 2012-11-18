@@ -289,6 +289,14 @@ class TACGenerator(object):
     """Generate code for a greater-than expression"""
     return self.visitBinOpExpr(node, lvalue, GreaterThan)
 
+  def visitLessThanEqualExpr(self, node, lvalue=False):
+    """Generate code for a less-than-or-equal-to expression"""
+    return self.visitBinOpExpr(node, lvalue, LessThanEqual)
+
+  def visitGreaterThanEqualExpr(self, node, lvalue=False):
+    """Generate code for a greater-than-or-equal-to expression"""
+    return self.visitBinOpExpr(node, lvalue, GreaterThanEqual)
+
   def visitEqualExpr(self, node, lvalue=False):
     """Generate code for an equal-to expression"""
     return self.visitBinOpExpr(node, lvalue, Equal)

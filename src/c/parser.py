@@ -267,6 +267,9 @@ doubleToken = token(lambda t: isinstance(t, scanner.DoubleToken))
 longDoubleToken = token(lambda t: isinstance(t, scanner.LongDoubleToken))
 incrementToken = token(lambda t: isinstance(t, scanner.IncrementToken))
 decrementToken = token(lambda t: isinstance(t, scanner.DecrementToken))
+lessThanEqualToken = token(lambda t: isinstance(t, scanner.LessThanEqualToken))
+greaterThanEqualToken = token(lambda t: isinstance(t,
+  scanner.GreaterThanEqualToken))
 semicolonToken = token(lambda t: isinstance(t, scanner.SemicolonToken))
 lcurlyToken = token(lambda t: isinstance(t, scanner.LCurlyToken))
 rcurlyToken = token(lambda t: isinstance(t, scanner.RCurlyToken))
@@ -472,8 +475,8 @@ shiftExpr = additiveExpr
 # relational-expression-suffix:
 #   '<' shift-expression relational-expression-suffix?
 #   '>' shift-expression relational-expression-suffix?
-#   '<=' shift-expression relational-expression-suffix? # XXX Not implemented
-#   '>=' shift-expression relational-expression-suffix? # XXX Not implemented
+#   '<=' shift-expression relational-expression-suffix?
+#   '>=' shift-expression relational-expression-suffix?
 lessExprSuffix = (
   mbind(lessThanToken, lambda _:
   mbind(shiftExpr, lambda expr_:
@@ -484,7 +487,18 @@ greaterExprSuffix = (
   mbind(shiftExpr, lambda expr_:
   mbind(option([], relExprSuffix), lambda exprs:
   mreturn([(syntree.GreaterThanExpr, expr_)] + exprs)))))
-relExprSuffix = mplus(lessExprSuffix, greaterExprSuffix)
+lessThanEqualExprSuffix = (
+  mbind(lessThanEqualToken, lambda _:
+  mbind(shiftExpr, lambda expr_:
+  mbind(option([], relExprSuffix), lambda exprs:
+  mreturn([(syntree.LessThanEqualExpr, expr_)] + exprs)))))
+greaterThanEqualExprSuffix = (
+  mbind(greaterThanEqualToken, lambda _:
+  mbind(shiftExpr, lambda expr_:
+  mbind(option([], relExprSuffix), lambda exprs:
+  mreturn([(syntree.GreaterThanEqualExpr, expr_)] + exprs)))))
+relExprSuffix = mplus(mplus(mplus(lessExprSuffix, greaterExprSuffix),
+  lessThanEqualExprSuffix), greaterThanEqualExprSuffix)
 
 # relational-expression:
 #   shift-expression relational-expression-suffix?
