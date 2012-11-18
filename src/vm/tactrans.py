@@ -269,6 +269,24 @@ def translate(tac):
         Set(dstOp, RegOperand(Processor.REG_FL))
       )
 
+    elif isinstance(inst, threeaddr.Not):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      dstOp, patchOff = _getOperand(localVars, patches, len(code), inst.dst)
+      srcOp, _ = _getOperand(localVars, patches, patchOff, inst.src)
+
+      # Copy the source to the destination
+      appendInst(
+        Set(dstOp, srcOp)
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Generate the operation
+      appendInst(
+        Xor(dstOp, ShortImmOperand(-1))
+      )
+
     elif isinstance(inst, threeaddr.BinOp):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
