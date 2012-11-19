@@ -1,0 +1,3 @@
+Your x direction is currently 0.
+Set dir = 2 to move right.
+Your eye color is already correct.
