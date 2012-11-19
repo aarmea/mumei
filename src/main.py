@@ -248,7 +248,7 @@ class WelcomeScreen(PlainMenu):
     self._ui.pushState(MainMenu(self._ui))
 
 class MainMenu(PlainMenu):
-  """The main menu screen"""
+  """The main menu screen - interactable"""
 
   def __init__(self, ui):
     super(MainMenu, self).__init__(ui, "../assets/mainmenu.png")
@@ -268,35 +268,35 @@ class MainMenu(PlainMenu):
 class Tutorials(PlainMenu):
   """The tutorial screen - splash"""
 
-  def __init__(self, ui, basename, tutorialfiles):
-    super(Tutorials, self).__init__(ui, tutorialfiles[0]) # contains series of imagefiles
+  def __init__(self, ui, basename, tutorialfiles): # tutorialfiles is a list of imagefiles
+    super(Tutorials, self).__init__(ui, tutorialfiles[0]) # only takes the first imagefile in the list of imagefiles
     self.basename = basename
     self.tutorialfiles = tutorialfiles
 
   def handleEvents(self, events):
-    """Handle keyboard input for skipping through tutorial. Returns True if the game should quit."""
+    """Handle keyboard input for moving through tutorial. Returns True if the game should quit."""
     for e in events:
       if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_SPACE:
-          self.userSkip()
+          self.userSkip() # skip the tutorial, user is too smart for this
         elif e.key == pygame.K_RIGHT:
-          self.userNext()
+          self.userNext() # move to next tutorial screen or ready screen if tutorial is complete
         elif e.key == pygame.K_LEFT:
-          self.userBack()
+          self.userBack() # move to previous tutorial screen
 
     return super(Tutorials, self).handleEvents(events)
 
   def userSkip(self):
-    """ Move on to level """
+    """ Skip the next tutorial screens, move on to level """
     self._ui.pushState(LevelSplashScreen(self._ui, self.basename)) # push the state for that level splash screen
 
   def userNext(self):
     """ Move to next tutorial screen"""
     if(len(self.tutorialfiles) > 1): # one left after this, go to next
       self.tutorialfiles.reverse() # flip order, now first is top
-      self.tutorialfiles.pop() # pop off the top
+      self.tutorialfiles.pop() # pop off the top - just saw this tutorial file
       self.tutorialfiles.reverse() # flip back to proper order
-      self._ui.pushState(Tutorials(self._ui, self.basename, self.tutorialfiles))
+      self._ui.pushState(Tutorials(self._ui, self.basename, self.tutorialfiles)) # next tutorial file
     else: # none left, go to level
       self._ui.pushState(LevelSplashScreen(self._ui, self.basename))
 
@@ -315,8 +315,7 @@ class LevelMenu(PlainMenu):
     ["../assets/intro_screen2.png", "../assets/level3description.png", "../assets/masterLevel3tutorial.png", "../assets/masterLevel3tutorial1.png" ],
     ["../assets/intro_screen2.png", "../assets/level4description.png" , "../assets/masterLevel1tutorial4.png", "../assets/masterLevel1tutorial4b.png"  ],
     ["../assets/intro_screen2.png", "../assets/level5description.png", "../assets/masterLevel1tutorial5.png", "../assets/masterLevel1tutorial5b.png"]
-
-  ]
+  ] # list of tutorials for each levels, each sublist contains individual image files for that level's tutorials
 
   def __init__(self, ui):
     super(LevelMenu, self).__init__(ui, "../assets/levelmenu.png")
@@ -338,9 +337,8 @@ class LevelMenu(PlainMenu):
 
     return super(LevelMenu, self).handleEvents(events);
 
-  def userSelectLevel(self, basename, tutorialfiles):
+  def userSelectLevel(self, basename, tutorialfiles): # user has selected a level, start tutorials for that level
     self._ui.pushState(Tutorials(self._ui, basename, tutorialfiles))
-    # TutorialScreen will push the level state intstead..
 
   def draw(self):
     super(LevelMenu, self).draw()
@@ -375,7 +373,7 @@ class LevelMenu(PlainMenu):
     glEnd()
 
 class LevelSplashScreen(PlainMenu):
-  """The level screen - splash"""
+  """The prepare for level screen - interactable"""
 
   def __init__(self, ui, basename):
     super(LevelSplashScreen, self).__init__(ui, "../assets/background2.png")
