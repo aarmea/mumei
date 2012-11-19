@@ -23,9 +23,11 @@ STEP_PERIOD = 10.0 #ms
 class LevelScreen(Screen):
   """An interface for a level with a code editor and status panes"""
 
-  def __init__(self, ui, levelName):
+  def __init__(self, ui, parent, levelName):
     Screen.__init__(self, ui)
 
+    self._parent = parent
+    self._levelName = levelName
     self._lastTime = 0
 
     # Load the level itself
@@ -156,6 +158,15 @@ class LevelScreen(Screen):
     if self.isComplete():
       self._statusLabel.text = "Level completed"
 
+      # XXX Fix this
+      subLevelNumber = int(self._levelName[-1:])
+      if subLevelNumber == 4:
+        newLevelName = "%s%d" % (self._levelName[:5], int(self._levelName[-3:]) + 100)
+      else:
+        newLevelName = "%s%d" % (self._levelName[:7], subLevelNumber + 1)
+
+      self._parent.switchToLevel(newLevelName)
+
   def draw(self):
     """Render the level and the interface"""
     # Reset the OpenGL state
@@ -166,7 +177,7 @@ class LevelScreen(Screen):
     glLoadIdentity()
 
     # Set the level position on the screen
-    glPushMatrix(GL_MODELVIEW)
+    glPushMatrix()
     glTranslate(-8.5, -2, 0)
     glRotate(15, 1, 0, 0)
     glRotate(20, 0, 1, 0)

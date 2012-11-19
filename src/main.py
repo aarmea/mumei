@@ -381,8 +381,13 @@ class LevelSplashScreen(PlainMenu):
     super(LevelSplashScreen, self).__init__(ui, "../assets/background2.png")
     self.basename = basename
 
+  def switchToLevel(self, newLevelName):
+    self._ui.popState()
+    self._ui.popState()
+    self._ui.pushState(LevelSplashScreen(self._ui, newLevelName))
+
   def userSelect(self):
-    self._ui.pushState(LevelScreen(self._ui, self.basename))
+    self._ui.pushState(LevelScreen(self._ui, self, self.basename))
 
 def main():
   """Create and run the UI."""
