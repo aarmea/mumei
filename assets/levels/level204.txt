@@ -10,7 +10,7 @@ moveX(int distance): is a function which
   climb(): climbs the length of the latter        
            as long as it is at the base           
                                                   
-  int c: an integer that represents the color     
+  int color: an integer that represents the color     
          of the robot's eyes                      
     0 - Gray (default)                            
     1 - Red                                       

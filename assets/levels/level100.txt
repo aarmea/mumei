@@ -2,7 +2,7 @@
   F5 - run       ESC - quit 
   F1 - hints     F2  - clear text
 ___________________________________________________ 
-  int C : an integer value that 
+  int color : an integer value that 
           represents the robot's eyes
     0 - Gray (default) 
     1 - Red

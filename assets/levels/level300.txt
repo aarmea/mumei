@@ -8,7 +8,7 @@ int doorcolor: this integer changes its
                current color
                Not for the user to change
 
-int c: an integer that represents the eye 
+int color: an integer that represents the eye 
        color of the robot
     0 - Gray (default) 
     1 - Red

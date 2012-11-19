@@ -3,7 +3,7 @@
   F1 - hints     F2  - clear text
 ___________________________________________________ 
   
-  step(int dist): is a function which moves the robot
+  step(): is a function which moves the robot
                   right 1 tile
 
   
