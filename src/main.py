@@ -307,6 +307,7 @@ class LevelMenu(PlainMenu):
     ["level200", "level201", "level202", "level203", "level204"],
     ["level300", "level301", "level302", "level303", "level304"],
     ["level400", "level401", "level402", "level403", "level404"]
+    ["level500", "level501", "level502", "level503", "level504"]
   ]
   tutList = [
     ["../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png"]
@@ -339,6 +340,8 @@ class LevelMenu(PlainMenu):
           self.userSelectLevel(self.levelList[2][0])
         elif e.key == pygame.K_4:
           self.userSelectLevel(self.levelList[3][0])
+        elif e.key == pygame.K_5:
+          self.userSelectLevel(self.levelList[4][0])
         elif e.key == pygame.K_q:
           return True
     return False
