@@ -36,7 +36,7 @@ try:
   print "THREE-ADDRESS CODE"
   print tac
   print
-  bc = tactrans.translate(tac)
+  bc, _ = tactrans.translate(tac)
   print "BYTECODE"
   print bc
   print

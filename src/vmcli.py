@@ -255,7 +255,7 @@ def main():
               print
               proc.step()
               dump(proc)
-              rlist, _, _ = select.select([sys.stdin], [], [], 0.5)
+              rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
               if rlist:
                 sys.stdin.readline()
                 break
