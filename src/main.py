@@ -306,9 +306,8 @@ class LevelMenu(PlainMenu):
     ["level100", "level101", "level102", "level103", "level104"],
     ["level200", "level201", "level202", "level203", "level204"],
     ["level300", "level301", "level302", "level303", "level304"],
-    ["level400", "level401", "level402", "level403", "level404"]
-    ["level500", "level501", "level502", "level503", "level504"]
-  ]
+    ["level400", "level401", "level402", "level403", "level404"],
+    ["level500", "level501", "level502", "level503", "level504"]   ]
   tutList = [
     ["../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png"]
   ]
