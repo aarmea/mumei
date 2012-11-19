@@ -1,0 +1,18 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+
+int *x: an integer pointer that points to the 
+        robots's x coordinate
+  0 - starting position
+
+int *y: an integer pointer representing
+       the robots's y coordinate
+  0 - starting position
+
+int *disty: an integer pointer that represents
+            how high the robot needs to climb
+
+  
+  

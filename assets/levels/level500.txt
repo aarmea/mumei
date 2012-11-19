@@ -1,0 +1,11 @@
+
+  F5 - run       ESC - quit 
+  F1 - hints     F2  - clear text
+___________________________________________________ 
+  int *color : a pointer that points to the value
+               that is the robot's color:
+    0 - Gray (default) 
+    1 - Red
+    2 - Green
+    3 - Blue
+  

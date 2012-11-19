@@ -1,5 +1,5 @@
 int moveX(int distance);
-extern int adjacentTo;
+extern int adjacentto;
 int wait();
 int climb();
 int punch();
