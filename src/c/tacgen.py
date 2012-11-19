@@ -46,6 +46,10 @@ class TACGenerator(object):
     # The current environment
     self.env = Env()
 
+    # Break and continue jump locations
+    self.breaks = []
+    self.continues = []
+
   def __genLValue(self, expr, label):
     """Generate code to get an address from an expression, raising an error if
     the expression is not an lvalue."""
@@ -459,6 +463,22 @@ class TACGenerator(object):
     # Generate the function epilogue
     self.code.append(EndFunc(var))
 
+  def visitBreakStmt(self, node):
+    """Generate code for a break statement"""
+    if not self.breaks:
+      raise CompileError(node.pos, "break statement not within loop")
+
+    # Jump to the last break jump location
+    self.code.append(Jump(self.breaks[-1]))
+
+  def visitContinueStmt(self, node):
+    """Generate code for a continue statement"""
+    if not self.continues:
+      raise CompileError(node.pos, "continue statement not within loop")
+
+    # Jump to the last continue jump location
+    self.code.append(Jump(self.continues[-1]))
+
   def visitIfStmt(self, node):
     """Generate code for an if statement"""
     # Allocate a label for the false part
@@ -492,6 +512,10 @@ class TACGenerator(object):
     # Allocate a label for the end of the loop
     end_ = next(self.labelGen)
 
+    # Add the jump labels to the jump location lists
+    self.breaks.append(end_.id)
+    self.continues.append(begin_.id)
+
     # Generate a label for the beginning of the loop
     self.code.append(Label(begin_.id))
     # Generate code for the condition expression
@@ -507,12 +531,20 @@ class TACGenerator(object):
     # Generate a label for the end of the loop
     self.code.append(Label(end_.id))
 
+    # Clean up the jump labels
+    self.breaks.pop()
+    self.continues.pop()
+
   def visitForStmt(self, node):
     """Generate code for a for statement"""
     # Allocate a label for the beginning of the loop
     begin_ = next(self.labelGen)
     # Allocate a label for the end of the loop
     end_ = next(self.labelGen)
+
+    # Add the jump labels to the jump location lists
+    self.breaks.append(end_.id)
+    self.continues.append(begin_.id)
 
     # Generate the initialization code, if any
     if node.initExpr is not None:
@@ -539,6 +571,10 @@ class TACGenerator(object):
 
     # Generate a label for the end of the loop
     self.code.append(Label(end_.id))
+
+    # Clean up the jump labels
+    self.breaks.pop()
+    self.continues.pop()
 
   def visitExprStmt(self, node):
     """Generate code for an expression statement"""

@@ -681,15 +681,23 @@ expr = (
 
 # jump-statement:
 #   'goto' identifier ';' # XXX Not implemented
-#   'continue' ';' # XXX Not implemented
-#   'break' ';' # XXX Not implemented
+#   'continue' ';'
+#   'break' ';'
 #   'return' expression? ';'
+continueStmt = (
+  mbind(keywordToken("continue"), lambda t:
+  mbind(semicolonToken, lambda _:
+  mreturn(syntree.ContinueStmt(t.pos)))))
+breakStmt = (
+  mbind(keywordToken("break"), lambda t:
+  mbind(semicolonToken, lambda _:
+  mreturn(syntree.BreakStmt(t.pos)))))
 returnStmt = (
-  mbind(keywordToken("return"), lambda _:
+  mbind(keywordToken("return"), lambda t:
   mbind(option(None, expr), lambda expr_:
   mbind(semicolonToken, lambda _:
-  mreturn(syntree.ReturnStmt(expr_))))))
-jumpStmt = returnStmt
+  mreturn(syntree.ReturnStmt(t.pos, expr_))))))
+jumpStmt = mplus(mplus(continueStmt, breakStmt), returnStmt)
 
 # iteration-statement:
 #   'while' '(' expression ')' statement

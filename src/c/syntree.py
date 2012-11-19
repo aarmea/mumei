@@ -536,18 +536,27 @@ class ForStmt(IterationStmt):
 class JumpStmt(Stmt):
   """A jump statement"""
 
+  def __init__(self, pos):
+    self.pos = pos
+
+  def __repr__(self):
+    return "%s(pos=%r)" % (type(self).__name__, self.pos)
+
 class GoToStmt(JumpStmt):
   """A goto statement"""
 
-  def __init__(self, id_):
+  def __init__(self, pos, id_):
+    JumpStmt.__init__(self, pos)
     self.id = id_
 
   def __repr__(self):
-    return "%s(id_=%r)" % (type(self).__name__, self.id_)
+    return "%s(pos=%r, id_=%r)" % (type(self).__name__, self.pos, self.id_)
 
+@visitable
 class ContinueStmt(JumpStmt):
   """A continue statement"""
 
+@visitable
 class BreakStmt(JumpStmt):
   """A break statement"""
 
@@ -555,11 +564,12 @@ class BreakStmt(JumpStmt):
 class ReturnStmt(JumpStmt):
   """A return statement"""
 
-  def __init__(self, expr):
+  def __init__(self, pos, expr):
+    JumpStmt.__init__(self, pos)
     self.expr = expr
 
   def __repr__(self):
-    return "%s(expr=%r)" % (type(self).__name__, self.expr)
+    return "%s(pos=%r, expr=%r)" % (type(self).__name__, self.pos, self.expr)
 
 # Expressions
 
