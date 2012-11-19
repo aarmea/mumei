@@ -313,25 +313,15 @@ class LevelMenu(PlainMenu):
   ]
 
   def __init__(self, ui):
-    super(LevelMenu, self).__init__(ui, "../assets/levelmenu2.png")
+    super(LevelMenu, self).__init__(ui, "../assets/levelmenu.png")
     # contains a series of level buttons
     level1button = LevelButton(ui, "../assets/level1mockbutton.png")
 
   def handleEvents(self, events):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
     for e in events:
-      if e.type == pygame.QUIT:
-        return True
-      elif e.type == pygame.KEYDOWN:
-        if e.key == pygame.K_UP:
-          self.userUp()
-        elif e.key == pygame.K_DOWN:
-          self.userDown()
-        #elif e.key == pygame.K_RETURN:
-        #  self.userSelect()
-        elif e.key == pygame.K_ESCAPE:
-          self.userBack()
-        elif e.key == pygame.K_1:
+      if e.type == pygame.KEYDOWN:
+        if e.key == pygame.K_1:
           self.userSelectLevel(self.levelList[0][0], self.tutList[0])
         elif e.key == pygame.K_2:
           self.userSelectLevel(self.levelList[1][0])
@@ -341,13 +331,44 @@ class LevelMenu(PlainMenu):
           self.userSelectLevel(self.levelList[3][0])
         elif e.key == pygame.K_5:
           self.userSelectLevel(self.levelList[4][0])
-        elif e.key == pygame.K_q:
-          return True
-    return False
+
+    return super(LevelMenu, self).handleEvents(events);
 
   def userSelectLevel(self, basename, tutorialfiles):
     self._ui.pushState(Tutorials(self._ui, basename, tutorialfiles))
     # TutorialScreen will push the level state intstead..
+
+  def draw(self, time):
+    super(LevelMenu, self).draw(time)
+
+    glEnable(GL_ALPHA_TEST)
+    glAlphaFunc(GL_GREATER, 0.5)
+
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    glEnable(GL_DEPTH_TEST)
+
+    glEnable(GL_TEXTURE_2D)
+    self._ui.spritesheet.bind()
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE)
+
+    glBegin(GL_QUADS)
+    if True:
+      # Draw the player sprite
+      self._ui.spritesheet.tileCoord("person.png", 1, 0)
+      glVertex3f(2, -2.5, 1)
+
+      self._ui.spritesheet.tileCoord("person.png", 0, 0)
+      glVertex3f(6, -2.5, 1)
+
+      self._ui.spritesheet.tileCoord("person.png", 0, 1)
+      glVertex3f(6, 1.5, 1)
+
+      self._ui.spritesheet.tileCoord("person.png", 1, 1)
+      glVertex3f(2, 1.5, 1)
+
+    glEnd()
 
 class LevelScreen(PlainMenu):
   """The level screen - splash"""
