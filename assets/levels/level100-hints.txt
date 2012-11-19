@@ -1,0 +1,2 @@
+The robot is already at the door.
+The robot's eye color must match the door color to advance.
