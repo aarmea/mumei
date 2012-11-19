@@ -516,7 +516,22 @@ class WhileStmt(IterationStmt):
     return "%s(expr=%r, stmt=%r)" % (type(self).__name__, self.expr,
       self.stmt)
 
-# XXX do/for not implemented
+# XXX do not implemented
+
+@visitable
+class ForStmt(IterationStmt):
+  """A for statement"""
+
+  def __init__(self, initExpr, condExpr, nextExpr, stmt):
+    self.initExpr = initExpr
+    self.condExpr = condExpr
+    self.nextExpr = nextExpr
+    self.stmt = stmt
+
+  def __repr__(self):
+    return "%s(initExpr=%r, condExpr=%r, nextExpr=%r, stmt=%r)" % (
+      type(self).__name__, self.initExpr, self.condExpr, self.nextExpr,
+      self.stmt)
 
 class JumpStmt(Stmt):
   """A jump statement"""

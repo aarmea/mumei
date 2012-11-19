@@ -694,15 +694,26 @@ jumpStmt = returnStmt
 # iteration-statement:
 #   'while' '(' expression ')' statement
 #   'do' statement 'while' '(' expression ')' ';' # XXX Not implemented
-#   'for' '(' expression? ';' expression? ';' expression ')' statement # XXX
-#   'for' '(' declaration expression? ';' expression? ')' statement # XXX
-iterationStmt = (
+#   'for' '(' expression? ';' expression? ';' expression? ')' statement
+whileStmt = (
   mbind(keywordToken("while"), lambda _:
   mbind(lparenToken, lambda _:
   mbind(expr, lambda expr_:
   mbind(rparenToken, lambda _:
-  mbind(stmt, lambda stmt:
-  mreturn(syntree.WhileStmt(expr_, stmt))))))))
+  mbind(stmt, lambda stmt_:
+  mreturn(syntree.WhileStmt(expr_, stmt_))))))))
+forStmt = (
+  mbind(keywordToken("for"), lambda _:
+  mbind(lparenToken, lambda _:
+  mbind(option(None, expr), lambda initExpr:
+  mbind(semicolonToken, lambda _:
+  mbind(option(None, expr), lambda condExpr:
+  mbind(semicolonToken, lambda _:
+  mbind(option(None, expr), lambda nextExpr:
+  mbind(rparenToken, lambda _:
+  mbind(stmt, lambda stmt_:
+  mreturn(syntree.ForStmt(initExpr, condExpr, nextExpr, stmt_))))))))))))
+iterationStmt = mplus(whileStmt, forStmt)
 
 # selection-statement:
 #   'if' '(' expression ')' statement

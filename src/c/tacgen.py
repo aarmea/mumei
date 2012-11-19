@@ -491,9 +491,9 @@ class TACGenerator(object):
     begin_ = next(self.labelGen)
     # Allocate a label for the end of the loop
     end_ = next(self.labelGen)
+
     # Generate a label for the beginning of the loop
     self.code.append(Label(begin_.id))
-
     # Generate code for the condition expression
     var = node.expr.accept(self)
     # Generate an instruction to jump to the end of the loop on zero
@@ -501,6 +501,39 @@ class TACGenerator(object):
 
     # Generate code for the body of the loop
     node.stmt.accept(self)
+    # Generate a jump to the beginning of the loop
+    self.code.append(Jump(begin_.id))
+
+    # Generate a label for the end of the loop
+    self.code.append(Label(end_.id))
+
+  def visitForStmt(self, node):
+    """Generate code for a for statement"""
+    # Allocate a label for the beginning of the loop
+    begin_ = next(self.labelGen)
+    # Allocate a label for the end of the loop
+    end_ = next(self.labelGen)
+
+    # Generate the initialization code, if any
+    if node.initExpr is not None:
+      node.initExpr.accept(self)
+
+    # Generate a label for the beginning of the loop
+    self.code.append(Label(begin_.id))
+
+    if node.condExpr is not None:
+      # Generate code for the condition expression
+      var = node.condExpr.accept(self)
+      # Generate an instruction to jump to the end of the loop on zero
+      self.code.append(IfZeroJump(var, end_.id))
+
+    # Generate code for the body of the loop
+    node.stmt.accept(self)
+
+    # Generate code to advance to the next iteration, if any
+    if node.nextExpr is not None:
+      node.nextExpr.accept(self)
+
     # Generate a jump to the beginning of the loop
     self.code.append(Jump(begin_.id))
 
