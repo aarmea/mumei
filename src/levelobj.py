@@ -4,9 +4,9 @@ import math
 from OpenGL.GL import *
 import pygame
 
-from textureatlas import *
+import vm.bytecode
 
-EPSILON = 0.01
+from textureatlas import *
 
 COLORS = {
   0 : "",
@@ -15,73 +15,31 @@ COLORS = {
   3 : "B"
 }
 
+# Direction values
+DIRECTION_NONE = 0
+DIRECTION_LEFT = 1
+DIRECTION_RIGHT = 2
+DIRECTION_DOWN = 3
+DIRECTION_UP = 4
+
+EPSILON = 0.01
+
+def withinEpsilon(x):
+  return abs(x) < EPSILON
+
 class LevelObject(object):
-  """The base level object"""
+  """An object within a level"""
 
-  _dHealth = 0
-  _blocking = False
+  blocking = False
+  _sides = ["default.png"] * 6
 
-  _walkSpeed = 0
-  _moving = False
-  _moveStep = (1.0, 1.0)
-  _dest = (0, 0)
-
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[0].append("default.png")
-
-  def _uinit(self, pos, spritesheet):
-    """Initialization common to all child classes."""
-    self._pos = (float(pos[0]), float(pos[1]))
+  def __init__(self, pos, spritesheet, level):
+    self._pos = pos
     self._spritesheet = spritesheet
-    # Format: 0 = front, 1 = back, 2 = top, 3 = bottom, 4 = left, 5 = right
-    self._sides = [ [] for i in range(6) ]
-
-  def move(self, pos):
-    """Move the object to a new position."""
-    self._pos = (float(pos[0]), float(pos[1]))
-
-  def relMove(self, level, pos):
-    """Move the object to a new position relative to its current location."""
-    # If a diagonal move is specified, only move in the x direction
-    if abs(pos[0]) > EPSILON and abs(pos[1]) > EPSILON:
-      pos = (pos[0], 0)
-
-    if not self._moving:
-      # Only move one unit
-      dx = math.copysign(1, pos[0]) if abs(pos[0])>EPSILON else 0
-      dy = math.copysign(1, pos[1]) if abs(pos[1])>EPSILON else 0
-
-      # Check for collisions
-      if (level._objects[int(self._pos[0] + dx - 1)]
-                        [int(self._pos[1] + dy - 1)]._blocking):
-        return
-
-      self._dest = (self._pos[0] + dx, self._pos[1] + dy)
-      self._moveStep = (float(self._dest[0] - self._pos[0])*self._walkSpeed, 
-                        float(self._dest[1] - self._pos[1])*self._walkSpeed)
-      self._moving = True
-
-  def onActorCollide(self, actor):
-    """Perform actions when an Actor hits this object."""
-    actor.health += _dHealth
-    # TODO: block the actor if _blocking is True
+    self._level = level
 
   def draw(self):
-    """Render the object to the OpenGL display."""
-    # Move the object for animated relative moves
-    if self._moving:
-      # Stop moving if it's at or near the destination
-      if abs(self._dest[0]-self._pos[0]) < EPSILON and \
-         abs(self._dest[1]-self._pos[1]) < EPSILON:
-        self._moving = False
-        self._pos = self._dest
-      else:
-        # Move the object by _moveStep
-        self._pos = (self._pos[0] + self._moveStep[0],
-                     self._pos[1] + self._moveStep[1])
-
+    """Render the object"""
     # Draw stuff
     glEnable(GL_DEPTH_TEST)
 
@@ -115,7 +73,9 @@ class LevelObject(object):
       y = self._pos[1]
       z = 0
 
-      if len(self._sides[plane]) == 0: continue
+      if len(self._sides[plane]) == 0:
+        continue
+
       tile = self._sides[plane][0]
 
       self._spritesheet.tileCoord(tile, 0, 0)
@@ -134,88 +94,120 @@ class LevelObject(object):
 class Back(LevelObject):
   """The blocks in the background"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-    
-    self._sides[1].append("wall.png")
+  _sides = [
+    [],
+    ["wall.png"],
+    [],
+    [],
+    [],
+    []
+  ]
 
 class BackAboveFloor(LevelObject):
   """The background above a Floor tile"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[1].append("wall-floor.png")
+  _sides = [
+    [],
+    ["wall-floor.png"],
+    [],
+    [],
+    [],
+    [],
+    []
+  ]
 
 class Transport(LevelObject):
   """An object that can move Actors"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[1].append("portal.png")
+  _sides = [
+    [],
+    ["portal.png"],
+    [],
+    [],
+    [],
+    []
+  ]
 
 class Start(Transport):
   """The Player's spawn point"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[1].append("start.png")
+  _sides = [
+    [],
+    ["start.png"],
+    [],
+    [],
+    [],
+    []
+  ]
 
 class Ladder(Transport):
   """A ladder"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-
 class LadderLeft(Ladder):
   """A ladder"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-    self._sides[1].append("wall.png")
-    self._sides[4].append("ladder.png")
+  _sides = [
+    [],
+    ["wall.png"],
+    [],
+    [],
+    ["ladder.png"],
+    []
+  ]
 
 class LadderLeftFloor(Ladder):
   """A ladder"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-    self._sides[1].append("wall-floor.png")
-    self._sides[4].append("ladder.png")
+  _sides = [
+    [],
+    ["wall-floor.png"],
+    [],
+    [],
+    ["ladder.png"],
+    []
+  ]
 
 class LadderRight(Ladder):
   """A ladder"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-    self._sides[1].append("wall.png")
-    self._sides[5].append("ladder.png")
+  _sides = [
+    [],
+    ["wall.png"],
+    [],
+    [],
+    [],
+    ["ladder.png"]
+  ]
 
 class LadderRightFloor(Ladder):
   """A ladder"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-    self._sides[1].append("wall-floor.png")
-    self._sides[5].append("ladder.png")
+  _sides = [
+    [],
+    ["wall-floor.png"],
+    [],
+    [],
+    [],
+    ["ladder.png"]
+  ]
 
-class LadderOnFloor(Transport):
+class LadderOnFloor(Ladder):
   """A ladder"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-    self._sides[1].append("wall.png")
-    self._sides[4].append("ladder-floor.png")
+  _sides = [
+    [],
+    ["wall.png"],
+    [],
+    [],
+    ["ladder-floor.png"],
+    [],
+  ]
 
 class Door(Transport):
   """A door, which is usually the level's goal"""
 
-  def __init__(self, pos, spritesheet, color=0):
-    self._uinit(pos, spritesheet)
-
+  def __init__(self, pos, spritesheet, level, color=0):
+    Transport.__init__(self, pos, spritesheet, level)
     self.color = color
 
   def __getColor(self):
@@ -226,117 +218,212 @@ class Door(Transport):
 
     # Change the sprites to those with the given color
     colorStr = COLORS[color]
-    self._sides[1] = []
-    self._sides[1].append("door%s.png" % colorStr)
+    self._sides = [
+      [],
+      ["door%s.png" % colorStr],
+      [],
+      [],
+      [],
+      []
+    ]
 
   color = property(__getColor, __setColor)
 
 class Barrier(LevelObject):
   """A barrier that blocks the player"""
 
-  _blocking = True
-
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[0].append("floor-top.png")
-    self._sides[1].append("floor-top.png")
-    self._sides[2].append("floor-top.png")
-    self._sides[3].append("floor-top.png")
-    self._sides[4].append("floor-top.png")
-    self._sides[5].append("floor-top.png")
+  blocking = True
+  _sides = ["floor-top.png"] * 6
 
 class Skeleton(Barrier):
   """RAWR"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[1].append("wall-floor.png")
-    self._sides[4].append("skeleton.png")
+  _sides = [
+    [],
+    ["wall-floor.png"],
+    [],
+    [],
+    ["skeleton.png"]
+  ]
 
 class Pickle(Barrier):
   """RAWR"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[1].append("wall-floor.png")
-    self._sides[4].append("pickle.png")
-    self._sides[0].append("pickle.png")
-    self._sides[3].append("pickle.png")
-    self._sides[2].append("pickle.png")
-    self._sides[5].append("pickle.png")
-    
+  _sides = [
+    ["pickle.png"],
+    ["wall-floor.png"],
+    ["pickle.png"],
+    ["pickle.png"],
+    ["pickle.png"],
+    ["pickle.png"]
+  ]
 
 class Wall(Barrier):
   """A vertical wall that blocks horizontal movement"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[0].append("wall.png")
-    self._sides[2].append("floor-top.png")
-    self._sides[3].append("floor-top.png")
-    self._sides[4].append("wall.png")
-    self._sides[5].append("wall.png")
+  _sides = [
+    ["wall.png"],
+    [],
+    ["floor-top.png"],
+    ["floor-top.png"],
+    ["wall.png"],
+    ["wall.png"],
+    ["wall.png"]
+  ]
 
 class Floor(Barrier):
   """A horizontal surface that blocks vertical movement"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[0].append("floor-front.png")
-    self._sides[1].append("wall.png")
-    self._sides[2].append("floor-top.png")
-    self._sides[4].append("floor-side.png")
-    self._sides[5].append("floor-side.png")
+  _sides = [
+    ["floor-front.png"],
+    ["wall.png"],
+    ["floor-top.png"],
+    [],
+    ["floor-side.png"],
+    ["floor-side.png"]
+  ]
 
 class Actor(LevelObject):
   """The player and enemies"""
 
-  _blocking = True
-  _walkSpeed = 0.25
-  health = 100  
-  maxHealth = 100
+  blocking = True
+  _speed = 5
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
+  _sides = [
+    ["skeleton.png"],
+    [],
+    [],
+    [],
+    [],
+    []
+  ]
 
-    self._sides[0].append("skeleton.png")
+  def __init__(self, ui, level, pos):
+    LevelObject.__init__(self, pos, ui.spritesheet, level)
+    self.direction = DIRECTION_NONE
+
+  def step(self):
+    stepSize = self._speed * 10.0 / 1000
+
+    if self.direction == DIRECTION_LEFT:
+      newPos = (self._pos[0] - stepSize, self._pos[1])
+    elif self.direction == DIRECTION_RIGHT:
+      newPos = (self._pos[0] + stepSize, self._pos[1])
+    elif self.direction == DIRECTION_DOWN:
+      newPos = (self._pos[0], self._pos[1] - stepSize)
+    elif self.direction == DIRECTION_UP:
+      newPos = (self._pos[0], self._pos[1] + stepSize)
+    else:
+      newPos = self._pos
+
+    obj1 = self._level.at((int(newPos[0] + EPSILON), int(newPos[1] + EPSILON)))
+    obj2 = self._level.at((int(newPos[0] + 1 + EPSILON), int(newPos[1] + EPSILON)))
+
+    if not obj1.blocking and not obj2.blocking:
+      self._pos = newPos
+
+    # Gravity
+    obj1 = self._level.at((int(self._pos[0] + EPSILON), int(self._pos[1] + EPSILON)))
+    obj2 = self._level.at((int(self._pos[0] + EPSILON), int(self._pos[1] - EPSILON)))
+
+    if not isinstance(obj1, Ladder) and not obj2.blocking:
+      self._pos = (self._pos[0], self._pos[1] - stepSize)
 
 class Robot(Actor):
   """The robot"""
 
-  def __init__(self, pos, spritesheet, color=0):
-    self._uinit(pos, spritesheet)
+  _speed = 2;
 
+  def __init__(self, ui, level, pos, color=0):
+    self.processor = None
+    Actor.__init__(self, ui, level, pos)
     self.color = color
 
-  def __getColor(self):
-    return self.__color
+  def load(self, words, labels):
+    # Create a new processor
+    processor = vm.bytecode.Processor(memWords=256)
 
-  def __setColor(self, color):
-    self.__color = color
+    # Load the bytecode into memory
+    for addr, word in enumerate(words):
+      processor.setMem(addr, word)
+
+    vars_ = {}
+    for var in ("main", "x", "y", "dir", "color"):
+      vars_[var] = labels[var]
+
+    # Set IP to the entry point
+    entry = vars_["main"]
+    processor.setReg(processor.REG_IP, entry)
+
+    self._vars = vars_
+    self.processor = processor
+    self.direction = DIRECTION_NONE
+
+  def step(self):
+    """Update the robot's state"""
+    if self.processor is not None:
+      # Run the processor at 20x the step rate
+      for _ in xrange(20):
+        self.processor.step()
+
+      xAddr = self._vars["x"]
+      yAddr = self._vars["y"]
+      self.processor.setMem(xAddr, int(self._pos[0]))
+      self.processor.setMem(yAddr, int(self._pos[1]))
+      directionAddr = self._vars["dir"]
 
     # Change the sprites to those with the given color
-    colorStr = COLORS[color]
-    self._sides[0] = []
-    self._sides[0].append("robot0%s.png" % colorStr)
-    self._sides[0].append("robot1%s.png" % colorStr)
-    self._sides[0].append("robot2%s.png" % colorStr)
-    self._sides[0].append("robot3%s.png" % colorStr)
+    try:
+      colorStr = COLORS[self.color]
+    except KeyError:
+      colorStr = "" # XXX Should probably use a default dictionary
 
+    self._sides = [
+      ["robot0%s.png" % colorStr, "robot1%s.png" % colorStr,
+       "robot2%s.png" % colorStr, "robot2%s.png" % colorStr],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+
+    Actor.step(self)
+
+  def __getColor(self):
+    if self.processor is not None:
+      colorAddr = self._vars["color"]
+      return self.processor.getMem(colorAddr)
+
+  def __setColor(self, color):
+    if self.processor is not None:
+      colorAddr = self._vars["color"]
+      return self.processor.setMem(colorAddr, color)
+
+  def __getDirection(self):
+    if self.processor is not None:
+      directionAddr = self._vars["dir"]
+      return self.processor.getMem(directionAddr)
+
+  def __setDirection(self, direction):
+    if self.processor is not None:
+      directionAddr = self._vars["dir"]
+      self.processor.setMem(directionAddr, direction)
+
+  direction = property(__getDirection, __setDirection)
   color = property(__getColor, __setColor)
 
 class Player(Actor):
   """The player"""
 
-  def __init__(self, pos, spritesheet):
-    self._uinit(pos, spritesheet)
-
-    self._sides[0].append("person.png")
+  _sides = [
+    ["person.png"],
+    [],
+    [],
+    [],
+    [],
+    []
+  ]
 
 # TODO: more objects
 
@@ -348,13 +435,13 @@ NAMES = {
   "start" : Start,
   "ladder" : Ladder,
   "ladderF" : LadderOnFloor,
-  "ladderL" :LadderLeft,
+  "ladderL" : LadderLeft,
   "ladderLF" : LadderLeftFloor,
   "ladderR" : LadderRight,
   "ladderRF" : LadderRightFloor,
   "door" : Door,
-  "doorR" : lambda pos, spritesheet: Door(pos, spritesheet, 1),
-  "doorG" : lambda pos, spritesheet: Door(pos, spritesheet, 2),
+  "doorR" : lambda pos, spritesheet, level: Door(pos, spritesheet, level, 1),
+  "doorG" : lambda pos, spritesheet, level: Door(pos, spritesheet, level, 2),
   "barrier" : Barrier,
   "wall" : Wall,
   "skeleton" : Skeleton,

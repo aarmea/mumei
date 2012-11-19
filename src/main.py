@@ -7,8 +7,11 @@ from OpenGL.GL import *
 import pygame
 
 from level import Level
+from screen import Screen
 from texture import Texture
-from textureatlas import TileSet
+from textureatlas import CharacterSet, TileSet
+
+from levelscreen import LevelScreen
 
 class UI(object):
   """The main user interface object"""
@@ -28,6 +31,7 @@ class UI(object):
 
     # Load the tile set
     self.spritesheet = TileSet("../assets/", "spritesheet")
+    self.characterSet = CharacterSet("../assets/font.png")
 
     # Set up the initial player state
     self.hair = 0
@@ -36,7 +40,12 @@ class UI(object):
     self.pants = 0
 
     # Set up the initial screen state
+    self.stateStack = []
+    # XXX XXX XXX XXX XXX XXX XXX XXX
     self.stateStack = [WelcomeScreen(self)]
+    #self.stateStack = [Level(self, "level100")]
+    #self.pushState(LevelScreen(self, "level100"))
+    # XXX XXX XXX XXX XXX XXX XXX XXX
 
   def pushState(self, state):
     """Add a state to the state stack. The new state will become the active
@@ -58,10 +67,11 @@ class UI(object):
       currentState = self.stateStack[-1]
       quit = currentState.handleEvents(pygame.event.get())
       time += clock.tick()
-      currentState.draw(time)
+      currentState.update(time)
+      currentState.draw()
       pygame.display.flip()
 
-class Menu(object):
+class Menu(Screen):
   """The base class for all menus"""
 
   def __init__(self, ui):
@@ -106,7 +116,7 @@ class PlainMenu(Menu):
     super(PlainMenu, self).__init__(ui)
     self.__texture = Texture(textureFile)
 
-  def draw(self, time):
+  def draw(self):
     """Draw the menu."""
     # Clear the screen
     glClearColor(0, 0, 0, 1)
@@ -194,9 +204,9 @@ class CharacterSelectMenu(PlainMenu):
   def userSelect(self):
     self.userBack()
 
-  def draw(self, time):
+  def draw(self):
     """Draw the background image"""
-    PlainMenu.draw(self, time)
+    PlainMenu.draw(self)
 
     glEnable(GL_ALPHA_TEST)
     glAlphaFunc(GL_GREATER, 0.5)
@@ -278,7 +288,7 @@ class Tutorials(PlainMenu):
 
   def userSkip(self):
     """ Move on to level """
-    self._ui.pushState(LevelScreen(self._ui, self.basename)) # push the state for that level splash screen
+    self._ui.pushState(LevelSplashScreen(self._ui, self.basename)) # push the state for that level splash screen
 
   def userNext(self):
     """ Move to next tutorial screen"""
@@ -288,16 +298,7 @@ class Tutorials(PlainMenu):
       self.tutorialfiles.reverse() # flip back to proper order
       self._ui.pushState(Tutorials(self._ui, self.basename, self.tutorialfiles))
     else: # none left, go to level
-      self._ui.pushState(LevelScreen(self._ui, self.basename))
-
-
-
-
-class LevelButton(object):
-  """Faux button that indicates available level choices"""
-  def __init__(self, ui, imgfile):
-    self._ui = ui
-    self.__texture = Texture(imgfile)
+      self._ui.pushState(LevelSplashScreen(self._ui, self.basename))
 
 class LevelMenu(PlainMenu):
   """The main level menu - interactable"""
@@ -319,8 +320,6 @@ class LevelMenu(PlainMenu):
 
   def __init__(self, ui):
     super(LevelMenu, self).__init__(ui, "../assets/levelmenu.png")
-    # contains a series of level buttons
-    level1button = LevelButton(ui, "../assets/level1mockbutton.png")
 
   def handleEvents(self, events):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
@@ -343,8 +342,8 @@ class LevelMenu(PlainMenu):
     self._ui.pushState(Tutorials(self._ui, basename, tutorialfiles))
     # TutorialScreen will push the level state intstead..
 
-  def draw(self, time):
-    super(LevelMenu, self).draw(time)
+  def draw(self):
+    super(LevelMenu, self).draw()
 
     glEnable(GL_ALPHA_TEST)
     glAlphaFunc(GL_GREATER, 0.5)
@@ -375,15 +374,15 @@ class LevelMenu(PlainMenu):
 
     glEnd()
 
-class LevelScreen(PlainMenu):
+class LevelSplashScreen(PlainMenu):
   """The level screen - splash"""
 
   def __init__(self, ui, basename):
-    super(LevelScreen, self).__init__(ui, "../assets/background2.png")
+    super(LevelSplashScreen, self).__init__(ui, "../assets/background2.png")
     self.basename = basename
 
   def userSelect(self):
-    self._ui.pushState(Level(self._ui, self.basename))
+    self._ui.pushState(LevelScreen(self._ui, self.basename))
 
 def main():
   """Create and run the UI."""

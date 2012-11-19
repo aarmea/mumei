@@ -14,19 +14,16 @@ class TextBox(object):
   CHOPL, CHOPR = 0.1875, 0.8125
   SCALEX = abs(CHOPL-CHOPR)
 
-  def __init__(self, pos, size, charset, text):
+  def __init__(self, ui, pos, size):
     self.__displayList = None
     self._buffer = []
     self._pos = pos
     self._size = size
-    self._charset = charset
-
-    self._setText(text)
+    self._charset = ui.characterSet
 
   def _setText(self, text):
     # Convert the text input into the _chars array of strings
     self._buffer = [list(thing) for thing in text.split("\n")]
-    self._cursorPos = (len(self._buffer)-1, len(self._buffer[-1]))
     self.update()
 
   def _getText(self):
@@ -85,20 +82,23 @@ class TextBox(object):
 
     glCallList(self.__displayList)
 
-  text = property(_getText)
+  text = property(_getText, _setText)
 
 class LineNumbers(TextBox):
   """Line numbers that can be placed next to a TextBox or TextEditor"""
 
-  def __init__(self, pos, lines, charset):
+  def __init__(self, ui, pos, lines):
     rows, cols = lines, len(str(lines))
     string = ""
     for num in xrange(1, lines+1):
       string += '|' + str(num).rjust(cols, ' ') + "|\n"
-    super(LineNumbers, self).__init__(pos, (cols+2, rows), charset, string)
+    super(LineNumbers, self).__init__(ui, pos, (cols+2, rows))
+    self.text = string
 
 class TextEditor(TextBox):
   """An OpenGL text editor"""
+
+  _cursorPos = (0, 0)
 
   def handleKeyPress(self, key, uni=-1):
     # If the unicode character was not given, generate it from the key
