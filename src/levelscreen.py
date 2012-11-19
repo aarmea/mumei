@@ -2,6 +2,7 @@ import sys
 
 from OpenGL.GL import *
 import pygame
+import random
 
 import c.error
 import c.scanner
@@ -38,6 +39,11 @@ class LevelScreen(Screen):
       self._sampleCode = sampleCode.read()
     with open(LEVEL_DIR + levelName + ".txt", "rb") as helpText:
       self._helpText = helpText.read()
+    try:
+      with open(LEVEL_DIR + levelName + "-hints.txt", "rb") as hints:
+        self._hints = hints.read().split("\n")
+    except IOError:
+      self._hints = []
 
     # UI elements
     self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47)
@@ -126,6 +132,12 @@ class LevelScreen(Screen):
             self._player.direction = 3
           elif e.key == pygame.K_RIGHT:
             self._player.direction = 2
+        elif e.key == pygame.K_F1:
+          random.shuffle(self._hints)
+          try:
+            self._statusLabel.text = "HINT: " + self._hints[0]
+          except IndexError:
+            self._statusLabel.text = "No hints available for this level"
         elif e.key == pygame.K_F2:
           self.resetCode()
         elif e.key == pygame.K_F5:
