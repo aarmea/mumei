@@ -309,7 +309,12 @@ class LevelMenu(PlainMenu):
     ["level400", "level401", "level402", "level403", "level404"],
     ["level500", "level501", "level502", "level503", "level504"]   ]
   tutList = [
-    ["../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png", "../assets/masterLevel1tutorial2.png"]
+    ["../assets/level1description.png","../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png", "../assets/masterLevel1tutorial2.png"],
+    ["../assets/level2description.png", "../assets/intro_screen2.png", "../assets/masterLevel1tutorial2.png"],
+    ["../assets/level3description.png", "../assets/intro_screen2.png", "../assets/masterLevel1tutorial3.png", "../assets/masterLevel1tutorial3b.png" ],
+    ["../assets/level4description.png" , "../assets/masterLevel1tutorial4.png", "../assets/masterLevel1tutorial4b.png"  ],
+    ["../assets/level5description.png", "../assets/masterLevel1tutorial5.png", "../assets/masterLevel1tutorial5b.png"]
+
   ]
 
   def __init__(self, ui):
@@ -324,13 +329,13 @@ class LevelMenu(PlainMenu):
         if e.key == pygame.K_1:
           self.userSelectLevel(self.levelList[0][0], self.tutList[0])
         elif e.key == pygame.K_2:
-          self.userSelectLevel(self.levelList[1][0])
+          self.userSelectLevel(self.levelList[1][0], self.tutList[1])
         elif e.key == pygame.K_3:
-          self.userSelectLevel(self.levelList[2][0])
+          self.userSelectLevel(self.levelList[2][0], self.tutList[2])
         elif e.key == pygame.K_4:
-          self.userSelectLevel(self.levelList[3][0])
+          self.userSelectLevel(self.levelList[3][0], self.tutList[3])
         elif e.key == pygame.K_5:
-          self.userSelectLevel(self.levelList[4][0])
+          self.userSelectLevel(self.levelList[4][0], self.tutList[4])
 
     return super(LevelMenu, self).handleEvents(events);
 
