@@ -309,11 +309,11 @@ class LevelMenu(PlainMenu):
     ["level400", "level401", "level402", "level403", "level404"],
     ["level500", "level501", "level502", "level503", "level504"]   ]
   tutList = [
-    ["../assets/level1description.png","../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png", "../assets/masterLevel1tutorial2.png"],
-    ["../assets/level2description.png", "../assets/intro_screen2.png", "../assets/masterLevel1tutorial2.png"],
-    ["../assets/level3description.png", "../assets/intro_screen2.png", "../assets/masterLevel1tutorial3.png", "../assets/masterLevel1tutorial3b.png" ],
-    ["../assets/level4description.png" , "../assets/masterLevel1tutorial4.png", "../assets/masterLevel1tutorial4b.png"  ],
-    ["../assets/level5description.png", "../assets/masterLevel1tutorial5.png", "../assets/masterLevel1tutorial5b.png"]
+    ["../assets/intro_screen2.png", "../assets/level1description.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png", "../assets/masterLevel1tutorial2.png"],
+    ["../assets/intro_screen2.png", "../assets/level2description.png", "../assets/masterLevel2tutorial.png", "../assets/masterLevel2tutorial2.png"],
+    ["../assets/intro_screen2.png", "../assets/level3description.png", "../assets/masterLevel1tutorial3.png", "../assets/masterLevel1tutorial3b.png" ],
+    ["../assets/intro_screen2.png", "../assets/level4description.png" , "../assets/masterLevel1tutorial4.png", "../assets/masterLevel1tutorial4b.png"  ],
+    ["../assets/intro_screen2.png", "../assets/level5description.png", "../assets/masterLevel1tutorial5.png", "../assets/masterLevel1tutorial5b.png"]
 
   ]
 
