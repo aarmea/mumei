@@ -309,7 +309,7 @@ class LevelMenu(PlainMenu):
     ["level400", "level401", "level402", "level403", "level404"],
     ["level500", "level501", "level502", "level503", "level504"]   ]
   tutList = [
-    ["../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png"]
+    ["../assets/intro_screen2.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png", "../assets/masterLevel1tutorial2.png"]
   ]
 
   def __init__(self, ui):
