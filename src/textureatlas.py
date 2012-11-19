@@ -9,6 +9,9 @@ import pygame
 
 from texture import Texture
 
+IMAGE_SUFFIX = "-0.png"
+TILEMAP_SUFFIX = ".csv"
+
 class TextureAtlas(object):
   """An interface for texturing quads with tiles from a single texture"""
 
@@ -53,11 +56,11 @@ class TileSet(TextureAtlas):
 
   def __init__(self, path, prefix):
     # TODO: handle multiple spritesheets
-    texture = Texture(path + prefix + "-0.png")
+    texture = Texture(path + prefix + IMAGE_SUFFIX)
 
     # Parse the *.csv file
     self.__images = dict()
-    with open(path + prefix + ".csv") as file_:
+    with open(path + prefix + TILEMAP_SUFFIX) as file_:
       csvFile = csv.reader(file_)
 
       for meta in csvFile:
