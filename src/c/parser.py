@@ -265,16 +265,35 @@ wcharToken = token(lambda t: isinstance(t, scanner.WCharToken))
 floatToken = token(lambda t: isinstance(t, scanner.FloatToken))
 doubleToken = token(lambda t: isinstance(t, scanner.DoubleToken))
 longDoubleToken = token(lambda t: isinstance(t, scanner.LongDoubleToken))
+incrementToken = token(lambda t: isinstance(t, scanner.IncrementToken))
+decrementToken = token(lambda t: isinstance(t, scanner.DecrementToken))
+logicAndToken = token(lambda t: isinstance(t, scanner.LogicAndToken))
+logicOrToken = token(lambda t: isinstance(t, scanner.LogicOrToken))
+lessThanEqualToken = token(lambda t: isinstance(t, scanner.LessThanEqualToken))
+greaterThanEqualToken = token(lambda t: isinstance(t,
+  scanner.GreaterThanEqualToken))
 semicolonToken = token(lambda t: isinstance(t, scanner.SemicolonToken))
 lcurlyToken = token(lambda t: isinstance(t, scanner.LCurlyToken))
 rcurlyToken = token(lambda t: isinstance(t, scanner.RCurlyToken))
 commaToken = token(lambda t: isinstance(t, scanner.CommaToken))
+colonToken = token(lambda t: isinstance(t, scanner.ColonToken))
 assignToken = token(lambda t: isinstance(t, scanner.AssignToken))
 lparenToken = token(lambda t: isinstance(t, scanner.LParenToken))
 rparenToken = token(lambda t: isinstance(t, scanner.RParenToken))
 addToken = token(lambda t: isinstance(t, scanner.AddToken))
+subToken = token(lambda t: isinstance(t, scanner.SubToken))
 starToken = token(lambda t: isinstance(t, scanner.StarToken))
+divToken = token(lambda t: isinstance(t, scanner.DivToken))
+logicNotToken = token(lambda t: isinstance(t, scanner.LogicNotToken))
+notToken = token(lambda t: isinstance(t, scanner.NotToken))
+ampersandToken = token(lambda t: isinstance(t, scanner.AmpersandToken))
+xorToken = token(lambda t: isinstance(t, scanner.XorToken))
+orToken = token(lambda t: isinstance(t, scanner.OrToken))
+equalToken = token(lambda t: isinstance(t, scanner.EqualToken))
+notEqualToken = token(lambda t: isinstance(t, scanner.NotEqualToken))
 lessThanToken = token(lambda t: isinstance(t, scanner.LessThanToken))
+greaterThanToken = token(lambda t: isinstance(t, scanner.GreaterThanToken))
+questionToken = token(lambda t: isinstance(t, scanner.QuestionToken))
 eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
 
 # primary-expression:
@@ -284,34 +303,34 @@ eofToken = token(lambda t: isinstance(t, scanner.EOFToken))
 #   '(' expression ')'
 varExpr = (
   mbind(identifierToken, lambda id_:
-  mreturn(syntree.VarExpr(id_.val))))
+  mreturn(syntree.VarExpr(id_.pos, id_.val))))
 intExpr = (
   mbind(intToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.IntType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.IntType(), const.val))))
 longExpr = (
   mbind(longToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.LongType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.LongType(), const.val))))
 uintExpr = (
   mbind(uintToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.UIntType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.UIntType(), const.val))))
 ulongExpr = (
   mbind(ulongToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.ULongType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.ULongType(), const.val))))
 floatExpr = (
   mbind(floatToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.FloatType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.FloatType(), const.val))))
 doubleExpr = (
   mbind(doubleToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.DoubleType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.DoubleType(), const.val))))
 longDoubleExpr = (
   mbind(longDoubleToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.LongDoubleType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.LongDoubleType(), const.val))))
 charExpr = (
   mbind(charToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.CharType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.CharType(), const.val))))
 wcharExpr = (
   mbind(wcharToken, lambda const:
-  mreturn(syntree.ConstExpr(syntree.WCharType(), const.val))))
+  mreturn(syntree.ConstExpr(const.pos, syntree.WCharType(), const.val))))
 constExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(mplus(intExpr,
   longExpr), uintExpr), ulongExpr), floatExpr), doubleExpr), longDoubleExpr),
   charExpr), wcharExpr)
@@ -342,76 +361,134 @@ argExprList = (
 #   '(' argument-expression-list? ')' postfix-expression-suffix?
 #   ',' identifier postfix-expression-suffix? # XXX Not implemented
 #   '->' identifier postfix-expression-suffix? # XXX Not implemented
-#   '++' postfix-expression-suffix? # XXX Not implemented
-#   '--' postfix-expression-suffix? # XXX Not implemented
-funPostExprSuffix = (
+#   '++' postfix-expression-suffix?
+#   '--' postfix-expression-suffix?
+funPostfixExprSuffix = (
   mbind(lparenToken, lambda _:
   mbind(option([], argExprList), lambda argExprs:
   mbind(rparenToken, lambda _:
-  mbind(option([], funPostExprSuffix), lambda argExprss:
-  mreturn([argExprs] + argExprss))))))
-
-postfixExprSuffix = funPostExprSuffix
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn([lambda expr_: syntree.CallExpr(expr_, argExprs)] + exprs))))))
+incPostfixExprSuffix = (
+  mbind(incrementToken, lambda _:
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn([syntree.PostIncExpr] + exprs))))
+decPostfixExprSuffix = (
+  mbind(decrementToken, lambda _:
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn([syntree.PostDecExpr] + exprs))))
+postfixExprSuffix = mplus(mplus(funPostfixExprSuffix, incPostfixExprSuffix),
+  decPostfixExprSuffix)
 
 # postfix-expression:
 #   primary-expression postfix-expression-suffix?
 postfixExpr = (
   mbind(primaryExpr, lambda expr_:
-  mbind(option([], funPostExprSuffix), lambda argExprss:
-  mreturn(reduce(lambda funExpr, argExprs:
-    syntree.CallExpr(funExpr, argExprs), argExprss, expr_)))))
+  mbind(option([], postfixExprSuffix), lambda exprs:
+  mreturn(reduce(lambda expr_, type_: type_(expr_), exprs, expr_)))))
 
 # unary-expression:
 #   postfix-expression
-#   '++' unary-expression # XXX Not implemented
-#   '--' unary-expression # XXX Not implemented
-#   unary-operator cast-expression # XXX Only implemented for '*'
+#   '++' unary-expression
+#   '--' unary-expression
+#   unary-operator cast-expression
 #   'sizeof' unary-expression # XXX Not implemented
 #   'sizeof' '(' type-name ')' # XXX Not implemented
 #
 # unary-operator:
-#   '&' # XXX Not implemented
+#   '&'
 #   '*'
-#   '+' # XXX Not implemented
-#   '-' # XXX Not implemented
-#   '~' # XXX Not implemented
-#   '!' # XXX Not implemented
-derefExpr = (
-  mbind(starToken, lambda _:
+#   '+'
+#   '-'
+#   '~'
+#   '!'
+preIncExpr = (
+  mbind(incrementToken, lambda t:
+  mbind(unaryExpr, lambda expr_:
+  mreturn(syntree.PreIncExpr(t.pos, expr_)))))
+preDecExpr = (
+  mbind(decrementToken, lambda t:
+  mbind(unaryExpr, lambda expr_:
+  mreturn(syntree.PreDecExpr(t.pos, expr_)))))
+addrOfExpr = (
+  mbind(ampersandToken, lambda t:
   mbind(castExpr, lambda expr_:
-  mreturn(syntree.DerefExpr(expr_)))))
-unaryExpr = mplus(postfixExpr, derefExpr)
+  mreturn(syntree.AddrOfExpr(t.pos, expr_)))))
+derefExpr = (
+  mbind(starToken, lambda t:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.DerefExpr(t.pos, expr_)))))
+plusExpr = (
+  mbind(addToken, lambda t:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.PlusExpr(t.pos, expr_)))))
+minusExpr = (
+  mbind(subToken, lambda t:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.NegExpr(t.pos, expr_)))))
+notExpr = (
+  mbind(notToken, lambda t:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.NotExpr(t.pos, expr_)))))
+logicNotExpr = (
+  mbind(logicNotToken, lambda t:
+  mbind(castExpr, lambda expr_:
+  mreturn(syntree.LogicNotExpr(t.pos, expr_)))))
+unaryExpr = mplus(mplus(mplus(mplus(mplus(mplus(mplus(mplus(postfixExpr,
+  preIncExpr), preDecExpr), addrOfExpr), derefExpr), plusExpr), minusExpr),
+  notExpr), logicNotExpr)
 
 # cast-expression:
 #   unary-expression
 #   '(' type-name ')' cast-expression
 castExpr = unaryExpr
 
+# multiplicative-expression-suffix:
+#   '*' cast-expression multiplicative-expression-suffix?
+#   '/' cast-expression multiplicative-expression-suffix?
+#   '%' cast-expression multiplicative-expression-suffix? # XXX Not implemented
+mulExprSuffix = (
+  mbind(starToken, lambda _:
+  mbind(castExpr, lambda expr_:
+  mbind(option([], multiplicativeExprSuffix), lambda exprs:
+  mreturn([(syntree.MulExpr, expr_)] + exprs)))))
+divExprSuffix = (
+  mbind(divToken, lambda _:
+  mbind(castExpr, lambda expr_:
+  mbind(option([], multiplicativeExprSuffix), lambda exprs:
+  mreturn([(syntree.DivExpr, expr_)] + exprs)))))
+multiplicativeExprSuffix = mplus(mulExprSuffix, divExprSuffix)
+
 # multiplicative-expression:
 #   cast-expression multiplicative-expression-suffix?
-#
-# multiplicative-expression-suffix:
-#   '*' cast-expression multiplicative-expression-suffix? # XXX Not implemented
-#   '/' cast-expression multiplicative-expression-suffix? # XXX Not implemented
-#   '%' cast-expression multiplicative-expression-suffix? # XXX Not implemented
-mulExpr = castExpr
+multiplicativeExpr = (
+  mbind(castExpr, lambda expr_:
+  mbind(option([], multiplicativeExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
 
 # additive-expression-suffix:
 #   '+' multiplicative-expression additive-expression-suffix?
-#   '-' multiplicative-expression additive-expression-suffix? # XXX Not implemented
+#   '-' multiplicative-expression additive-expression-suffix?
 addExprSuffix = (
   mbind(addToken, lambda _:
-  mbind(mulExpr, lambda expr_:
+  mbind(multiplicativeExpr, lambda expr_:
   mbind(option([], addExprSuffix), lambda exprs:
-  mreturn([expr_] + exprs)))))
+  mreturn([(syntree.AddExpr, expr_)] + exprs)))))
+subExprSuffix = (
+  mbind(subToken, lambda _:
+  mbind(multiplicativeExpr, lambda expr_:
+  mbind(option([], subExprSuffix), lambda exprs:
+  mreturn([(syntree.SubExpr, expr_)] + exprs)))))
+additiveExprSuffix = mplus(addExprSuffix, subExprSuffix)
 
 # additive-expression:
 #   multiplicative-expression additive-expression-suffix?
-addExpr = (
-  mbind(mulExpr, lambda expr_:
-  mbind(option([], addExprSuffix), lambda exprs:
-  mreturn(reduce(lambda lexpr, rexpr:
-    syntree.AddExpr(lexpr, rexpr), exprs, expr_)))))
+additiveExpr = (
+  mbind(multiplicativeExpr, lambda expr_:
+  mbind(option([], additiveExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
 
 # shift-expression:
 #   additive-expression shift-expression-suffix?
@@ -419,74 +496,160 @@ addExpr = (
 # shift-expression-suffix:
 #   '<<' additive-expression shift-expression-suffix? # XXX Not implemented
 #   '>>' additive-expression shift-expression-suffix? # XXX Not implemented
-shiftExpr = addExpr
+shiftExpr = additiveExpr
 
 # relational-expression-suffix:
 #   '<' shift-expression relational-expression-suffix?
-#   '>' shift-expression relational-expression-suffix? # XXX Not implemented
-#   '<=' shift-expression relational-expression-suffix? # XXX Not implemented
-#   '>=' shift-expression relational-expression-suffix? # XXX Not implemented
-relExprSuffix = (
+#   '>' shift-expression relational-expression-suffix?
+#   '<=' shift-expression relational-expression-suffix?
+#   '>=' shift-expression relational-expression-suffix?
+lessExprSuffix = (
   mbind(lessThanToken, lambda _:
   mbind(shiftExpr, lambda expr_:
   mbind(option([], relExprSuffix), lambda exprs:
-  mreturn([expr_] + exprs)))))
+  mreturn([(syntree.LessThanExpr, expr_)] + exprs)))))
+greaterExprSuffix = (
+  mbind(greaterThanToken, lambda _:
+  mbind(shiftExpr, lambda expr_:
+  mbind(option([], relExprSuffix), lambda exprs:
+  mreturn([(syntree.GreaterThanExpr, expr_)] + exprs)))))
+lessThanEqualExprSuffix = (
+  mbind(lessThanEqualToken, lambda _:
+  mbind(shiftExpr, lambda expr_:
+  mbind(option([], relExprSuffix), lambda exprs:
+  mreturn([(syntree.LessThanEqualExpr, expr_)] + exprs)))))
+greaterThanEqualExprSuffix = (
+  mbind(greaterThanEqualToken, lambda _:
+  mbind(shiftExpr, lambda expr_:
+  mbind(option([], relExprSuffix), lambda exprs:
+  mreturn([(syntree.GreaterThanEqualExpr, expr_)] + exprs)))))
+relExprSuffix = mplus(mplus(mplus(lessExprSuffix, greaterExprSuffix),
+  lessThanEqualExprSuffix), greaterThanEqualExprSuffix)
 
 # relational-expression:
 #   shift-expression relational-expression-suffix?
 relExpr = (
   mbind(shiftExpr, lambda expr_:
   mbind(option([], relExprSuffix), lambda exprs:
-  mreturn(reduce(lambda lexpr, rexpr:
-    syntree.LessThanExpr(lexpr, rexpr), exprs, expr_))))) # XXX Only handles '<'
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
+
+# equality-expression-suffix:
+#   '==' relational-expression equality-expression-suffix?
+#   '!=' relational-expression equality-expression-suffix?
+equalExprSuffix = (
+  mbind(equalToken, lambda _:
+  mbind(relExpr, lambda expr_:
+  mbind(option([], equalExprSuffix), lambda exprs:
+  mreturn([(syntree.EqualExpr, expr_)] + exprs)))))
+notEqualExprSuffix = (
+  mbind(notEqualToken, lambda _:
+  mbind(relExpr, lambda expr_:
+  mbind(option([], notEqualExprSuffix), lambda exprs:
+  mreturn([(syntree.NotEqualExpr, expr_)] + exprs)))))
+equalityExprSuffix = mplus(equalExprSuffix, notEqualExprSuffix)
 
 # equality-expression:
 #   relational-expression equality-expression-suffix?
-#
-# equality-expression-suffix:
-#   '==' relational-expression equality-expression-suffix? # XXX Not implemented
-#   '!=' relational-expression equality-expression-suffix? # XXX Not implemented
-eqExpr = relExpr
+equalityExpr = (
+  mbind(relExpr, lambda expr_:
+  mbind(option([], equalityExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, (type_, rexpr):
+    type_(lexpr, rexpr), exprs, expr_)))))
+
+# and-expression-suffix:
+#   '&' equality-expression and-expression-suffix?
+andExprSuffix = (
+  mbind(ampersandToken, lambda _:
+  mbind(equalityExpr, lambda expr_:
+  mbind(option([], andExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
 
 # and-expression:
 #   equality-expression and-expression-suffix?
-#
-# and-expression-suffix:
-#   '&' equality-expression and-expression-suffix? # XXX Not implemented
-andExpr = eqExpr
+andExpr = (
+  mbind(equalityExpr, lambda expr_:
+  mbind(option([], andExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.AndExpr(lexpr, rexpr), exprs, expr_)))))
+
+# exclusive-or-expression-suffix:
+#   '^' and-expression exclusive-or-expression-suffix?
+exclOrExprSuffix = (
+  mbind(xorToken, lambda _:
+  mbind(andExpr, lambda expr_:
+  mbind(option([], exclOrExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
 
 # exclusive-or-expression:
 #   and-expression exclusive-or-expression-suffix?
-#
-# exclusive-or-expression-suffix:
-#   '^' and-expression exclusive-or-expression-suffix? # XXX Not implemented
-exclOrExpr = andExpr
+exclOrExpr = (
+  mbind(andExpr, lambda expr_:
+  mbind(option([], exclOrExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.XorExpr(lexpr, rexpr), exprs, expr_)))))
+
+# inclusive-or-expression-suffix:
+#   '|' exclusive-or-expression inclusive-of-expression-suffix?
+inclOrExprSuffix = (
+  mbind(orToken, lambda _:
+  mbind(exclOrExpr, lambda expr_:
+  mbind(option([], inclOrExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
 
 # inclusive-or-expression:
 #   exclusive-or-expression inclusive-of-expression-suffix?
-#
-# inclusive-or-expression-suffix:
-#   '|' exclusive-or-expression inclusive-of-expression-suffix? # XXX Not impl.
-inclOrExpr = exclOrExpr
+inclOrExpr = (
+  mbind(exclOrExpr, lambda expr_:
+  mbind(option([], inclOrExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.OrExpr(lexpr, rexpr), exprs, expr_)))))
 
-# logical-and-expression:
-#   inclusive-or-expression logical-and-expression-suffix? # XXX Not implemented
-#
 # logical-and-expression-suffix:
 #   '&&' inclusive-or-expression logical-and-expression-suffix?
-logicAndExpr = inclOrExpr
+logicAndExprSuffix = (
+  mbind(logicAndToken, lambda _:
+  mbind(inclOrExpr, lambda expr_:
+  mbind(option([], logicAndExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
+
+# logical-and-expression:
+#   inclusive-or-expression logical-and-expression-suffix?
+logicAndExpr = (
+  mbind(inclOrExpr, lambda expr_:
+  mbind(option([], logicAndExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.LogicAndExpr(lexpr, rexpr), exprs, expr_)))))
+
+# logical-or-expression-suffix:
+#   '||' logical-and-expression logical-or-expression-suffix?
+logicOrExprSuffix = (
+  mbind(logicOrToken, lambda _:
+  mbind(logicAndExpr, lambda expr_:
+  mbind(option([], logicOrExprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
 
 # logical-or-expression:
 #   logical-and-expression logical-or-expression-suffix?
-#
-# logical-or-expression-suffix:
-#   '||' logical-and-expression logical-or-expression-suffix? # XXX Not impl.
-logicOrExpr = logicAndExpr
+logicOrExpr = (
+  mbind(logicAndExpr, lambda expr_:
+  mbind(option([], logicOrExprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.LogicOrExpr(lexpr, rexpr), exprs, expr_)))))
 
 # conditional-expression:
 #   logical-or-expression
-#   logical-or-expression '?' expression ':' conditional-expression # XXX
-condExpr = logicOrExpr
+#   logical-or-expression '?' expression ':' conditional-expression
+condExprLook = lookAhead(mbind(logicOrExpr, lambda _: questionToken))
+condExpr_ = (
+  mbind(try_(condExprLook), lambda _:
+  mbind(logicOrExpr, lambda expr_:
+  mbind(questionToken, lambda _:
+  mbind(expr, lambda texpr:
+  mbind(colonToken, lambda _:
+  mbind(condExpr, lambda fexpr:
+  mreturn(syntree.CondExpr(expr_, texpr, fexpr)))))))))
+condExpr = mplus(condExpr_, logicOrExpr)
 
 # assignment-expression:
 #   conditional-expression
@@ -500,37 +663,65 @@ assignExpr_ = (
   mreturn(syntree.AssignExpr(lexpr, None, rexpr)))))))
 assignExpr = mplus(assignExpr_, condExpr)
 
+# expression-suffix:
+#   ',' assignment-expression expression-suffix?
+exprSuffix = (
+  mbind(commaToken, lambda _:
+  mbind(assignExpr, lambda expr_:
+  mbind(option([], exprSuffix), lambda exprs:
+  mreturn([expr_] + exprs)))))
+
 # expression:
 #   assignment-expression expression-suffix?
-#
-# expression-suffix:
-#   ',' assignment-expression expression-suffix? # XXX Not implemented
-expr = assignExpr
+expr = (
+  mbind(assignExpr, lambda expr_:
+  mbind(option([], exprSuffix), lambda exprs:
+  mreturn(reduce(lambda lexpr, rexpr:
+    syntree.CommaExpr(lexpr, rexpr), exprs, expr_)))))
 
 # jump-statement:
 #   'goto' identifier ';' # XXX Not implemented
-#   'continue' ';' # XXX Not implemented
-#   'break' ';' # XXX Not implemented
+#   'continue' ';'
+#   'break' ';'
 #   'return' expression? ';'
+continueStmt = (
+  mbind(keywordToken("continue"), lambda t:
+  mbind(semicolonToken, lambda _:
+  mreturn(syntree.ContinueStmt(t.pos)))))
+breakStmt = (
+  mbind(keywordToken("break"), lambda t:
+  mbind(semicolonToken, lambda _:
+  mreturn(syntree.BreakStmt(t.pos)))))
 returnStmt = (
-  mbind(keywordToken("return"), lambda _:
+  mbind(keywordToken("return"), lambda t:
   mbind(option(None, expr), lambda expr_:
   mbind(semicolonToken, lambda _:
-  mreturn(syntree.ReturnStmt(expr_))))))
-jumpStmt = returnStmt
+  mreturn(syntree.ReturnStmt(t.pos, expr_))))))
+jumpStmt = mplus(mplus(continueStmt, breakStmt), returnStmt)
 
 # iteration-statement:
 #   'while' '(' expression ')' statement
 #   'do' statement 'while' '(' expression ')' ';' # XXX Not implemented
-#   'for' '(' expression? ';' expression? ';' expression ')' statement # XXX
-#   'for' '(' declaration expression? ';' expression? ')' statement # XXX
-iterationStmt = (
+#   'for' '(' expression? ';' expression? ';' expression? ')' statement
+whileStmt = (
   mbind(keywordToken("while"), lambda _:
   mbind(lparenToken, lambda _:
   mbind(expr, lambda expr_:
   mbind(rparenToken, lambda _:
-  mbind(stmt, lambda stmt:
-  mreturn(syntree.WhileStmt(expr_, stmt))))))))
+  mbind(stmt, lambda stmt_:
+  mreturn(syntree.WhileStmt(expr_, stmt_))))))))
+forStmt = (
+  mbind(keywordToken("for"), lambda _:
+  mbind(lparenToken, lambda _:
+  mbind(option(None, expr), lambda initExpr:
+  mbind(semicolonToken, lambda _:
+  mbind(option(None, expr), lambda condExpr:
+  mbind(semicolonToken, lambda _:
+  mbind(option(None, expr), lambda nextExpr:
+  mbind(rparenToken, lambda _:
+  mbind(stmt, lambda stmt_:
+  mreturn(syntree.ForStmt(initExpr, condExpr, nextExpr, stmt_))))))))))))
+iterationStmt = mplus(whileStmt, forStmt)
 
 # selection-statement:
 #   'if' '(' expression ')' statement

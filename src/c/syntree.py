@@ -516,23 +516,47 @@ class WhileStmt(IterationStmt):
     return "%s(expr=%r, stmt=%r)" % (type(self).__name__, self.expr,
       self.stmt)
 
-# XXX do/for not implemented
+# XXX do not implemented
+
+@visitable
+class ForStmt(IterationStmt):
+  """A for statement"""
+
+  def __init__(self, initExpr, condExpr, nextExpr, stmt):
+    self.initExpr = initExpr
+    self.condExpr = condExpr
+    self.nextExpr = nextExpr
+    self.stmt = stmt
+
+  def __repr__(self):
+    return "%s(initExpr=%r, condExpr=%r, nextExpr=%r, stmt=%r)" % (
+      type(self).__name__, self.initExpr, self.condExpr, self.nextExpr,
+      self.stmt)
 
 class JumpStmt(Stmt):
   """A jump statement"""
 
+  def __init__(self, pos):
+    self.pos = pos
+
+  def __repr__(self):
+    return "%s(pos=%r)" % (type(self).__name__, self.pos)
+
 class GoToStmt(JumpStmt):
   """A goto statement"""
 
-  def __init__(self, id_):
+  def __init__(self, pos, id_):
+    JumpStmt.__init__(self, pos)
     self.id = id_
 
   def __repr__(self):
-    return "%s(id_=%r)" % (type(self).__name__, self.id_)
+    return "%s(pos=%r, id_=%r)" % (type(self).__name__, self.pos, self.id_)
 
+@visitable
 class ContinueStmt(JumpStmt):
   """A continue statement"""
 
+@visitable
 class BreakStmt(JumpStmt):
   """A break statement"""
 
@@ -540,17 +564,19 @@ class BreakStmt(JumpStmt):
 class ReturnStmt(JumpStmt):
   """A return statement"""
 
-  def __init__(self, expr):
+  def __init__(self, pos, expr):
+    JumpStmt.__init__(self, pos)
     self.expr = expr
 
   def __repr__(self):
-    return "%s(expr=%r)" % (type(self).__name__, self.expr)
+    return "%s(pos=%r, expr=%r)" % (type(self).__name__, self.pos, self.expr)
 
 # Expressions
 
 class Expr(object):
   """An expression"""
 
+@visitable
 class CommaExpr(Expr):
   """A comma expression"""
 
@@ -561,6 +587,8 @@ class CommaExpr(Expr):
   def __repr__(self):
     return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
       self.rexpr))
+
+  pos = property(lambda self: self.lexpr.pos)
 
 @visitable
 class AssignExpr(Expr):
@@ -575,59 +603,168 @@ class AssignExpr(Expr):
     return ("%s(op=%r, lexpr=%r, rexpr=%r" % (type(self).__name__, self.op,
       self.lexpr, self.rexpr))
 
-# XXX More expressions
+  pos = property(lambda self: self.lexpr.pos)
 
 @visitable
-class LessThanExpr(Expr):
+class CondExpr(Expr):
+  """A conditional expression"""
+
+  def __init__(self, expr, texpr, fexpr):
+    self.expr = expr
+    self.texpr = texpr
+    self.fexpr = fexpr
+
+  def __repr__(self):
+    return ("%s(expr=%r, texpr=%r, fexpr=%r)" % (type(self).__name__, self.expr,
+      self.texpr, self.fexpr))
+
+  pos = property(lambda self: self.expr.pos)
+
+class BinaryExpr(Expr):
+  """A binary expression"""
+
+  def __init__(self, lexpr, rexpr):
+    self.lexpr = lexpr
+    self.rexpr = rexpr
+
+  def __repr__(self):
+    return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
+      self.rexpr))
+
+  pos = property(lambda self: self.lexpr.pos)
+
+@visitable
+class LessThanExpr(BinaryExpr):
   """A less-than expression"""
 
-  def __init__(self, lexpr, rexpr):
-    self.lexpr = lexpr
-    self.rexpr = rexpr
-
-  def __repr__(self):
-    return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
-      self.rexpr))
+@visitable
+class GreaterThanExpr(BinaryExpr):
+  """A greater-than expression"""
 
 @visitable
-class AddExpr(Expr):
+class LessThanEqualExpr(BinaryExpr):
+  """A less-than-or-equal-to exression"""
+
+@visitable
+class GreaterThanEqualExpr(BinaryExpr):
+  """A greater-than-or-equal-to expression"""
+
+@visitable
+class EqualExpr(BinaryExpr):
+  """An equal-to expression"""
+
+@visitable
+class NotEqualExpr(BinaryExpr):
+  """A not-equal-to expression"""
+
+@visitable
+class AndExpr(BinaryExpr):
+  """A bitwise AND expression"""
+
+@visitable
+class XorExpr(BinaryExpr):
+  """A bitwise XOR expression"""
+
+@visitable
+class OrExpr(BinaryExpr):
+  """A bitwise OR expression"""
+
+@visitable
+class LogicAndExpr(BinaryExpr):
+  """A logical AND expression"""
+
+@visitable
+class LogicOrExpr(BinaryExpr):
+  """A logical OR expression"""
+
+@visitable
+class MulExpr(BinaryExpr):
+  """A multiplication expression"""
+
+@visitable
+class DivExpr(BinaryExpr):
+  """A division expression"""
+
+@visitable
+class AddExpr(BinaryExpr):
   """An addition expression"""
 
-  def __init__(self, lexpr, rexpr):
-    self.lexpr = lexpr
-    self.rexpr = rexpr
-
-  def __repr__(self):
-    return ("%s(lexpr=%r, rexpr=%r)" % (type(self).__name__, self.lexpr,
-      self.rexpr))
+@visitable
+class SubExpr(BinaryExpr):
+  """A subtraction expression"""
 
 class UnaryExpr(Expr):
   """A unary expression"""
+
+  def __init__(self, pos, expr):
+    self.pos = pos
+    self.expr = expr
+
+  def __repr__(self):
+    return "%s(pos=%r, expr=%r)" % (type(self).__name__, self.pos, self.expr)
+
+@visitable
+class PreIncExpr(UnaryExpr):
+  """A pre-increment expression"""
+
+@visitable
+class PreDecExpr(UnaryExpr):
+  """A pre-decrement expression"""
+
+@visitable
+class AddrOfExpr(UnaryExpr):
+  """An address-of expression"""
 
 @visitable
 class DerefExpr(UnaryExpr):
   """A dereference expression"""
 
+@visitable
+class PlusExpr(UnaryExpr):
+  """A unary plus expression"""
+
+@visitable
+class NegExpr(UnaryExpr):
+  """A negation expression"""
+
+@visitable
+class NotExpr(UnaryExpr):
+  """A bitwise NOT expression"""
+
+@visitable
+class LogicNotExpr(UnaryExpr):
+  """A logical NOT expression"""
+
+class PostfixExpr(Expr):
+  """A postfix expression"""
+
   def __init__(self, expr):
     self.expr = expr
 
   def __repr__(self):
-    return "%s(expr=%r)" % (type(self).__name__, self.expr)
+    return "%s(expr=%r, argExprs=%r)" % (type(self).__name__, self.expr)
 
-class PostfixExpr(Expr):
-  """A postfix expression"""
+  pos = property(lambda self: self.expr.pos)
 
 @visitable
 class CallExpr(PostfixExpr):
   """A function call expression"""
 
-  def __init__(self, funExpr, argExprs):
-    self.funExpr = funExpr
+  def __init__(self, expr, argExprs):
+    PostfixExpr.__init__(self, expr)
     self.argExprs = argExprs
 
   def __repr__(self):
-    return ("%s(funExpr=%r, argExprs=%r)" % (type(self).__name__, self.funExpr,
+    return ("%s(expr=%r, argExprs=%r)" % (type(self).__name__, self.expr,
       self.argExprs))
+
+@visitable
+class PostIncExpr(PostfixExpr):
+  """A post-increment expression"""
+
+@visitable
+class PostDecExpr(PostfixExpr):
+  """A post-decrement expression"""
 
 class PrimaryExpr(Expr):
   """A primary expression"""
@@ -636,22 +773,25 @@ class PrimaryExpr(Expr):
 class VarExpr(PrimaryExpr):
   """A variable expression"""
 
-  def __init__(self, id_):
+  def __init__(self, pos, id_):
+    self.pos = pos
     self.id = id_
 
   def __repr__(self):
-    return "%s(id_=%r)" % (type(self).__name__, self.id)
+    return "%s(pos=%r, id_=%r)" % (type(self).__name__, self.pos, self.id)
 
 @visitable
 class ConstExpr(PrimaryExpr):
   """A constant expression"""
 
-  def __init__(self, type_, val):
+  def __init__(self, pos, type_, val):
+    self.pos = pos
     self.type = type_
     self.val = val
 
   def __repr__(self):
-    return "%s(type_=%r, val=%r)" % (type(self).__name__, self.type, self.val)
+    return "%s(pos=%r, type_=%r, val=%r)" % (type(self).__name__, self.pos,
+      self.type, self.val)
 
 class StringLiteralExpr(PrimaryExpr):
   """A string literal expression"""
