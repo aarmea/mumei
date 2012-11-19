@@ -87,6 +87,21 @@ def translate(tac):
     """Encode an instruction and append the resulting bytecode."""
     code.extend(inst.encode())
 
+  def compare(srca, srcb):
+    """Compare two operands, setting the flags by subtracting the second from
+    the first."""
+    srcOpA, _ = _getOperand(localVars, patches, len(code), srca)
+    # Copy the first variable
+    appendInst(
+      Set(RegOperand(Processor.REG_X0), srcOpA)
+    )
+
+    srcOpB, _ = _getOperand(localVars, patches, len(code), srcb)
+    # Subtract the second variable
+    appendInst(
+      Sub(RegOperand(Processor.REG_X0), srcOpB)
+    )
+
   # Second pass information
   labels = {}
   patches = []
@@ -243,13 +258,8 @@ def translate(tac):
     elif isinstance(inst, threeaddr.LessThan):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, patchOff = _getOperand(localVars, patches, len(code), inst.srca)
-      srcOpB, _ = _getOperand(localVars, patches, patchOff, inst.srcb)
-
-      # Subtract the second variable from the first variable
-      appendInst(
-        Sub(srcOpA, srcOpB)
-      )
+      # Set the flags
+      compare(inst.srca, inst.srcb)
 
       # Mask the less-than flag in the flags register
       appendInst(
@@ -278,13 +288,8 @@ def translate(tac):
     elif isinstance(inst, threeaddr.GreaterThan):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, patchOff = _getOperand(localVars, patches, len(code), inst.srca)
-      srcOpB, _ = _getOperand(localVars, patches, patchOff, inst.srcb)
-
-      # Subtract the second variable from the first variable
-      appendInst(
-        Sub(srcOpA, srcOpB)
-      )
+      # Set the flags
+      compare(inst.srca, inst.srcb)
 
       # Mask the less-than and zero flags in the flags register
       appendInst(
@@ -316,13 +321,8 @@ def translate(tac):
     elif isinstance(inst, threeaddr.LessThanEqual):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, patchOff = _getOperand(localVars, patches, len(code), inst.srca)
-      srcOpB, _ = _getOperand(localVars, patches, patchOff, inst.srcb)
-
-      # Subtract the second variable from the first variable
-      appendInst(
-        Sub(srcOpA, srcOpB)
-      )
+      # Set the flags
+      compare(inst.srca, inst.srcb)
 
       # Mask the less-than flag in the flags register
       appendInst(
@@ -351,13 +351,8 @@ def translate(tac):
     elif isinstance(inst, threeaddr.GreaterThanEqual):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, patchOff = _getOperand(localVars, patches, len(code), inst.srca)
-      srcOpB, _ = _getOperand(localVars, patches, patchOff, inst.srcb)
-
-      # Subtract the second variable from the first variable
-      appendInst(
-        Sub(srcOpA, srcOpB)
-      )
+      # Set the flags
+      compare(inst.srca, inst.srcb)
 
       # Mask the less-than and zero flags in the flags register
       appendInst(
@@ -389,19 +384,8 @@ def translate(tac):
     elif isinstance(inst, threeaddr.Equal):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
-
-      # Copy the first variable into a temporary register
-      appendInst(
-        Set(RegOperand(Processor.REG_X0), srcOpA)
-      )
-
-      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
-
-      # Subtract the second variable from the first variable
-      appendInst(
-        Sub(RegOperand(Processor.REG_X0), srcOpB)
-      )
+      # Set the flags
+      compare(inst.srca, inst.srcb)
 
       # Mask the zero flag in the flags register
       appendInst(
@@ -419,19 +403,8 @@ def translate(tac):
     elif isinstance(inst, threeaddr.NotEqual):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
-
-      # Copy the first variable into a temporary register
-      appendInst(
-        Set(RegOperand(Processor.REG_X0), srcOpA)
-      )
-
-      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
-
-      # Subtract the second variable from the first variable
-      appendInst(
-        Sub(RegOperand(Processor.REG_X0), srcOpB)
-      )
+      # Set the flags
+      compare(inst.srca, inst.srcb)
 
       # Mask the zero flag in the flags register
       appendInst(
