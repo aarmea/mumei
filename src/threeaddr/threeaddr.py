@@ -212,28 +212,40 @@ class Call(tuple):
   target = property(lambda self: self[1])
   """The address of the procedure to call"""
 
-class LessThan(tuple):
-  """An operation that sets the result to non-zero if the first operand is less
-  than the second, otherwise zero."""
+class Neg(tuple):
+  """An operation that negates the source operand, storing the result in the
+  destination"""
 
-  def __new__(cls, dst, srca, srcb):
-    return tuple.__new__(cls, (dst, srca, srcb))
+  def __new__(cls, dst, src):
+    return tuple.__new__(cls, (dst, src))
 
   def __repr__(self):
-    return ("%s(dst=%r, srca=%r, srcb=%r)" % (type(self).__name__, self.dst,
-      self.srca, self.srcb))
+    return "%s(dst=%r, src=%r)" % (type(self).__name__, self.dst, self.src)
 
   dst = property(lambda self: self[0])
-  """The destination operand"""
+  """The destination address"""
 
-  srca = property(lambda self: self[1])
-  """The first source operand"""
+  src = property(lambda self: self[1])
+  """The source operand"""
 
-  srcb = property(lambda self: self[2])
-  """The second source operand"""
+class Not(tuple):
+  """An operation that takes the bitwise NOT of the source operand, storing
+  the result in the destination"""
 
-class Add(tuple):
-  """An operation that adds two source operands, storing the result in the
+  def __new__(cls, dst, src):
+    return tuple.__new__(cls, (dst, src))
+
+  def __repr__(self):
+    return "%s(dst=%r, src=%r)" % (type(self).__name__, self.dst, self.src)
+
+  dst = property(lambda self: self[0])
+  """The destination address"""
+
+  src = property(lambda self: self[1])
+  """The source operand"""
+
+class BinOp(tuple):
+  """An operation on two source operands that stores the result in the
   destination"""
 
   def __new__(cls, dst, srca, srcb):
@@ -252,6 +264,58 @@ class Add(tuple):
   srcb = property(lambda self: self[2])
   """The second source operand"""
 
+class LessThan(BinOp):
+  """An operation that sets the result to one if the first operand is less than
+  the second, otherwise zero"""
+
+class GreaterThan(BinOp):
+  """An operation that sets the result to one if the first operand is greater
+  than the second, otherwise zero"""
+
+class LessThanEqual(BinOp):
+  """An operation that sets the result to one if the first operand is less than
+  or equal to the second, otherwise zero"""
+
+class GreaterThanEqual(BinOp):
+  """An operation that sets the result to one if the first operand is greater
+  than or equal to the second, otherwise zero"""
+
+class Equal(BinOp):
+  """An operation that sets the result to one if the first operand is equal to
+  the second, otherwise zero"""
+
+class NotEqual(BinOp):
+  """An operation that sets the result to one if the first operand is not equal
+  to the second, otherwise zero"""
+
+class And(BinOp):
+  """An operation that takes the bitwise AND of two source operands, storing the
+  result in the destination"""
+
+class Xor(BinOp):
+  """An operation that takes the bitwise XOR of two source operands, storing the
+  result in the destination"""
+
+class Or(BinOp):
+  """An operation that takes the bitwise OR of two source operands, storing the
+  result in the destination"""
+
+class Mul(BinOp):
+  """An operation that multiplities two source operands, storing the result in
+  the destination"""
+
+class Div(BinOp):
+  """An operation that divides two source operands, storing the result in the
+  destination"""
+
+class Add(BinOp):
+  """An operation that adds two source operands, storing the result in the
+  destination"""
+
+class Sub(BinOp):
+  """An operation that subtracts two source operands, storing the result in
+  the destination"""
+
 class Jump(tuple):
   """An operation that jumps to the given target"""
 
@@ -267,6 +331,23 @@ class Jump(tuple):
 class IfZeroJump(tuple):
   """An operation that jumps to the target address if the source operand is
   zero"""
+
+  def __new__(cls, src, target):
+    return tuple.__new__(cls, (src, target))
+
+  def __repr__(self):
+    return ("%s(src=%r, target=%r)" % (type(self).__name__, self.src,
+      self.target))
+
+  src = property(lambda self: self[0])
+  """The source operand"""
+
+  target = property(lambda self: self[1])
+  """The address of the jump target"""
+
+class IfNotZeroJump(tuple):
+  """An operation that jumps to the target address if the source operand is
+  non-zero"""
 
   def __new__(cls, src, target):
     return tuple.__new__(cls, (src, target))

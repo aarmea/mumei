@@ -87,6 +87,21 @@ def translate(tac):
     """Encode an instruction and append the resulting bytecode."""
     code.extend(inst.encode())
 
+  def compare(srca, srcb):
+    """Compare two operands, setting the flags by subtracting the second from
+    the first."""
+    srcOpA, _ = _getOperand(localVars, patches, len(code), srca)
+    # Copy the first variable
+    appendInst(
+      Set(RegOperand(Processor.REG_X0), srcOpA)
+    )
+
+    srcOpB, _ = _getOperand(localVars, patches, len(code), srcb)
+    # Subtract the second variable
+    appendInst(
+      Sub(RegOperand(Processor.REG_X0), srcOpB)
+    )
+
   # Second pass information
   labels = {}
   patches = []
@@ -243,23 +258,24 @@ def translate(tac):
     elif isinstance(inst, threeaddr.LessThan):
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
-      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
-
-      # Copy the first variable into X0
-      appendInst(
-        Set(RegOperand(Processor.REG_X0), srcOpA)
-      )
-
-      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
-
-      # Subtract the second variable from X0
-      appendInst(
-        Sub(RegOperand(Processor.REG_X0), srcOpB)
-      )
+      # Set the flags
+      compare(inst.srca, inst.srcb)
 
       # Mask the less-than flag in the flags register
       appendInst(
         And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_LESS))
+      )
+
+      # Copy the flags temporarily
+      # XXX The flags register should probably be updated if it isn't the
+      # destination operand of an instruction.
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_FL))
+      )
+
+      # Check whether the flags are non-zero
+      appendInst(
+        Xor(RegOperand(Processor.REG_X0), ShortImmOperand(Processor.FLAG_LESS))
       )
 
       dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
@@ -269,7 +285,189 @@ def translate(tac):
         Set(dstOp, RegOperand(Processor.REG_FL))
       )
 
-    elif isinstance(inst, threeaddr.Add):
+    elif isinstance(inst, threeaddr.GreaterThan):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      # Set the flags
+      compare(inst.srca, inst.srcb)
+
+      # Mask the less-than and zero flags in the flags register
+      appendInst(
+        And(
+          RegOperand(Processor.REG_FL),
+          ShortImmOperand(Processor.FLAG_LESS | Processor.FLAG_ZERO)
+        )
+      )
+
+      # Copy the flags temporarily
+      # XXX The flags register should probably be updated if it isn't the
+      # destination operand of an instruction.
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_FL))
+      )
+
+      # Check whether the flags are zero
+      appendInst(
+        Or(RegOperand(Processor.REG_X0), ShortImmOperand(0))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
+    elif isinstance(inst, threeaddr.LessThanEqual):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      # Set the flags
+      compare(inst.srca, inst.srcb)
+
+      # Mask the less-than flag in the flags register
+      appendInst(
+        And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_LESS))
+      )
+
+      # Copy the flags temporarily
+      # XXX The flags register should probably be updated if it isn't the
+      # destination operand of an instruction.
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_FL))
+      )
+
+      # Check whether the flags are non-zero
+      appendInst(
+        Xor(RegOperand(Processor.REG_X0), ShortImmOperand(Processor.FLAG_LESS))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
+    elif isinstance(inst, threeaddr.GreaterThanEqual):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      # Set the flags
+      compare(inst.srca, inst.srcb)
+
+      # Mask the less-than and zero flags in the flags register
+      appendInst(
+        And(
+          RegOperand(Processor.REG_FL),
+          ShortImmOperand(Processor.FLAG_LESS | Processor.FLAG_ZERO)
+        )
+      )
+
+      # Copy the flags temporarily
+      # XXX The flags register should probably be updated if it isn't the
+      # destination operand of an instruction.
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_FL))
+      )
+
+      # Check whether the flags are zero
+      appendInst(
+        Or(RegOperand(Processor.REG_X0), ShortImmOperand(0))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
+    elif isinstance(inst, threeaddr.Equal):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      # Set the flags
+      compare(inst.srca, inst.srcb)
+
+      # Mask the zero flag in the flags register
+      appendInst(
+        And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      assert Processor.FLAG_ZERO == 1
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
+    elif isinstance(inst, threeaddr.NotEqual):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      # Set the flags
+      compare(inst.srca, inst.srcb)
+
+      # Mask the zero flag in the flags register
+      appendInst(
+        And(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      # Negate the result
+      appendInst(
+        Xor(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy the flags register to the destination variable
+      assert Processor.FLAG_ZERO == 1
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_FL))
+      )
+
+    elif isinstance(inst, threeaddr.Neg):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      dstOp, patchOff = _getOperand(localVars, patches, len(code), inst.dst)
+      srcOp, _ = _getOperand(localVars, patches, patchOff, inst.src)
+
+      # Copy the source to the destination
+      appendInst(
+        Set(dstOp, srcOp)
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # NOT the result (one's complement)
+      appendInst(
+        Xor(dstOp, ShortImmOperand(-1))
+      )
+
+      # Add one to the result (two's complement)
+      appendInst(
+        Add(dstOp, ShortImmOperand(1))
+      )
+
+    elif isinstance(inst, threeaddr.Not):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      dstOp, patchOff = _getOperand(localVars, patches, len(code), inst.dst)
+      srcOp, _ = _getOperand(localVars, patches, patchOff, inst.src)
+
+      # Copy the source to the destination
+      appendInst(
+        Set(dstOp, srcOp)
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Generate the operation
+      appendInst(
+        Xor(dstOp, ShortImmOperand(-1))
+      )
+
+    elif isinstance(inst, threeaddr.Mul):
+      # This is separate from the other binary operations because it modifies
+      # both of its operands.
       localOff = _reserveLocal(localVars, localOff, inst.dst)
 
       srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
@@ -281,9 +479,53 @@ def translate(tac):
 
       srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
 
-      # Add the second variable to X0
+      # Loaf the second variable into X1
       appendInst(
-        Add(RegOperand(Processor.REG_X0), srcOpB)
+        Set(RegOperand(Processor.REG_X1), srcOpB)
+      )
+
+      # Generate the operation
+      appendInst(
+        Mul(RegOperand(Processor.REG_X0), RegOperand(Processor.REG_X1))
+      )
+
+      dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
+
+      # Copy X0 into the destination variable
+      appendInst(
+        Set(dstOp, RegOperand(Processor.REG_X0))
+      )
+
+    elif isinstance(inst, threeaddr.BinOp):
+      localOff = _reserveLocal(localVars, localOff, inst.dst)
+
+      srcOpA, _ = _getOperand(localVars, patches, len(code), inst.srca)
+
+      # Load the first variable into X0
+      appendInst(
+        Set(RegOperand(Processor.REG_X0), srcOpA)
+      )
+
+      srcOpB, _ = _getOperand(localVars, patches, len(code), inst.srcb)
+
+      if isinstance(inst, threeaddr.And):
+        oper = And
+      elif isinstance(inst, threeaddr.Xor):
+        oper = Xor
+      elif isinstance(inst, threeaddr.Or):
+        oper = Or
+      elif isinstance(inst, threeaddr.Div):
+        oper = Div
+      elif isinstance(inst, threeaddr.Add):
+        oper = Add
+      elif isinstance(inst, threeaddr.Sub):
+        oper = Sub
+      else:
+        raise NotImplementedError(inst) # XXX
+
+      # Generate the operation
+      appendInst(
+        oper(RegOperand(Processor.REG_X0), srcOpB)
       )
 
       dstOp, _ = _getOperand(localVars, patches, len(code), inst.dst)
@@ -307,6 +549,31 @@ def translate(tac):
       # Set the flags register
       appendInst(
         Or(ShortImmOperand(0), srcOp)
+      )
+
+      # Check the flags register
+      appendInst(
+        If(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
+      )
+
+      targetOp, _ = _getOperand(localVars, patches, len(code), inst.target)
+
+      # Jump to the given address
+      appendInst(
+        Set(RegOperand(Processor.REG_IP), targetOp)
+      )
+
+    elif isinstance(inst, threeaddr.IfNotZeroJump):
+      srcOp, _ = _getOperand(localVars, patches, len(code), inst.src)
+
+      # Set the flags register
+      appendInst(
+        Or(ShortImmOperand(0), srcOp)
+      )
+
+      # Invert the zero flag
+      appendInst(
+        Xor(RegOperand(Processor.REG_FL), ShortImmOperand(Processor.FLAG_ZERO))
       )
 
       # Check the flags register
