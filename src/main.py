@@ -6,322 +6,146 @@ import os
 from OpenGL.GL import *
 import pygame
 
-from level import Level
-from screen import Screen
-from texture import Texture
-from textureatlas import CharacterSet, TileSet
-
+from characterselect import CharacterSelectScreen
+from menu import Menu
 from levelscreen import LevelScreen
+from screen import SimpleScreen
+from ui import UI
 
-class UI(object):
-  """The main user interface object"""
-
-  def __init__(self):
-    pygame.init()
-    pygame.key.set_repeat(250, 50)
-
-    self.screen = pygame.display.set_mode((1024, 768), pygame.OPENGL | pygame.DOUBLEBUF)
-    pygame.display.set_caption("Mumei")
-    pygame.mouse.set_visible(False)
-
-    # Set up the projection matrix
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    glOrtho(-1024 / 64 / 2, 1024 / 64 / 2, -768 / 64 / 2, 768 / 64 / 2, -10, 10)
-
-    # Load the tile set
-    self.spritesheet = TileSet("../assets/", "spritesheet")
-    self.characterSet = CharacterSet("../assets/font.png")
-
-    # Set up the initial player state
-    self.hair = 0
-    self.head = 0
-    self.shirt = 0
-    self.pants = 0
-
-    # Set up the initial screen state
-    self.stateStack = []
-    # XXX XXX XXX XXX XXX XXX XXX XXX
-    self.stateStack = [WelcomeScreen(self)]
-    #self.stateStack = [Level(self, "level100")]
-    #self.pushState(LevelScreen(self, "level100"))
-    # XXX XXX XXX XXX XXX XXX XXX XXX
-
-  def pushState(self, state):
-    """Add a state to the state stack. The new state will become the active
-    state."""
-    self.stateStack.append(state)
-
-  def popState(self):
-    """Remove a state from the state stack. The previous state will become the
-    active state."""
-    self.stateStack.pop()
-
-  def run(self):
-    """Run the main UI loop."""
-    quit = False
-    clock = pygame.time.Clock()
-    time = 0.0
-
-    while len(self.stateStack) and not quit:
-      currentState = self.stateStack[-1]
-      quit = currentState.handleEvents(pygame.event.get())
-      time += clock.tick()
-      currentState.update(time)
-      currentState.draw()
-      pygame.display.flip()
-
-class Menu(Screen):
-  """The base class for all menus"""
-
-  def __init__(self, ui):
-    self._ui = ui
-
-  def handleEvents(self, events):
-    """Handle keyboard input. Returns True if the game should quit."""
-    for e in events:
-      if e.type == pygame.QUIT:
-        return True
-      elif e.type == pygame.KEYDOWN:
-        if e.key == pygame.K_UP:
-          self.userUp()
-        elif e.key == pygame.K_DOWN:
-          self.userDown()
-        elif e.key == pygame.K_RETURN:
-          self.userSelect()
-        elif e.key == pygame.K_ESCAPE:
-          self.userBack()
-        elif e.key == pygame.K_q:
-          return True
-
-    return False
-
-  def userUp(self):
-    """The default up handler"""
-
-  def userDown(self):
-    """The default down handler"""
-
-  def userSelect(self):
-    """The default select handler"""
-
-  def userBack(self):
-    """The default back handler"""
-    self._ui.popState()
-
-class PlainMenu(Menu):
-  """A menu with a single textured quad"""
-
-  def __init__(self, ui, textureFile):
-    super(PlainMenu, self).__init__(ui)
-    self.__texture = Texture(textureFile)
-
-  def draw(self):
-    """Draw the menu."""
-    # Clear the screen
-    glClearColor(0, 0, 0, 1)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-    # Reset the modelview matrix
-    glMatrixMode(GL_MODELVIEW)
-    glLoadIdentity()
-
-    # Draw the menu quad
-    glEnable(GL_TEXTURE_2D)
-    self.__texture.bind()
-    glBegin(GL_QUADS);
-    if True:
-      glTexCoord2d(0.0, 0.0); glVertex2d(-6.0,-4.5);
-      glTexCoord2d(1.0, 0.0); glVertex2d( 6.0,-4.5);
-      glTexCoord2d(1.0, 1.0); glVertex2d( 6.0, 4.5);
-      glTexCoord2d(0.0, 1.0); glVertex2d(-6.0, 4.5);
-    glEnd();
-
-class CharacterSelectMenu(PlainMenu):
-  """A screen that allows the user to select their character's appearance"""
-
-  NHAIRS = 6
-  NHEADS = 4
-  NSHIRTS = 2
-  NPANTS = 2
-
-  def __init__(self, ui):
-    PlainMenu.__init__(self, ui, "../assets/charactermenu.png")
-
-  def rebuildPlayer(self):
-    """Recreate the player sprite and reload the sprite sheet."""
-    playerSub = self._ui.spritesheet.subsurface("person.png")
-    hairSub = self._ui.spritesheet.subsurface(
-      "hair%d.png" % self._ui.hair).copy()
-    headSub = self._ui.spritesheet.subsurface(
-      "head%d.png" % self._ui.head).copy()
-    shirtSub = self._ui.spritesheet.subsurface(
-      "shirt%d.png" % self._ui.shirt).copy()
-    pantsSub = self._ui.spritesheet.subsurface(
-      "pants%d.png" % self._ui.pants).copy()
-
-    playerSub.fill((0, 0, 0, 0))
-    playerSub.blit(pantsSub, (0, 0))
-    playerSub.blit(headSub, (0, 0))
-    playerSub.blit(shirtSub, (0, 0))
-    playerSub.blit(hairSub, (0, 0))
-
-    self._ui.spritesheet.reload()
-
-  def handleEvents(self, events):
-    for e in events:
-      if e.type == pygame.KEYDOWN:
-        if e.key == pygame.K_w:
-          self._ui.hair = (self._ui.hair - 1) % self.NHAIRS
-          self.rebuildPlayer()
-        elif e.key == pygame.K_s:
-          self._ui.hair = (self._ui.hair + 1) % self.NHAIRS
-          self.rebuildPlayer()
-
-        elif e.key == pygame.K_e:
-          self._ui.head = (self._ui.head - 1) % self.NHEADS
-          self.rebuildPlayer()
-        elif e.key == pygame.K_d:
-          self._ui.head = (self._ui.head + 1) % self.NHEADS
-          self.rebuildPlayer()
-
-        elif e.key == pygame.K_r:
-          self._ui.shirt = (self._ui.shirt - 1) % self.NSHIRTS
-          self.rebuildPlayer()
-        elif e.key == pygame.K_f:
-          self._ui.shirt = (self._ui.shirt + 1) % self.NSHIRTS
-          self.rebuildPlayer()
-
-        elif e.key == pygame.K_t:
-          self._ui.pants = (self._ui.pants - 1) % self.NPANTS
-          self.rebuildPlayer()
-        elif e.key == pygame.K_g:
-          self._ui.pants = (self._ui.pants + 1) % self.NPANTS
-          self.rebuildPlayer()
-
-    return super(CharacterSelectMenu, self).handleEvents(events)
-
-  def userSelect(self):
-    self.userBack()
-
-  def draw(self):
-    """Draw the background image"""
-    PlainMenu.draw(self)
-
-    glEnable(GL_ALPHA_TEST)
-    glAlphaFunc(GL_GREATER, 0.5)
-
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-    glEnable(GL_DEPTH_TEST)
-
-    glEnable(GL_TEXTURE_2D)
-    self._ui.spritesheet.bind()
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE)
-
-    glBegin(GL_QUADS)
-    if True:
-      # Draw the sprite
-      self._ui.spritesheet.tileCoord("person.png", 0, 0)
-      glVertex3f(-2, -2.5, 1)
-
-      self._ui.spritesheet.tileCoord("person.png", 1, 0)
-      glVertex3f(2, -2.5, 1)
-
-      self._ui.spritesheet.tileCoord("person.png", 1, 1)
-      glVertex3f(2, 1.5, 1)
-
-      self._ui.spritesheet.tileCoord("person.png", 0, 1)
-      glVertex3f(-2, 1.5, 1)
-
-    glEnd()
-
-class WelcomeScreen(PlainMenu):
+class WelcomeScreen(SimpleScreen):
   """The welcome screen - splash"""
 
   def __init__(self, ui):
     super(WelcomeScreen, self).__init__(ui, "../assets/welcometomumei.png")
 
-  def userSelect(self):
-    self._ui.popState()
-    self._ui.pushState(MainMenu(self._ui))
+  def handleEvents(self, events):
+    """Handle user input events"""
+    for e in events:
+      if e.type == pygame.KEYDOWN:
+        self._ui.switchState(MainMenu(self._ui))
+        return
 
-class MainMenu(PlainMenu):
+    super(WelcomeScreen, self).handleEvents(events)
+
+class MainMenu(SimpleScreen, Menu):
   """The main menu screen - interactable"""
 
   def __init__(self, ui):
     super(MainMenu, self).__init__(ui, "../assets/mainmenu.png")
 
   def handleEvents(self, events):
+    """Handle user input events"""
     for e in events:
       if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_c:
-          self._ui.pushState(CharacterSelectMenu(self._ui))
+          self._ui.pushState(CharacterSelectScreen(self._ui))
 
     return super(MainMenu, self).handleEvents(events)
 
   def userSelect(self):
     # Switch to the level select menu
-    self._ui.pushState(LevelMenu(self._ui))
+    self._ui.pushState(LevelSelectMenu(self._ui))
 
-class Tutorials(PlainMenu):
-  """The tutorial screen - splash"""
+class TutorialScreen(SimpleScreen, Menu):
+  """A tutorial screen"""
 
-  def __init__(self, ui, basename, tutorialfiles): # tutorialfiles is a list of imagefiles
-    super(Tutorials, self).__init__(ui, tutorialfiles[0]) # only takes the first imagefile in the list of imagefiles
+  def __init__(self, ui, basename, tutorialFiles, tutorialPage=0):
+    """Accept a level base name and a list of image files"""
+    # Initialize the background with the current page
+    super(TutorialScreen, self).__init__(ui, tutorialFiles[tutorialPage])
+
     self.basename = basename
-    self.tutorialfiles = tutorialfiles
+    self.tutorialFiles = tutorialFiles
+    self.tutorialPage = tutorialPage
 
   def handleEvents(self, events):
-    """Handle keyboard input for moving through tutorial. Returns True if the game should quit."""
+    """Handle user input for moving through the tutorial"""
     for e in events:
       if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_SPACE:
-          self.userSkip() # skip the tutorial, user is too smart for this
+          # Skip the tutorial
+          self.userSkip()
         elif e.key == pygame.K_RIGHT:
-          self.userNext() # move to next tutorial screen or ready screen if tutorial is complete
+          # Move to the next page of the tutorial to or the level splash screen
+          # if the tutorial is complete.
+          self.userNext()
         elif e.key == pygame.K_LEFT:
-          self.userBack() # move to previous tutorial screen
+          # Move to the previous page of the tutorial
+          self.userBack()
 
-    return super(Tutorials, self).handleEvents(events)
+    super(TutorialScreen, self).handleEvents(events)
 
   def userSkip(self):
-    """ Skip the next tutorial screens, move on to level """
-    self._ui.pushState(LevelSplashScreen(self._ui, self.basename)) # push the state for that level splash screen
+    """Skip the next tutorial screens and switch directly to the level"""
+    # Remove the accumulated pages from the stack
+    for _ in xrange(self.tutorialPage):
+      self.closeScreen()
+
+    # Switch to the level screen
+    self._ui.switchState(LevelSplashScreen(self._ui, self.basename))
 
   def userNext(self):
-    """ Move to next tutorial screen"""
-    if(len(self.tutorialfiles) > 1): # one left after this, go to next
-      self.tutorialfiles.reverse() # flip order, now first is top
-      self.tutorialfiles.pop() # pop off the top - just saw this tutorial file
-      self.tutorialfiles.reverse() # flip back to proper order
-      self._ui.pushState(Tutorials(self._ui, self.basename, self.tutorialfiles)) # next tutorial file
-    else: # none left, go to level
-      self._ui.pushState(LevelSplashScreen(self._ui, self.basename))
+    """Move to next tutorial page"""
+    # If this isn't the last page, advance to the next page
+    if self.tutorialPage < len(self.tutorialFiles) - 1:
+      self._ui.pushState(TutorialScreen(self._ui, self.basename,
+        self.tutorialFiles, self.tutorialPage + 1))
+    # Otherwise, go to the level screen
+    else:
+      self.userSkip()
 
-class LevelMenu(PlainMenu):
-  """The main level menu - interactable"""
+class LevelSelectMenu(SimpleScreen, Menu):
+  """The level select menu"""
 
   levelList = [
     ["level100", "level101", "level102", "level103", "level104"],
     ["level200", "level201", "level202", "level203", "level204"],
     ["level300", "level301", "level302", "level303", "level304"],
     ["level400", "level401", "level402", "level403", "level404"],
-    ["level500", "level501", "level502", "level503", "level504"]   ]
+    ["level500", "level501", "level502", "level503", "level504"]
+  ]
+
+  # A list of tutorials for each level
+  # Each sublist contains individual image files for that level's tutorials.
   tutList = [
-    ["../assets/intro_screen2.png", "../assets/level01description.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png", "../assets/masterLevel1tutorial2.png"],
-    ["../assets/intro_screen2.png", "../assets/level02description.png", "../assets/masterLevel2tutorial.png", "../assets/masterLevel2tutorial1.png"],
-    ["../assets/intro_screen2.png", "../assets/level03description.png", "../assets/masterLevel3tutorial.png", "../assets/masterLevel3tutorial1.png" ],
-    ["../assets/intro_screen2.png", "../assets/level04description.png" , "../assets/masterLevel4tutorial.png", "../assets/masterLevel4tutorial1.png"  ],
-    ["../assets/intro_screen2.png", "../assets/level05description.png", "../assets/masterLevel1tutorial5.png", "../assets/masterLevel1tutorial5b.png"]
-  ] # list of tutorials for each levels, each sublist contains individual image files for that level's tutorials
+    [
+      "../assets/intro_screen2.png",
+      "../assets/level01description.png",
+      "../assets/masterlevel1tutorial.png",
+      "../assets/masterlevel1tutorial1.png",
+      "../assets/masterlevel1tutorial2.png"
+    ],
+    [
+      "../assets/intro_screen2.png",
+      "../assets/level02description.png",
+      "../assets/masterlevel2tutorial.png",
+      "../assets/masterlevel2tutorial1.png"
+    ],
+    [
+      "../assets/intro_screen2.png",
+      "../assets/level03description.png",
+      "../assets/masterlevel3tutorial.png",
+      "../assets/masterlevel3tutorial1.png"
+    ],
+    [
+      "../assets/intro_screen2.png",
+      "../assets/level04description.png",
+      "../assets/masterlevel1tutorial4.png",
+      "../assets/masterlevel1tutorial4b.png"
+    ],
+    [
+      "../assets/intro_screen2.png",
+      "../assets/level05description.png",
+      "../assets/masterlevel1tutorial5.png",
+      "../assets/masterlevel1tutorial5b.png"
+    ]
+  ]
 
   def __init__(self, ui):
-    super(LevelMenu, self).__init__(ui, "../assets/levelmenu.png")
+    super(LevelSelectMenu, self).__init__(ui, "../assets/levelmenu.png")
 
   def handleEvents(self, events):
-    """Handle keyboard input for level selection. Returns True if the game should quit."""
+    """Handle user input events"""
     for e in events:
       if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_1: # level one
@@ -335,13 +159,16 @@ class LevelMenu(PlainMenu):
         elif e.key == pygame.K_5: # level five
           self.userSelectLevel(self.levelList[4][0], self.tutList[4])
 
-    return super(LevelMenu, self).handleEvents(events);
+    super(LevelSelectMenu, self).handleEvents(events);
 
-  def userSelectLevel(self, basename, tutorialfiles): # user has selected a level, start tutorials for that level
-    self._ui.pushState(Tutorials(self._ui, basename, tutorialfiles))
+  def userSelectLevel(self, basename, tutorialfiles):
+    """Start the tutorial for the level that the user selected"""
+    self._ui.pushState(TutorialScreen(self._ui, basename, tutorialfiles))
 
   def draw(self):
-    super(LevelMenu, self).draw()
+    """Draw the level select menu"""
+    # Draw the background
+    super(LevelSelectMenu, self).draw()
 
     glEnable(GL_ALPHA_TEST)
     glAlphaFunc(GL_GREATER, 0.5)
@@ -372,8 +199,8 @@ class LevelMenu(PlainMenu):
 
     glEnd()
 
-class LevelSplashScreen(PlainMenu):
-  """The get ready for level screen - interactable"""
+class LevelSplashScreen(SimpleScreen, Menu):
+  """The splash screen that appears before starting a level"""
 
   def __init__(self, ui, basename):
     super(LevelSplashScreen, self).__init__(ui, "../assets/background2.png")
@@ -381,8 +208,7 @@ class LevelSplashScreen(PlainMenu):
 
   def switchToLevel(self, newLevelName):
     self._ui.popState()
-    self._ui.popState()
-    self._ui.pushState(LevelSplashScreen(self._ui, newLevelName))
+    self._ui.switchState(LevelSplashScreen(self._ui, newLevelName))
 
   def userSelect(self):
     self._ui.pushState(LevelScreen(self._ui, self, self.basename))
@@ -390,6 +216,7 @@ class LevelSplashScreen(PlainMenu):
 def main():
   """Create and run the UI."""
   ui = UI()
+  ui.pushState(WelcomeScreen(ui))
   ui.run()
 
 if __name__ == "__main__":
