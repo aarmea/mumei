@@ -241,7 +241,7 @@ class WelcomeScreen(PlainMenu):
   """The welcome screen - splash"""
 
   def __init__(self, ui):
-    super(WelcomeScreen, self).__init__(ui, "../assets/background.png")
+    super(WelcomeScreen, self).__init__(ui, "../assets/welcometomumei.png")
 
   def userSelect(self):
     self._ui.popState()
@@ -324,15 +324,15 @@ class LevelMenu(PlainMenu):
     """Handle keyboard input for level selection. Returns True if the game should quit."""
     for e in events:
       if e.type == pygame.KEYDOWN:
-        if e.key == pygame.K_1:
+        if e.key == pygame.K_1: # level one
           self.userSelectLevel(self.levelList[0][0], self.tutList[0])
-        elif e.key == pygame.K_2:
+        elif e.key == pygame.K_2: # level two
           self.userSelectLevel(self.levelList[1][0], self.tutList[1])
-        elif e.key == pygame.K_3:
+        elif e.key == pygame.K_3: # level three
           self.userSelectLevel(self.levelList[2][0], self.tutList[2])
-        elif e.key == pygame.K_4:
+        elif e.key == pygame.K_4: # level four
           self.userSelectLevel(self.levelList[3][0], self.tutList[3])
-        elif e.key == pygame.K_5:
+        elif e.key == pygame.K_5: # level five
           self.userSelectLevel(self.levelList[4][0], self.tutList[4])
 
     return super(LevelMenu, self).handleEvents(events);
@@ -373,7 +373,7 @@ class LevelMenu(PlainMenu):
     glEnd()
 
 class LevelSplashScreen(PlainMenu):
-  """The prepare for level screen - interactable"""
+  """The get ready for level screen - interactable"""
 
   def __init__(self, ui, basename):
     super(LevelSplashScreen, self).__init__(ui, "../assets/background2.png")
