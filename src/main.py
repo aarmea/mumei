@@ -130,14 +130,15 @@ class LevelSelectMenu(SimpleScreen, Menu):
     [
       "../assets/intro_screen2.png",
       "../assets/level04description.png",
-      "../assets/masterlevel1tutorial4.png",
-      "../assets/masterlevel1tutorial4b.png"
+      "../assets/masterlevel4tutorial.png",
+      "../assets/masterlevel4tutorial1.png"
     ],
     [
       "../assets/intro_screen2.png",
       "../assets/level05description.png",
-      "../assets/masterlevel1tutorial5.png",
-      "../assets/masterlevel1tutorial5b.png"
+      "../assets/masterlevel5tutorial.png",
+      "../assets/masterlevel5tutorial1.png",
+      "../assets/masterlevel5tutorial2.png",
     ]
   ]
 
