@@ -1,6 +1,9 @@
 import sys
 
+from OpenGL.GL import *
 import pygame
+
+from texture import Texture
 
 class Screen(object):
   """The base class for all screens"""
@@ -21,3 +24,30 @@ class Screen(object):
 
   def draw(self):
     raise NotImplementedError("draw")
+
+class SimpleScreen(Screen):
+  """A screen with a single textured quad displaying a background image"""
+
+  def __init__(self, ui, textureFile):
+    super(SimpleScreen, self).__init__(ui)
+    self._texture = Texture(textureFile)
+
+  def draw(self):
+    """Draw the menu background"""
+    # Clear the screen
+    glClearColor(0, 0, 0, 1)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glEnable(GL_TEXTURE_2D)
+
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+    self._texture.bind()
+    glBegin(GL_QUADS)
+    if True:
+      glTexCoord2f(0.0, 0.0); glVertex2f(-6.0, -4.5)
+      glTexCoord2f(1.0, 0.0); glVertex2f( 6.0, -4.5)
+      glTexCoord2f(1.0, 1.0); glVertex2f( 6.0,  4.5)
+      glTexCoord2f(0.0, 1.0); glVertex2f(-6.0,  4.5)
+    glEnd()

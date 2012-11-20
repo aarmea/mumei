@@ -1,8 +1,8 @@
+import random
 import sys
 
 from OpenGL.GL import *
 import pygame
-import random
 
 import c.error
 import c.scanner
@@ -25,7 +25,7 @@ class LevelScreen(Screen):
   """An interface for a level with a code editor and status panes"""
 
   def __init__(self, ui, parent, levelName):
-    Screen.__init__(self, ui)
+    super(LevelScreen, self).__init__(ui)
 
     self._parent = parent
     self._levelName = levelName
@@ -75,7 +75,7 @@ class LevelScreen(Screen):
 
     self._statusLabel.text = "Compiling..."
 
-    # Compile
+    # Compile the source code
     try:
       tokens = list(c.scanner.tokens(c.scanner.scan(source)))
       syntree = c.parser.parse(tokens)
@@ -117,6 +117,7 @@ class LevelScreen(Screen):
     return True
 
   def handleEvents(self, events):
+    """Handle user input events"""
     for e in events:
       if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_ESCAPE:
@@ -147,12 +148,10 @@ class LevelScreen(Screen):
       elif e.type == pygame.KEYUP:
         self._player.direction = 0
 
-    Screen.handleEvents(self, events)
+    super(LevelScreen, self).handleEvents(events)
 
   def update(self, time):
     """Update the level state"""
-    print time
-
     duration = time - self._lastTime
     steps = int(duration / STEP_PERIOD)
 
@@ -181,9 +180,11 @@ class LevelScreen(Screen):
 
   def draw(self):
     """Render the level and the interface"""
-    # Reset the OpenGL state
-    glClearColor(0, 0, 1, 1)
+    # Clear the screen and reset the OpenGL state
+    glClearColor(0, 0, 0, 1)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glEnable(GL_TEXTURE_2D)
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
