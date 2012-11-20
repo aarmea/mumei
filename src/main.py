@@ -313,7 +313,7 @@ class LevelMenu(PlainMenu):
     ["../assets/intro_screen2.png", "../assets/level01description.png", "../assets/masterLevel1tutorial.png", "../assets/masterLevel1tutorial1.png", "../assets/masterLevel1tutorial2.png"],
     ["../assets/intro_screen2.png", "../assets/level02description.png", "../assets/masterLevel2tutorial.png", "../assets/masterLevel2tutorial1.png"],
     ["../assets/intro_screen2.png", "../assets/level03description.png", "../assets/masterLevel3tutorial.png", "../assets/masterLevel3tutorial1.png" ],
-    ["../assets/intro_screen2.png", "../assets/level04description.png" , "../assets/masterLevel1tutorial4.png", "../assets/masterLevel1tutorial4b.png"  ],
+    ["../assets/intro_screen2.png", "../assets/level04description.png" , "../assets/masterLevel4tutorial.png", "../assets/masterLevel4tutorial1.png"  ],
     ["../assets/intro_screen2.png", "../assets/level05description.png", "../assets/masterLevel1tutorial5.png", "../assets/masterLevel1tutorial5b.png"]
   ] # list of tutorials for each levels, each sublist contains individual image files for that level's tutorials
 
