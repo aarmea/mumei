@@ -100,32 +100,56 @@ class TextEditor(TextBox):
 
   _cursorPos = (0, 0)
 
+  def __moveCursorH(self, newCol):
+    """Move the cursor to the given column number"""
+    row, col = self._cursorPos
+    if newCol < 0:
+      self._cursorPos = (row, 0)
+    elif newCol > len(self._buffer[row]):
+      self._cursorPos = (row, len(self._buffer[row]))
+    else:
+      self._cursorPos = (row, newCol)
+
+  def __moveCursorV(self, newRow):
+    """Move the cursor to the given row number"""
+    row, col = self._cursorPos
+    if newRow < 0:
+      self._cursorPos = (0, col)
+    elif newRow > len(self._buffer):
+      self._cursorPos = (len(self._buffer), col)
+    else:
+      self._cursorPos = (newRow, col)
+
   def handleKeyPress(self, key, uni=-1):
+    """Handle keypresses in the editor, add text and move the cursor"""
     # If the unicode character was not given, generate it from the key
     if uni == -1:
       uni = chr(key)
 
     row, col = self._cursorPos
+    width, height = self._size
 
     # Parse keys
     if key == pygame.K_LEFT:
-      if col > 0:
-        self._cursorPos = (row, col-1)
+      self.__moveCursorH(col-1)
+      if col == 0:
+        self.__moveCursorV(row-1)
+        self.__moveCursorH(width)
     elif key == pygame.K_RIGHT:
-      if col < len(self._buffer[row]):
-        self._cursorPos = (row, col+1)
+      self.__moveCursorH(col+1)
+      if col == len(self._buffer[row]):
+        self.__moveCursorV(row+1)
+        self.__moveCursorH(0)
     elif key == pygame.K_UP:
-      if row > 0:
-        if col < len(self._buffer[row-1]):
-          self._cursorPos = (row-1, col)
-        else:
-          self._cursorPos = (row-1, len(self._buffer[row-1]))
+      self.__moveCursorV(row-1)
+      self.__moveCursorH(col)
     elif key == pygame.K_DOWN:
-      if row < len(self._buffer)-1:
-        if col < len(self._buffer[row+1]):
-          self._cursorPos = (row+1, col)
-        else:
-          self._cursorPos = (row+1, len(self._buffer[row+1]))
+      self.__moveCursorV(row+1)
+      self.__moveCursorH(col)
+    elif key == pygame.K_HOME:
+      self.__moveCursorH(0)
+    elif key == pygame.K_END:
+      self.__moveCursorH(width)
     elif key == pygame.K_BACKSPACE:
       # Backspace
       if col == 0:
