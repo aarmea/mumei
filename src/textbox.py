@@ -115,8 +115,8 @@ class TextEditor(TextBox):
     row, col = self._cursorPos
     if newRow < 0:
       self._cursorPos = (0, col)
-    elif newRow > len(self._buffer):
-      self._cursorPos = (len(self._buffer), col)
+    elif newRow >= len(self._buffer):
+      self._cursorPos = (len(self._buffer)-1, col)
     else:
       self._cursorPos = (newRow, col)
 
@@ -131,15 +131,17 @@ class TextEditor(TextBox):
 
     # Parse keys
     if key == pygame.K_LEFT:
-      self.__moveCursorH(col-1)
-      if col == 0:
+      if col == 0 and row != 0:
         self.__moveCursorV(row-1)
         self.__moveCursorH(width)
+      else:
+        self.__moveCursorH(col-1)
     elif key == pygame.K_RIGHT:
-      self.__moveCursorH(col+1)
       if col == len(self._buffer[row]):
         self.__moveCursorV(row+1)
         self.__moveCursorH(0)
+      else:
+        self.__moveCursorH(col+1)
     elif key == pygame.K_UP:
       self.__moveCursorV(row-1)
       self.__moveCursorH(col)
