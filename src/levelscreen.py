@@ -141,6 +141,10 @@ class LevelScreen(Screen):
             self._statusLabel.text = "No hints available for this level"
         elif e.key == pygame.K_F2:
           self.resetCode()
+          self._statusLabel.text = "Code reset to defaults"
+        elif e.key == pygame.K_F3:
+          self.resetLevel()
+          self._statusLabel.text = "Level state reset to defaults"
         elif e.key == pygame.K_F5:
           self.compileCode()
         else:
