@@ -120,6 +120,12 @@ class TextEditor(TextBox):
     else:
       self._cursorPos = (newRow, col)
 
+  def __insertNewline(self, row, col):
+    """Insert a new line at the given row, col"""
+    self._buffer.insert(row+1, self._buffer[row][col:])
+    self._buffer[row] = self._buffer[row][:col]
+    self._cursorPos = (row+1, 0)
+
   def handleKeyPress(self, key, uni=-1):
     """Handle keypresses in the editor, add text and move the cursor"""
     # If the unicode character was not given, generate it from the key
@@ -169,7 +175,7 @@ class TextEditor(TextBox):
         self._cursorPos = (row, col-1)
       self.update()
     elif key == pygame.K_DELETE:
-      # Backspace
+      # Delete
       if col == len(self._buffer[row]):
         # End of line
 
@@ -183,12 +189,13 @@ class TextEditor(TextBox):
       self.update()
     elif key == pygame.K_RETURN:
       # Enter/Return
-      self._buffer.insert(row+1, self._buffer[row][col:])
-      self._buffer[row] = self._buffer[row][:col]
-      self._cursorPos = (row+1, 0)
+      self.__insertNewline(row, col)
       self.update()
     elif key >= 0x20 and key <= 0x7E:
       # Printable keys
+      if col == width:
+        self.__insertNewline(row, col)
+        row, col = self._cursorPos
       try:
         self._buffer[row].insert(col, uni)
       except IndexError:
