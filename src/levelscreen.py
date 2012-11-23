@@ -146,6 +146,7 @@ class LevelScreen(Screen):
           self.resetLevel()
           self._statusLabel.text = "Level state reset to defaults"
         elif e.key == pygame.K_F5:
+          self.resetLevel()
           self.compileCode()
         else:
           self._editor.handleKeyPress(e.key, e.unicode)
