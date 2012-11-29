@@ -341,7 +341,7 @@ class Robot(Actor):
 
   def load(self, words, labels):
     # Create a new processor
-    processor = vm.bytecode.Processor(memWords=256)
+    processor = vm.bytecode.Processor(memWords=0x1000)
 
     # Load the bytecode into memory
     for addr, word in enumerate(words):
