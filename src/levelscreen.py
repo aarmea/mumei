@@ -3,6 +3,7 @@ import sys
 
 from OpenGL.GL import *
 import pygame
+from time import sleep
 
 import c.error
 import c.scanner
@@ -146,7 +147,7 @@ class LevelScreen(Screen):
           self.resetLevel()
           self._statusLabel.text = "Level state reset to defaults"
         elif e.key == pygame.K_F5:
-          self.resetLevel()
+          # self.resetLevel()
           self.compileCode()
         else:
           self._editor.handleKeyPress(e.key, e.unicode)
@@ -172,14 +173,17 @@ class LevelScreen(Screen):
       self._lastTime += STEP_PERIOD
 
     if self.isComplete():
-      self._statusLabel.text = "Level completed"
-
-      # XXX Fix this
+      # Get the next level name
       subLevelNumber = int(self._levelName[-1:])
       if subLevelNumber == 4:
         newLevelName = "%s%d" % (self._levelName[:5], int(self._levelName[-3:]) + 100)
       else:
         newLevelName = "%s%d" % (self._levelName[:7], subLevelNumber + 1)
+
+      self._statusLabel.text = "Level completed - loading %s" % newLevelName
+      self.draw()
+      pygame.display.flip()
+      sleep(3) # so that the message is visible before the next level is loaded
 
       self._parent.switchToLevel(newLevelName)
 
