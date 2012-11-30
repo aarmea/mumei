@@ -458,6 +458,8 @@ class TACGenerator(object):
 
   def visitReturnStmt(self, node):
     """Generate code for a return statement"""
+    self.hasReturn = True
+
     # Generate code for the expression to return
     var = node.expr.accept(self)
     # Generate the function epilogue
@@ -634,9 +636,15 @@ class TACGenerator(object):
       reversed(xrange(len(node.declarator.params)))):
       self.env[param.declarator.id] = ParamVar(off)
 
-    # Generate the function code and count its local variables
+    # Count local variables
     varOld = self.varGen.n
+
+    # Generate the function code
+    self.hasReturn = False
     node.stmt.accept(self)
+    if not self.hasReturn:
+      self.code.append(EndFunc(0))
+
     varNew = self.varGen.n
 
     # Exit the local environment
