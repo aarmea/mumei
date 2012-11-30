@@ -16,6 +16,9 @@ int moveX(int dist)
   }
   color = 0;
   dir = 0;
+
+  /* int functions need a return */
+  return 0;
 }
 
 /*
