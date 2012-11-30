@@ -382,12 +382,13 @@ class Robot(Actor):
   def step(self):
     """Update the robot's state"""
     if self._processor is not None:
+      # Update the position registers
+      self.x = int(self._pos[0])
+      self.y = int(self._pos[1])
+
       # Run the processor at 20x the step rate
       for _ in xrange(20):
         self._processor.step()
-
-      self.x = int(self._pos[0])
-      self.y = int(self._pos[1])
 
     # Change the sprites to those with the given color
     try:
