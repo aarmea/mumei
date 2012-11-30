@@ -386,9 +386,13 @@ class Robot(Actor):
       self.x = int(self._pos[0])
       self.y = int(self._pos[1])
 
-      # Run the processor at 20x the step rate
-      for _ in xrange(20):
-        self._processor.step()
+      try:
+        # Run the processor at 20x the step rate
+        for _ in xrange(20):
+          self._processor.step()
+      except BaseException, e:
+        print "ERROR:", repr(e)
+        self._processor = None
 
     # Change the sprites to those with the given color
     try:

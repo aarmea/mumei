@@ -164,10 +164,7 @@ class LevelScreen(Screen):
     while steps > 0:
       # Step the player and the robot
       self._player.step()
-      try:
-        self._robot.step()
-      except BaseException, e:
-        print "ERROR:", repr(e)
+      self._robot.step()
 
       steps -= 1
       self._lastTime += STEP_PERIOD
