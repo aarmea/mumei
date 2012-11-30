@@ -334,10 +334,29 @@ class Robot(Actor):
 
   _speed = 2;
 
-  def __init__(self, ui, level, pos, color=0):
-    self.processor = None
+  class ControlRegister(object):
+    """A memory-mapped control register with a descriptor interface."""
+
+    def __init__(self, label):
+      self.label = label
+
+    def __get__(self, instance, owner):
+      try:
+        addr = instance._labels[self.label]
+        return instance._processor.getMem(addr)
+      except AttributeError:
+        return None
+
+    def __set__(self, instance, value):
+      try:
+        addr = instance._labels[self.label]
+        return instance._processor.setMem(addr, value)
+      except AttributeError:
+        pass
+
+  def __init__(self, ui, level, pos):
+    self._processor = None
     Actor.__init__(self, ui, level, pos)
-    self.color = color
 
   def load(self, words, labels):
     # Create a new processor
@@ -347,30 +366,28 @@ class Robot(Actor):
     for addr, word in enumerate(words):
       processor.setMem(addr, word)
 
-    vars_ = {}
-    for var in ("main", "x", "y", "dir", "color"):
-      vars_[var] = labels[var]
+    # Store the label addresses
+    self._labels = labels
 
     # Set IP to the entry point
-    entry = vars_["main"]
+    entry = labels["main"]
     processor.setReg(processor.REG_IP, entry)
 
-    self._vars = vars_
-    self.processor = processor
+    self._processor = processor
+
+    # Initialize the control registers
     self.direction = DIRECTION_NONE
+    self.color = 0
 
   def step(self):
     """Update the robot's state"""
-    if self.processor is not None:
+    if self._processor is not None:
       # Run the processor at 20x the step rate
       for _ in xrange(20):
-        self.processor.step()
+        self._processor.step()
 
-      xAddr = self._vars["x"]
-      yAddr = self._vars["y"]
-      self.processor.setMem(xAddr, int(self._pos[0]))
-      self.processor.setMem(yAddr, int(self._pos[1]))
-      directionAddr = self._vars["dir"]
+      self.x = int(self._pos[0])
+      self.y = int(self._pos[1])
 
     # Change the sprites to those with the given color
     try:
@@ -390,28 +407,11 @@ class Robot(Actor):
 
     Actor.step(self)
 
-  def __getColor(self):
-    if self.processor is not None:
-      colorAddr = self._vars["color"]
-      return self.processor.getMem(colorAddr)
-
-  def __setColor(self, color):
-    if self.processor is not None:
-      colorAddr = self._vars["color"]
-      return self.processor.setMem(colorAddr, color)
-
-  def __getDirection(self):
-    if self.processor is not None:
-      directionAddr = self._vars["dir"]
-      return self.processor.getMem(directionAddr)
-
-  def __setDirection(self, direction):
-    if self.processor is not None:
-      directionAddr = self._vars["dir"]
-      self.processor.setMem(directionAddr, direction)
-
-  direction = property(__getDirection, __setDirection)
-  color = property(__getColor, __setColor)
+  # Memory-mapped control registers
+  x = ControlRegister("x")
+  y = ControlRegister("y")
+  direction = ControlRegister("dir")
+  color = ControlRegister("color")
 
 class Player(Actor):
   """The player"""

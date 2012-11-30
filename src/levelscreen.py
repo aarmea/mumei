@@ -81,7 +81,7 @@ class LevelScreen(Screen):
       tokens = list(c.scanner.tokens(c.scanner.scan(source)))
       syntree = c.parser.parse(tokens)
       tac = syntree.accept(c.tacgen.TACGenerator())
-      words, vars_ = vm.tactrans.translate(tac)
+      words, labels = vm.tactrans.translate(tac)
     except c.error.CompileError, e:
       self._statusLabel.text = "Compile error: %s" % e
       return
@@ -91,9 +91,9 @@ class LevelScreen(Screen):
 
     self._statusLabel.text = "Code compiled successfully"
 
-    # Load the code into the robot's processor
+    # Load the code into the robot
     try:
-      self._robot.load(words, vars_)
+      self._robot.load(words, labels)
     except BaseException, e:
       self._statusLabel.text = "Something went wrong: %s" % e
       return
