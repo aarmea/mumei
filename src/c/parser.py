@@ -225,15 +225,26 @@ def manyErr(*_):
 
 def many(p):
   """Accept zero or more occurrences of sequences accepted by `p`."""
+  def stop():
+    raise StopIteration()
+
   def f(ts, cok, cerr, eok, eerr):
-    def walk(xs):
-      def g(x, ts, e):
-        meerr = lambda e: cok(xs + [x], ts, e)
-        return p(ts, walk(xs + [x]), cerr, manyErr, meerr)
+    xs = []
+    e = ParseError(None, [])
 
-      return g
+    # Run p until it fails, accumulating the results
+    while True:
+      try:
+        x, ts_, e_ = p(ts, lambda *a: a, cerr, manyErr, lambda _: stop())
+      except StopIteration:
+        break
 
-    return p(ts, walk([]), cerr, manyErr, lambda e: eok([], ts, e))
+      # Combine the results
+      xs.append(x)
+      ts = ts_
+      e = mergeError(e, e_)
+
+    return cok(xs, ts, e)
 
   return f
 
