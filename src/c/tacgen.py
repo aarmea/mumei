@@ -613,13 +613,28 @@ class TACGenerator(object):
     """Generate code for a compound statement"""
     # Enter a local environment
     self._pushEnv()
+
     # Define local variables in the local environment
     for decl in node.decls:
       decl.accept(self)
+
     # Generate code for the body statements
     ret = False
+    keepCode = None
     for stmt in node.stmts:
       ret = stmt.accept(self)
+
+      # If an earlier statement always returns, then later statements are
+      # always unreachable and can safely be discarded. The code must still
+      # be generated, however, to detect errors.
+      if ret and keepCode is None:
+        keepCode = self.code
+        self.code = []
+
+    # Discard unreachable code
+    if keepCode is not None:
+      self.code = keepCode
+
     # Exit the local environment
     self._popEnv()
 
