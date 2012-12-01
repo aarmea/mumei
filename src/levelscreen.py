@@ -52,9 +52,13 @@ class LevelScreen(Screen):
     # UI elements
     self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47)
     self._editor = TextEditor(self._ui, (0.625, 5.75), (47, 47))
+    self._debug = TextBox(self._ui, (0, 5.75), (47, 47))
     self._keysLabel = TextBox(self._ui, (-8, -1), (51, 2))
     self._infoLabel = TextBox(self._ui, (-8, -1.5), (51, 17))
     self._statusLabel = TextBox(self._ui, (-8, -6), (102, 1))
+
+    self._debugView = False
+    self._debugAddr = 0
 
     self._editor.text = self._sampleCode
     self._keysLabel.text = (
@@ -112,6 +116,37 @@ class LevelScreen(Screen):
 
     self._statusLabel.text = "Code loaded successully"
 
+  def dumpProcessor(self, proc, startAddr):
+    """Dump a processor's state"""
+    text = ""
+    width = 8
+    ip = proc.getReg(proc.REG_IP)
+
+    text += "MEMORY:"
+    for addr in xrange(startAddr, min(proc.memWords, startAddr + 0x100)):
+      if not (addr % width):
+        text += "\n%03X:" % addr
+
+      text += "%s%04X" % ('>' if addr == ip else ' ', proc.getMem(addr))
+
+    text += "\n\nREGISTERS:\n"
+    text += "  X0 %04X   X2 %04X        FL %04X   SP %04X\n" % \
+      (proc.getReg(proc.REG_X0), proc.getReg(proc.REG_X2),
+       proc.getReg(proc.REG_FL), proc.getReg(proc.REG_SP))
+    text += "  X1 %04X   X3 %04X                  IP %04X\n" % \
+      (proc.getReg(proc.REG_X1), proc.getReg(proc.REG_X3),
+       proc.getReg(proc.REG_IP))
+
+    text += "\nCYCLE: %d\n" % proc.cycle
+    try:
+      seq = proc.memSeq(ip)
+      inst = str(vm.bytecode.Instruction.decode(seq))
+    except vm.bytecode.InstructionError:
+      inst = "(invalid)"
+    text += "NEXT INSTRUCTION: %s\n" % inst
+
+    return text
+
   def isComplete(self):
     """Check whether the level has been completed"""
     # The robot should not be moving
@@ -159,11 +194,20 @@ class LevelScreen(Screen):
           self.resetLevel()
           self._statusLabel.text = "Level state reset to defaults"
         elif e.key == pygame.K_F5:
-          if self._robot._processor is None:
+          if not self._robot.running:
             self.compileCode()
           else:
             self._statusLabel.text = \
               "Stop your code with F3 before running again"
+        elif e.key == pygame.K_F8:
+          self._debugView = not self._debugView
+        elif self._debugView:
+          if e.key == pygame.K_LEFT:
+            if self._debugAddr > 0:
+              self._debugAddr -= 0x100
+          elif e.key == pygame.K_RIGHT:
+            if self._debugAddr < self._robot.processor.memWords - 0x100:
+              self._debugAddr += 0x100
         else:
           self._editor.handleKeyPress(e.key, e.unicode)
       elif e.type == pygame.KEYUP:
@@ -226,8 +270,13 @@ class LevelScreen(Screen):
     glPopMatrix()
 
     # Draw the interface
-    self._linesLabel.draw()
-    self._editor.draw()
+    if not self._debugView:
+      self._linesLabel.draw()
+      self._editor.draw()
+    else:
+      self._debug.text = (self.dumpProcessor(self._robot.processor, self._debugAddr)
+        + "\nPress the left and right arrow keys to\nchange memory pages.")
+      self._debug.draw()
     self._keysLabel.draw()
     self._infoLabel.draw()
     self._statusLabel.draw()

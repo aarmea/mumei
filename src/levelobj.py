@@ -343,24 +343,30 @@ class Robot(Actor):
     def __get__(self, instance, owner):
       try:
         addr = instance._labels[self.label]
-        return instance._processor.getMem(addr)
+        return instance.processor.getMem(addr)
       except AttributeError:
         return None
 
     def __set__(self, instance, value):
       try:
         addr = instance._labels[self.label]
-        return instance._processor.setMem(addr, value)
+        return instance.processor.setMem(addr, value)
       except AttributeError:
         pass
 
   def __init__(self, ui, level, pos):
-    self._processor = None
+    self.processor = self.newProcessor()
+    self.running = False
+
     Actor.__init__(self, ui, level, pos)
+
+  @staticmethod
+  def newProcessor():
+    return vm.bytecode.Processor(memWords=0x400)
 
   def load(self, words, labels):
     # Create a new processor
-    processor = vm.bytecode.Processor(memWords=0x1000)
+    processor = self.newProcessor()
 
     # Load the bytecode into memory
     for addr, word in enumerate(words):
@@ -373,15 +379,17 @@ class Robot(Actor):
     entry = labels["main"]
     processor.setReg(processor.REG_IP, entry)
 
-    self._processor = processor
+    self.processor = processor
 
     # Initialize the control registers
     self.direction = DIRECTION_NONE
     self.color = 0
 
+    self.running = True
+
   def step(self):
     """Update the robot's state"""
-    if self._processor is not None:
+    if self.running:
       # Update the position registers
       self.x = int(self._pos[0])
       self.y = int(self._pos[1])
@@ -389,10 +397,13 @@ class Robot(Actor):
       try:
         # Run the processor at 20x the step rate
         for _ in xrange(20):
-          self._processor.step()
+          self.processor.step()
       except BaseException, e:
         print "ERROR:", repr(e)
-        self._processor = None
+        self.running = False
+
+        # Stop the robot from moving
+        self.direction = DIRECTION_NONE
 
     # Change the sprites to those with the given color
     try:
