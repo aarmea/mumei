@@ -33,6 +33,10 @@ class TACGenerator(object):
   parameter that determines whether to return an lvalue or an rvalue variable.
   In the case of an lvalue, a variable containing the address of the result is
   returned.
+
+  visitXXX functions for statements accept a syntax tree node and a boolean
+  value indicating whether the statement always returns from its enclosing
+  function or not.
   """
 
   def __init__(self):
@@ -458,12 +462,13 @@ class TACGenerator(object):
 
   def visitReturnStmt(self, node):
     """Generate code for a return statement"""
-    self.hasReturn = True
-
     # Generate code for the expression to return
     var = node.expr.accept(self)
     # Generate the function epilogue
     self.code.append(EndFunc(var))
+
+    # This statement returns
+    return True
 
   def visitBreakStmt(self, node):
     """Generate code for a break statement"""
@@ -473,6 +478,9 @@ class TACGenerator(object):
     # Jump to the last break jump location
     self.code.append(Jump(self.breaks[-1]))
 
+    # This statement doesn't return
+    return False
+
   def visitContinueStmt(self, node):
     """Generate code for a continue statement"""
     if not self.continues:
@@ -480,6 +488,9 @@ class TACGenerator(object):
 
     # Jump to the last continue jump location
     self.code.append(Jump(self.continues[-1]))
+
+    # This statement doesn't return
+    return False
 
   def visitIfStmt(self, node):
     """Generate code for an if statement"""
@@ -494,7 +505,7 @@ class TACGenerator(object):
     self.code.append(IfZeroJump(var, else_.id))
 
     # Generate code for the true part
-    node.tstmt.accept(self)
+    tRet = node.tstmt.accept(self)
     # Generate an instruction to jump to the end of the statement
     self.code.append(Jump(end_.id))
 
@@ -502,10 +513,16 @@ class TACGenerator(object):
     self.code.append(Label(else_.id))
     # Generate code for the false part, if any
     if node.fstmt:
-      node.fstmt.accept(self)
+      fRet = node.fstmt.accept(self)
 
     # Generate a label for the end of the statement
     self.code.append(Label(end_.id))
+
+    # This statement returns only if it has two parts and both return.
+    if not node.fstmt:
+      return False
+    else:
+      return tRet and fRet
 
   def visitWhileStmt(self, node):
     """Generate code for a while statement"""
@@ -536,6 +553,9 @@ class TACGenerator(object):
     # Clean up the jump labels
     self.breaks.pop()
     self.continues.pop()
+
+    # This statement might not return
+    return False
 
   def visitForStmt(self, node):
     """Generate code for a for statement"""
@@ -578,23 +598,48 @@ class TACGenerator(object):
     self.breaks.pop()
     self.continues.pop()
 
+    # This statement might not return
+    return False
+
   def visitExprStmt(self, node):
     """Generate code for an expression statement"""
     if node.expr:
       node.expr.accept(self)
 
+    # This statement does not return
+    return False
+
   def visitCompoundStmt(self, node):
     """Generate code for a compound statement"""
     # Enter a local environment
     self._pushEnv()
+
     # Define local variables in the local environment
     for decl in node.decls:
       decl.accept(self)
+
     # Generate code for the body statements
+    ret = False
+    keepCode = None
     for stmt in node.stmts:
-      stmt.accept(self)
+      ret = stmt.accept(self)
+
+      # If an earlier statement always returns, then later statements are
+      # always unreachable and can safely be discarded. The code must still
+      # be generated, however, to detect errors.
+      if ret and keepCode is None:
+        keepCode = self.code
+        self.code = []
+
+    # Discard unreachable code
+    if keepCode is not None:
+      self.code = keepCode
+
     # Exit the local environment
     self._popEnv()
+
+    # This statement returns if any part returns
+    return ret
 
   def visitDecl(self, node):
     """Generate code for a declaration"""
@@ -640,9 +685,8 @@ class TACGenerator(object):
     varOld = self.varGen.n
 
     # Generate the function code
-    self.hasReturn = False
-    node.stmt.accept(self)
-    if not self.hasReturn:
+    ret = node.stmt.accept(self)
+    if not ret:
       self.code.append(EndFunc(0))
 
     varNew = self.varGen.n
