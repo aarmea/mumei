@@ -47,6 +47,7 @@ class LevelScreen(Screen):
       self._hints = []
     with open("include.h", "rb") as headerFile:
       self.__header = headerFile.read()
+      self.__headerLines = len(filter(lambda x: x == "\n", self.__header))
 
     # UI elements
     self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47)
@@ -92,6 +93,8 @@ class LevelScreen(Screen):
       tac = syntree.accept(c.tacgen.TACGenerator())
       words, vars_ = vm.tactrans.translate(tac)
     except c.error.CompileError, e:
+      pos = c.scanner.Position(e.pos.line-self.__headerLines, e.pos.col)
+      e = c.error.CompileError(pos, e.msg)
       self._statusLabel.text = "Compile error: %s" % e
       return
     except BaseException, e:
