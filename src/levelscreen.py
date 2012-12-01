@@ -51,10 +51,12 @@ class LevelScreen(Screen):
     # UI elements
     self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47)
     self._editor = TextEditor(self._ui, (0.625, 5.75), (47, 47))
-    self._infoLabel = TextBox(self._ui, (-8, -1), (51, 20))
+    self._keysLabel = TextBox(self._ui, (-8, -1), (51, 1))
+    self._infoLabel = TextBox(self._ui, (-8, -1.25), (51, 20))
     self._statusLabel = TextBox(self._ui, (-8, -6), (102, 1))
 
     self._editor.text = self._sampleCode
+    self._keysLabel.text = "F1 hints | F2 reset code | F3 reset level | F5 run"
     self._infoLabel.text = self._helpText
     self._statusLabel.text = "Ready"
 
@@ -217,5 +219,6 @@ class LevelScreen(Screen):
     # Draw the interface
     self._linesLabel.draw()
     self._editor.draw()
+    self._keysLabel.draw()
     self._infoLabel.draw()
     self._statusLabel.draw()

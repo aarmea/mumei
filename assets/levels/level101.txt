@@ -1,8 +1,3 @@
-
-  F5 - run       ESC - quit 
-  F1 - hints     F2  - clear text
-___________________________________________________ 
-
 int x: an integer value that 
        represents the x-coordinate
   0 - starting space

@@ -1,8 +1,3 @@
-                                                  
-  F5 - run       ESC - quit                       
-  F1 - hints     F2  - clear text                 
-__________________________________________________ 
-  
 moveX(int distance): is a function which        
                        moves robot right          
                        one block                  

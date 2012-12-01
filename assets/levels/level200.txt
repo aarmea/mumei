@@ -1,8 +1,3 @@
-
-  F5 - run       ESC - quit 
-  F1 - hints     F2  - clear text
-___________________________________________________ 
-  
   step(): is a function which moves the robot
                   right 1 tile
 
