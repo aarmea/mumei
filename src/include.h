@@ -2,6 +2,17 @@ extern int x, y;
 extern int dir;
 extern int color;
 
+int wait(int time)
+{
+  int i;
+  i = 0;
+  time = time * 100;
+  while (i < time) {
+    i = i + 1;
+  }
+  return 0;
+}
+
 int moveX(int dist)
 {
   int dest;
@@ -21,12 +32,20 @@ int moveX(int dist)
   return 0;
 }
 
-/*
-int step();
+int step()
+{
+  moveX(1);
+  return 0;
+}
 
+int changeColor(int newColor)
+{
+  color = newColor;
+  return 0;
+}
+
+/*
 int climb();
 int dist();
-int changeColor();
-int wait();
 int punch();
 */
