@@ -10,18 +10,21 @@ import pygame
 
 from textureatlas import *
 
+COLOR_WHITE = (1, 1, 1, 1)
+
 class TextBox(object):
   """A read-only OpenGL text box"""
 
   CHOPL, CHOPR = 0.1875, 0.8125
   SCALEX = abs(CHOPL-CHOPR)
 
-  def __init__(self, ui, pos, rows, cols):
+  def __init__(self, ui, pos, rows, cols, color=COLOR_WHITE):
     """Initialize the vertex buffer, text array, and texture coordinate
     array"""
     self._pos = pos
     self._rows = rows
     self._cols = cols
+    self._color = color
     self._charset = ui.characterSet
 
     # Set up the vertex buffer
@@ -108,6 +111,9 @@ class TextBox(object):
     glTranslatef(self._pos[0], self._pos[1], 0)
     glScalef(0.25, 0.25, 1)
 
+    # Set up the foreground color
+    glColor4f(*self._color)
+
     # Set up the texture
     glEnable(GL_TEXTURE_2D)
     self._charset.bind()
@@ -183,9 +189,9 @@ class TextBox(object):
 class LineNumbers(TextBox):
   """Line numbers that can be placed next to a TextBox or TextEditor"""
 
-  def __init__(self, ui, pos, lines):
+  def __init__(self, ui, pos, lines, color=COLOR_WHITE):
     rows, cols = lines, len(str(lines))
-    super(LineNumbers, self).__init__(ui, pos, rows, cols + 2)
+    super(LineNumbers, self).__init__(ui, pos, rows, cols + 2, color)
 
     # Initialize the line number text
     text = ""
@@ -398,7 +404,7 @@ class TextEditor(TextBox):
     glDisable(GL_TEXTURE_2D)
     glBegin(GL_QUADS)
     if True:
-      glColor4f(1, 1, 1, 1)
+      glColor4f(*COLOR_WHITE)
       glVertex3f((col + 0.2) * self.SCALEX, -row, 0)
       glVertex3f((col + 0.8) * self.SCALEX, -row, 0)
       glVertex3f((col + 0.8) * self.SCALEX, -row + 0.125, 0)
