@@ -9,14 +9,17 @@ class Texture(object):
   """An OpenGL texture"""
 
   def __init__(self, file_):
-    # Load and allocate the texture
+    """Allocate and load the texture"""
     self.surface = pygame.image.load(file_).convert_alpha()
     self.__texture = glGenTextures(1)
     self.reload()
 
+  def __del__(self):
+    """Release the texture"""
+    glDeleteTextures([self.__texture])
+
   def reload(self):
-    # Set up the texture
-    glEnable(GL_TEXTURE_2D)
+    """Load the texture"""
     glBindTexture(GL_TEXTURE_2D, self.__texture)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
@@ -26,6 +29,7 @@ class Texture(object):
       GL_UNSIGNED_BYTE, pygame.image.tostring(self.surface, "RGBA", True))
 
   def bind(self):
+    """Make the texture active in the current OpenGL context"""
     glBindTexture(GL_TEXTURE_2D, self.__texture)
 
   w = property(lambda self: self.surface.get_width())
