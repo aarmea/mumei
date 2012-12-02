@@ -51,12 +51,12 @@ class LevelScreen(Screen):
 
     # UI elements
     self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47)
-    self._editor = TextEditor(self._ui, (0.625, 5.75), (47, 47))
-    self._debug = TextBox(self._ui, (0, 5.75), (47, 47))
-    self._keysLabel = TextBox(self._ui, (-8, -1), (51, 3))
-    self._infoLabel = TextBox(self._ui, (-8, -1.75), (51, 15))
-    self._varLabel = TextBox(self._ui, (-8, -5.5), (51, 2))
-    self._statusLabel = TextBox(self._ui, (-8, -6), (102, 1))
+    self._editor = TextEditor(self._ui, (0.625, 5.75), 47, 47)
+    self._debug = TextBox(self._ui, (0, 5.75), 47, 47)
+    self._keysLabel = TextBox(self._ui, (-8, -1), 3, 51)
+    self._infoLabel = TextBox(self._ui, (-8, -1.75), 15, 51)
+    self._varLabel = TextBox(self._ui, (-8, -5.5), 2, 51)
+    self._statusLabel = TextBox(self._ui, (-8, -6), 1, 102)
 
     self._debugView = False
     self._debugAddr = 0

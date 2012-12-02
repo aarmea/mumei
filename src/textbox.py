@@ -16,11 +16,12 @@ class TextBox(object):
   CHOPL, CHOPR = 0.1875, 0.8125
   SCALEX = abs(CHOPL-CHOPR)
 
-  def __init__(self, ui, pos, size):
+  def __init__(self, ui, pos, rows, cols):
     """Initialize the vertex buffer, text array, and texture coordinate
     array"""
     self._pos = pos
-    self._size = size
+    self._rows = rows
+    self._cols = cols
     self._charset = ui.characterSet
 
     # Set up the vertex buffer
@@ -29,12 +30,12 @@ class TextBox(object):
 
     # Generate the vertices
     vertices = []
-    for line in xrange(self._size[1]):
-      for col in xrange(self._size[0]):
-        vertices.append((col * self.SCALEX, -line, 0))
-        vertices.append(((col + 1) * self.SCALEX, -line, 0))
-        vertices.append(((col + 1) * self.SCALEX, -line + 1, 0))
-        vertices.append((col * self.SCALEX, -line + 1, 0))
+    for row in xrange(rows):
+      for col in xrange(cols):
+        vertices.append((col * self.SCALEX, -row, 0))
+        vertices.append(((col + 1) * self.SCALEX, -row, 0))
+        vertices.append(((col + 1) * self.SCALEX, -row + 1, 0))
+        vertices.append((col * self.SCALEX, -row + 1, 0))
 
     vertexArray = numpy.array(vertices, dtype=numpy.float32)
 
@@ -44,14 +45,14 @@ class TextBox(object):
       ArrayDatatype.voidDataPointer(vertexArray), GL_STATIC_DRAW)
 
     # Initialize the text array
-    self._textArray = numpy.zeros((size[1], size[0]), dtype=numpy.uint8)
+    self._textArray = numpy.zeros((rows, cols), dtype=numpy.uint8)
 
     # Set up the texture coordinate buffer
     self.__texCoordBuffer = glGenBuffersARB(1)
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, self.__texCoordBuffer)
 
     # Initialize all texture coordinates to zero
-    self._texCoordArray = numpy.zeros((self._size[1], self._size[0], 4, 2),
+    self._texCoordArray = numpy.zeros((rows, cols, 4, 2),
       dtype=numpy.float32)
 
     # Force the buffer to be reloaded on the next draw
@@ -132,7 +133,7 @@ class TextBox(object):
     glDisable(GL_DEPTH_TEST)
 
     # Render
-    glDrawArrays(GL_QUADS, 0, self._size[0] * self._size[1] * 4)
+    glDrawArrays(GL_QUADS, 0, self._cols * self._rows * 4)
 
     # Disable vertex and texture arrays
     glDisableClientState(GL_VERTEX_ARRAY)
@@ -173,8 +174,8 @@ class TextBox(object):
     lines = text.split("\n")
 
     # Set the characters at every valid position
-    for row in xrange(min(len(lines), self._size[1])):
-      for col in xrange(min(len(lines[row]), self._size[0])):
+    for row in xrange(min(len(lines), self._rows)):
+      for col in xrange(min(len(lines[row]), self._cols)):
         self[row, col] = lines[row][col]
 
   text = property(__getText, __setText)
@@ -184,11 +185,14 @@ class LineNumbers(TextBox):
 
   def __init__(self, ui, pos, lines):
     rows, cols = lines, len(str(lines))
-    string = ""
-    for num in xrange(1, lines+1):
-      string += '|' + str(num).rjust(cols, ' ') + "|\n"
-    super(LineNumbers, self).__init__(ui, pos, (cols+2, rows))
-    self.text = string
+    super(LineNumbers, self).__init__(ui, pos, rows, cols + 2)
+
+    # Initialize the line number text
+    text = ""
+    for num in xrange(1, lines + 1):
+      text += "|%s|\n" % str(num).rjust(cols, " ")
+
+    self.text = text
 
 class TextEditor(TextBox):
   """An OpenGL text editor"""
@@ -281,7 +285,7 @@ class TextEditor(TextBox):
     row, col = self._cursorPos
 
     # Insert a newline if necessary
-    if col == self._size[0]:
+    if col == self._cols:
       self.__insertNewline()
       row, col = self._cursorPos
 
@@ -331,7 +335,7 @@ class TextEditor(TextBox):
       # Append the old row to the current row
       newRowLen = len(self._getTextLine(row))
 
-      copyLen = self._size[0] - newRowLen
+      copyLen = self._cols - newRowLen
       self._textArray[row, newRowLen:] = oldRow[:copyLen]
       self._texCoordArray[row, newRowLen:] = oldRowCoords[:copyLen]
 
@@ -340,7 +344,6 @@ class TextEditor(TextBox):
   def handleKeyPress(self, key, uni=None):
     """Handle user input"""
     row, col = self._cursorPos
-    width, height = self._size
 
     # If the unicode character was not given, generate it from the key
     if uni is None:
@@ -350,7 +353,7 @@ class TextEditor(TextBox):
     if key in (pygame.K_LEFT, pygame.K_BACKSPACE):
       # Handle wrapping
       if col == 0 and row != 0:
-        self.__moveCursor(row - 1, width)
+        self.__moveCursor(row - 1, self._cols)
       else:
         self.__moveCursor(row, col - 1)
 
@@ -374,7 +377,7 @@ class TextEditor(TextBox):
       self.__moveCursor(row, 0)
 
     elif key == pygame.K_END:
-      self.__moveCursor(row, width)
+      self.__moveCursor(row, self._cols)
 
     elif key == pygame.K_DELETE:
       self.__deleteCharacter()
