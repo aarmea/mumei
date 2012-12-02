@@ -53,8 +53,8 @@ class LevelScreen(Screen):
     self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47)
     self._editor = TextEditor(self._ui, (0.625, 5.75), (47, 47))
     self._debug = TextBox(self._ui, (0, 5.75), (47, 47))
-    self._keysLabel = TextBox(self._ui, (-8, -1), (51, 2))
-    self._infoLabel = TextBox(self._ui, (-8, -1.5), (51, 17))
+    self._keysLabel = TextBox(self._ui, (-8, -1), (51, 3))
+    self._infoLabel = TextBox(self._ui, (-8, -1.75), (51, 16))
     self._statusLabel = TextBox(self._ui, (-8, -6), (102, 1))
 
     self._debugView = False
@@ -62,7 +62,8 @@ class LevelScreen(Screen):
 
     self._editor.text = self._sampleCode
     self._keysLabel.text = (
-      "F1 hints | F2 reset code | F3 reset level | F5 run\n"
+      "ESC menu | F1 help | F2 reset code | F3 reset level\n"
+      "         | F5 run | F8 memory\n"
       "==================================================="
     )
     self._infoLabel.text = self._helpText
