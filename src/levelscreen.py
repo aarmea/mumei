@@ -54,7 +54,8 @@ class LevelScreen(Screen):
     self._editor = TextEditor(self._ui, (0.625, 5.75), (47, 47))
     self._debug = TextBox(self._ui, (0, 5.75), (47, 47))
     self._keysLabel = TextBox(self._ui, (-8, -1), (51, 3))
-    self._infoLabel = TextBox(self._ui, (-8, -1.75), (51, 16))
+    self._infoLabel = TextBox(self._ui, (-8, -1.75), (51, 15))
+    self._varLabel = TextBox(self._ui, (-8, -5.5), (51, 2))
     self._statusLabel = TextBox(self._ui, (-8, -6), (102, 1))
 
     self._debugView = False
@@ -71,6 +72,8 @@ class LevelScreen(Screen):
 
     # Spawn players
     self.resetLevel()
+
+    self._updateVarLabel()
 
   def resetLevel(self):
     """Reset the level state, starting the user at the beginning."""
@@ -216,6 +219,21 @@ class LevelScreen(Screen):
 
     super(LevelScreen, self).handleEvents(events)
 
+  def _updateVarLabel(self):
+    if self._robot.x is None:
+      self._varLabel.text = (
+        "===STATUS===========================================\n"
+        "Run your code with F5 to see variable values"
+      )
+    else:
+      self._varLabel.text = (
+        "===STATUS===========================================\n"
+        "x=%d, y=%d, dir=%d, color=%d\n" % (
+          self._robot.x, self._robot.y, self._robot.direction,
+          self._robot.color
+        )
+      )
+
   def update(self, time):
     """Update the level state"""
     duration = time - self._lastTime
@@ -228,6 +246,8 @@ class LevelScreen(Screen):
 
       steps -= 1
       self._lastTime += STEP_PERIOD
+
+    self._updateVarLabel()
 
     if self.isComplete():
       # Get the next level name
@@ -280,4 +300,5 @@ class LevelScreen(Screen):
       self._debug.draw()
     self._keysLabel.draw()
     self._infoLabel.draw()
+    self._varLabel.draw()
     self._statusLabel.draw()
