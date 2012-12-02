@@ -36,17 +36,22 @@ class TextureAtlas(object):
     return self.__texture.surface.subsurface(rect)
 
   def bind(self):
-    """Bind this tile set."""
+    """Bind the backing texture."""
     self.__texture.bind()
 
-  def tileCoord(self, s, t, u, v):
-    """Set the texture coordinates for the given tile."""
+  def getCoord(self, s, t, u, v):
+    """Get the texture coordinates for the given tile."""
     assert s < self.__htiles
     assert t < self.__vtiles
     assert u >= 0.0 and u <= 1.0
     assert v >= 0.0 and v <= 1.0
-    glTexCoord2f((s + u) * self._tilew * self.__es,
+    return ((s + u) * self._tilew * self.__es,
       (self.__texture.h - (t + 1.0 - v) * self._tileh) * self.__et)
+
+  def tileCoord(self, *args):
+    """Set the current texture coordinates to the texture coordinates for the
+    given tile."""
+    glTexCoord2f(*self.getCoord(*args))
 
 class TileSet(TextureAtlas):
   """An interface for texturing quads with tiles from a single texture"""
@@ -80,11 +85,11 @@ class TileSet(TextureAtlas):
       (self._tilew, self._tileh))
     return super(TileSet, self).subsurface(rect)
 
-  def tileCoord(self, spriteName, u, v):
-    """Set the texture coordinates for the given tile."""
+  def getCoord(self, spriteName, u, v):
+    """Get the texture coordinates for the given tile."""
     s = self.__images[spriteName][1][0] / self._tilew
     t = self.__images[spriteName][1][1] / self._tileh
-    super(TileSet, self).tileCoord(s, t, u, v)
+    return super(TileSet, self).getCoord(s, t, u, v)
 
 class CharacterSet(TextureAtlas):
   """An interface for texturing quads with ASCII characters from a texture"""
@@ -98,8 +103,8 @@ class CharacterSet(TextureAtlas):
 
     super(CharacterSet, self).__init__(texture, charw, charh)
 
-  def tileCoord(self, char, u, v):
-    """Set the texture coordinates from an ASCII code."""
-    # ord(character) returns the character code of the character
+  def getCoord(self, char, u, v):
+    """Get the texture coordinates for the given character."""
+    # ord(character) returns the integer value of the character
     t, s = divmod(ord(char), 16)
-    super(CharacterSet, self).tileCoord(s, t, u, v)
+    return super(CharacterSet, self).getCoord(s, t, u, v)
