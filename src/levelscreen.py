@@ -53,7 +53,7 @@ class LevelScreen(Screen):
     self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47,
       (0.5, 0.5, 1.0, 1.0))
     self._editor = TextEditor(self._ui, (0.625, 5.75), 47, 47)
-    self._debug = TextBox(self._ui, (0, 5.75), 47, 47)
+    self._debug = TextBox(self._ui, (0.625, 5.75), 47, 47)
     self._keysLabel = TextBox(self._ui, (-8, -1), 3, 51)
     self._infoLabel = TextBox(self._ui, (-8, -1.75), 15, 51)
     self._varLabel = TextBox(self._ui, (-8, -5.5), 2, 51)
@@ -292,8 +292,8 @@ class LevelScreen(Screen):
     glPopMatrix()
 
     # Draw the interface
+    self._linesLabel.draw()
     if not self._debugView:
-      self._linesLabel.draw()
       self._editor.draw()
     else:
       self._debug.text = (self.dumpProcessor(self._robot.processor, self._debugAddr)
