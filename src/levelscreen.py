@@ -50,7 +50,8 @@ class LevelScreen(Screen):
       self.__headerLines = len(filter(lambda x: x == "\n", self.__header))
 
     # UI elements
-    self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47)
+    self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47,
+      (0.5, 0.5, 1.0, 1.0))
     self._editor = TextEditor(self._ui, (0.625, 5.75), 47, 47)
     self._debug = TextBox(self._ui, (0, 5.75), 47, 47)
     self._keysLabel = TextBox(self._ui, (-8, -1), 3, 51)

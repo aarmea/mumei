@@ -196,7 +196,7 @@ class LineNumbers(TextBox):
     # Initialize the line number text
     text = ""
     for num in xrange(1, lines + 1):
-      text += "|%s|\n" % str(num).rjust(cols, " ")
+      text += " %s \n" % str(num).rjust(cols, " ")
 
     self.text = text
 
