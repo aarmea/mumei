@@ -254,7 +254,8 @@ class LevelScreen(Screen):
       # Get the next level name
       subLevelNumber = int(self._levelName[-1:])
       if subLevelNumber == 4:
-        newLevelName = "%s%d" % (self._levelName[:5], int(self._levelName[-3:]) + 100)
+        newLevelName = "%s%d" % (self._levelName[:5],
+          int(self._levelName[-3:]) + 100)
       else:
         newLevelName = "%s%d" % (self._levelName[:7], subLevelNumber + 1)
 
