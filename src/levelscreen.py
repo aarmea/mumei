@@ -122,7 +122,7 @@ class LevelScreen(Screen):
       self._statusLabel.text = "Something went wrong: %s" % e
       return
 
-    self._statusLabel.text = "Code loaded successully"
+    self._statusLabel.text = "Code loaded successfully"
 
   def dumpProcessor(self, proc, startAddr):
     """Dump a processor's state"""
