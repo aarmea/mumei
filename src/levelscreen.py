@@ -22,6 +22,11 @@ LEVEL_DIR = "../assets/levels/"
 EPSILON = 0.01
 STEP_PERIOD = 10.0 #ms
 
+BLUE_COLOR = (0.5, 0.5, 1.0, 1.0)
+CYAN_COLOR = (0.5, 1.0, 1.0, 1.0)
+ORANGE_COLOR = (1.0, 0.75, 0.5, 1.0)
+YELLOW_COLOR = (1.0, 1.0, 0.5, 1.0)
+
 class LevelScreen(Screen):
   """An interface for a level with a code editor and status panes"""
 
@@ -50,23 +55,21 @@ class LevelScreen(Screen):
       self.__headerLines = len(filter(lambda x: x == "\n", self.__header))
 
     # UI elements
-    self._linesLabel = LineNumbers(self._ui, (0, 5.75), 47,
-      (0.5, 0.5, 1.0, 1.0))
-    self._editor = TextEditor(self._ui, (0.625, 5.75), 47, 47)
+    self._linesLabel = LineNumbers(self._ui, (0, 5.75), 46, BLUE_COLOR)
+    self._editor = TextEditor(self._ui, (0.625, 5.75), 46, 47)
     self._debug = TextBox(self._ui, (0.625, 5.75), 47, 47)
-    self._keysLabel = TextBox(self._ui, (-8, -1), 3, 51)
-    self._infoLabel = TextBox(self._ui, (-8, -1.75), 15, 51)
-    self._varLabel = TextBox(self._ui, (-8, -5.5), 2, 51)
-    self._statusLabel = TextBox(self._ui, (-8, -6), 1, 102)
+    self._keysLabel = TextBox(self._ui, (-8, -1), 3, 51, ORANGE_COLOR)
+    self._infoLabel = TextBox(self._ui, (-8, -2), 13, 51)
+    self._varLabel = TextBox(self._ui, (-8, -5.5), 1, 51, CYAN_COLOR)
+    self._statusLabel = TextBox(self._ui, (-8, -6), 1, 102, YELLOW_COLOR)
 
     self._debugView = False
     self._debugAddr = 0
 
     self._editor.text = self._sampleCode
     self._keysLabel.text = (
-      "ESC menu | F1 help | F2 reset code | F3 reset level\n"
-      "         | F5 run | F8 memory\n"
-      "==================================================="
+      "\nESC menu | F1 help | F2 reset code | F3 reset level\n"
+        "         | F5 run  | F8 processor status"
     )
     self._infoLabel.text = self._helpText
     self._statusLabel.text = "Ready"
@@ -223,13 +226,11 @@ class LevelScreen(Screen):
   def _updateVarLabel(self):
     if self._robot.x is None:
       self._varLabel.text = (
-        "===STATUS===========================================\n"
         "Run your code with F5 to see variable values"
       )
     else:
       self._varLabel.text = (
-        "===STATUS===========================================\n"
-        "x=%d, y=%d, dir=%d, color=%d\n" % (
+        "Variables: x=%d, y=%d, dir=%d, color=%d\n" % (
           self._robot.x, self._robot.y, self._robot.direction,
           self._robot.color
         )
