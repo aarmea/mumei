@@ -163,13 +163,13 @@ class TextBox(object):
     else:
       return nonzeros[-1][0] + 1
 
-  def __getText(self):
+  def _getText(self):
     """Return a string containing the contents of the buffer. Null characters
     outside of the text are discarded."""
     return "\n".join(self._getTextLine(row) for row in
       xrange(self._getTextLineCount()))
 
-  def __setText(self, text):
+  def _setText(self, text):
     """Set the buffer to contain the given text, truncating lines as
     necessary."""
     # Zero the text and texture coordinate arrays
@@ -184,7 +184,7 @@ class TextBox(object):
       for col in xrange(min(len(lines[row]), self._cols)):
         self[row, col] = lines[row][col]
 
-  text = property(__getText, __setText)
+  text = property(_getText, _setText)
 
 class LineNumbers(TextBox):
   """Line numbers that can be placed next to a TextBox or TextEditor"""
@@ -411,3 +411,13 @@ class TextEditor(TextBox):
       glVertex3f((col + 0.2) * self.SCALEX, -row + 0.125, 0)
     glEnd()
 
+  def _getText(self):
+    """Return a string containing the contents of the buffer"""
+    return super(TextEditor, self)._getText()
+
+  def _setText(self, text):
+    """Set the buffer to contain the given text"""
+    super(TextEditor, self)._setText(text)
+    self._cursorPos = (0, 0)
+
+  text = property(_getText, _setText)
