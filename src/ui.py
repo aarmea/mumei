@@ -8,21 +8,28 @@ class UI(object):
 
   def __init__(self):
     pygame.init()
-    pygame.key.set_repeat(250, 50)
 
+    # Create the window
     self.screen = pygame.display.set_mode((1024, 768),
       pygame.OPENGL | pygame.DOUBLEBUF)
+
+    # Load the tile sets
+    self.spritesheet = TileSet("assets/", "spritesheet")
+    self.characterSet = CharacterSet("assets/font.png")
+
+    # Set up the window
+    icon = self.spritesheet.subsurface("pickle.png")
+    icon = pygame.transform.scale(icon, (32, 32))
+    pygame.display.set_icon(icon)
+
     pygame.display.set_caption("Mumei")
     pygame.mouse.set_visible(False)
+    pygame.key.set_repeat(250, 50)
 
     # Set up the projection matrix
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(-1024 / 64 / 2, 1024 / 64 / 2, -768 / 64 / 2, 768 / 64 / 2, -10, 10)
-
-    # Load the tile set
-    self.spritesheet = TileSet("assets/", "spritesheet")
-    self.characterSet = CharacterSet("assets/font.png")
 
     # Set up the initial player state
     self.hair = 0
