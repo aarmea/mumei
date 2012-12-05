@@ -42,9 +42,10 @@ options = {
     "dll_excludes": ["w9xpopen.exe"],
     "excludes": [
       # Built-in stuff
-      "_ssl", "BaseHTTPServer", "bz2", "calendar", "curses", "distutils",
-      "doctest", "email", "ftplib", "httplib", "inspect", "locale", "md5",
-      "multiprocessing", "pdb", "pickle",
+      "_ssl", "BaseHTTPServer", "base64", "bz2", "calendar", "cookielib",
+      "curses", "distutils", "doctest", "email", "ftplib", "gzip",
+      "htmlentitydefs", "httplib", "inspect", "locale", "md5", "mimetools",
+      "mimetypes", "multiprocessing", "pdb", "pickle", "pkgutil", "pydoc",
 
       # Tcl/Tk
       "Tkconstants", "Tkinter", "tcl",
