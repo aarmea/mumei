@@ -21,8 +21,8 @@ class UI(object):
     glOrtho(-1024 / 64 / 2, 1024 / 64 / 2, -768 / 64 / 2, 768 / 64 / 2, -10, 10)
 
     # Load the tile set
-    self.spritesheet = TileSet("../assets/", "spritesheet")
-    self.characterSet = CharacterSet("../assets/font.png")
+    self.spritesheet = TileSet("assets/", "spritesheet")
+    self.characterSet = CharacterSet("assets/font.png")
 
     # Set up the initial player state
     self.hair = 0

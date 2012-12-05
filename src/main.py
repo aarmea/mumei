@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import threading
 import os
+import sys
+import threading
 
 from OpenGL.GL import *
 import pygame
@@ -16,7 +17,7 @@ class WelcomeScreen(SimpleScreen):
   """The welcome screen - splash"""
 
   def __init__(self, ui):
-    super(WelcomeScreen, self).__init__(ui, "../assets/welcometomumei.png")
+    super(WelcomeScreen, self).__init__(ui, "assets/welcometomumei.png")
 
   def handleEvents(self, events):
     """Handle user input events"""
@@ -31,7 +32,7 @@ class MainMenu(SimpleScreen, Menu):
   """The main menu screen - interactable"""
 
   def __init__(self, ui):
-    super(MainMenu, self).__init__(ui, "../assets/mainmenu.png")
+    super(MainMenu, self).__init__(ui, "assets/mainmenu.png")
 
   def handleEvents(self, events):
     """Handle user input events"""
@@ -109,41 +110,41 @@ class LevelSelectMenu(SimpleScreen, Menu):
   # Each sublist contains individual image files for that level's tutorials.
   tutList = [
     [
-      "../assets/intro_screen2.png",
-      "../assets/level01description.png",
-      "../assets/masterlevel1tutorial.png",
-      "../assets/masterlevel1tutorial1.png",
-      "../assets/masterlevel1tutorial2.png"
+      "assets/intro_screen2.png",
+      "assets/level01description.png",
+      "assets/masterlevel1tutorial.png",
+      "assets/masterlevel1tutorial1.png",
+      "assets/masterlevel1tutorial2.png"
     ],
     [
-      "../assets/intro_screen2.png",
-      "../assets/level02description.png",
-      "../assets/masterlevel2tutorial.png",
-      "../assets/masterlevel2tutorial1.png"
+      "assets/intro_screen2.png",
+      "assets/level02description.png",
+      "assets/masterlevel2tutorial.png",
+      "assets/masterlevel2tutorial1.png"
     ],
     [
-      "../assets/intro_screen2.png",
-      "../assets/level03description.png",
-      "../assets/masterlevel3tutorial.png",
-      "../assets/masterlevel3tutorial1.png"
+      "assets/intro_screen2.png",
+      "assets/level03description.png",
+      "assets/masterlevel3tutorial.png",
+      "assets/masterlevel3tutorial1.png"
     ],
     [
-      "../assets/intro_screen2.png",
-      "../assets/level04description.png",
-      "../assets/masterlevel4tutorial.png",
-      "../assets/masterlevel4tutorial1.png"
+      "assets/intro_screen2.png",
+      "assets/level04description.png",
+      "assets/masterlevel4tutorial.png",
+      "assets/masterlevel4tutorial1.png"
     ],
     [
-      "../assets/intro_screen2.png",
-      "../assets/level05description.png",
-      "../assets/masterlevel5tutorial.png",
-      "../assets/masterlevel5tutorial1.png",
-      "../assets/masterlevel5tutorial2.png",
+      "assets/intro_screen2.png",
+      "assets/level05description.png",
+      "assets/masterlevel5tutorial.png",
+      "assets/masterlevel5tutorial1.png",
+      "assets/masterlevel5tutorial2.png",
     ]
   ]
 
   def __init__(self, ui):
-    super(LevelSelectMenu, self).__init__(ui, "../assets/levelmenu.png")
+    super(LevelSelectMenu, self).__init__(ui, "assets/levelmenu.png")
 
   def handleEvents(self, events):
     """Handle user input events"""
@@ -204,7 +205,7 @@ class LevelSplashScreen(SimpleScreen, Menu):
   """The splash screen that appears before starting a level"""
 
   def __init__(self, ui, basename):
-    super(LevelSplashScreen, self).__init__(ui, "../assets/background2.png")
+    super(LevelSplashScreen, self).__init__(ui, "assets/background2.png")
     self.basename = basename
 
   def switchToLevel(self, newLevelName):
@@ -221,6 +222,10 @@ def main():
   ui.run()
 
 if __name__ == "__main__":
+  frozen = getattr(sys, "frozen", "")
+  if not frozen:
+    os.chdir("..") # For locating assets
+
   print "Mumei running on", os.name
   if os.name == "nt":
     print "Increasing the stack size to 64MB..."

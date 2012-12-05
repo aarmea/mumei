@@ -17,7 +17,7 @@ from levelobj import Player, Robot
 from screen import Screen
 from textbox import LineNumbers, TextBox, TextEditor
 
-LEVEL_DIR = "../assets/levels/"
+LEVEL_DIR = "assets/levels/"
 
 EPSILON = 0.01
 STEP_PERIOD = 10.0 #ms
@@ -50,7 +50,7 @@ class LevelScreen(Screen):
         self._hints = hints.read().split("\n")
     except IOError:
       self._hints = []
-    with open("include.h", "rb") as headerFile:
+    with open("assets/include.h", "rb") as headerFile:
       self.__header = headerFile.read()
       self.__headerLines = len(filter(lambda x: x == "\n", self.__header))
 

@@ -14,7 +14,7 @@ class CharacterSelectScreen(SimpleScreen):
   NPANTS = 2
 
   def __init__(self, ui):
-    SimpleScreen.__init__(self, ui, "../assets/charactermenu.png")
+    SimpleScreen.__init__(self, ui, "assets/charactermenu.png")
 
   def rebuildPlayer(self):
     """Recreate the player sprite and reload the sprite sheet."""

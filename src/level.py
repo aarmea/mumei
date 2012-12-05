@@ -13,10 +13,10 @@ import levelobj
 from textureatlas import *
 from textbox import *
 
+LEVEL_DIR = "assets/levels/"
+
 class Level(object):
   """A level"""
-
-  levelDir = "../assets/levels/"
 
   def __init__(self, ui, levelName):
     self.__ui = ui
@@ -33,7 +33,7 @@ class Level(object):
 
   def load(self, levelName):
     """Load a level from a level base name."""
-    with open(self.levelDir + levelName + ".csv", 'rb') as levelfile:
+    with open(LEVEL_DIR + levelName + ".csv", 'rb') as levelfile:
       csvFile = csv.reader(levelfile)
       objects = []
       for y, row in enumerate(csvFile):
