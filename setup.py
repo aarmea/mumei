@@ -71,6 +71,7 @@ if os.name == "nt":
   extraOpts["windows"] = [
     {
       "script": "src/main.py",
+      "dest_base": "mumei",
       "icon_resources": [(0, "assets/pickle.ico")]
     }
   ]
