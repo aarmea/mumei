@@ -64,7 +64,7 @@ class TextBox(object):
   def __del__(self):
     """Release the array buffers"""
     buffers = [self.__vertexBuffer, self.__texCoordBuffer]
-    glDeleteBuffersARB(len(buffers), buffers)
+    glDeleteBuffers(len(buffers), buffers)
 
   def __getitem__(self, (row, col)):
     """Get the character at the given position"""
