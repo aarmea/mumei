@@ -47,8 +47,8 @@ class SimpleScreen(Screen):
     glBegin(GL_QUADS)
     if True:
       glColor4f(1, 1, 1, 1)
-      glTexCoord2f(0.0, 0.0); glVertex2f(-6.0, -4.5)
-      glTexCoord2f(1.0, 0.0); glVertex2f( 6.0, -4.5)
-      glTexCoord2f(1.0, 1.0); glVertex2f( 6.0,  4.5)
-      glTexCoord2f(0.0, 1.0); glVertex2f(-6.0,  4.5)
+      glTexCoord2f(0.0, 0.0); glVertex2f(-8.0, -6.0)
+      glTexCoord2f(1.0, 0.0); glVertex2f( 8.0, -6.0)
+      glTexCoord2f(1.0, 1.0); glVertex2f( 8.0,  6.0)
+      glTexCoord2f(0.0, 1.0); glVertex2f(-8.0,  6.0)
     glEnd()
