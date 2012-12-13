@@ -178,7 +178,10 @@ class LevelScreen(Screen):
       if e.type == pygame.KEYDOWN:
         if e.key == pygame.K_ESCAPE:
           self.closeScreen()
-        elif pygame.key.get_mods() & (pygame.KMOD_RALT | pygame.KMOD_RCTRL):
+        elif pygame.key.get_mods() & (
+            pygame.KMOD_RALT | pygame.KMOD_RCTRL |
+            pygame.KMOD_LALT | pygame.KMOD_RALT
+            ):
           if e.key == pygame.K_q:
             sys.exit()
           elif e.key == pygame.K_UP:
