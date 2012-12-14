@@ -4,4 +4,8 @@
     1 - Red
     2 - Green
     3 - Blue
-  
+ 
+  Goals:
+    1. Get the robot to the door.
+    2. Change the robot's eye color to match the 
+       color of the door. 
