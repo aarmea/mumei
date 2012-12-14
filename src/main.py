@@ -188,16 +188,16 @@ class LevelSelectMenu(SimpleScreen, Menu):
     if True:
       # Draw the player sprite
       self._ui.spritesheet.tileCoord("person.png", 1, 0)
-      glVertex3f(2, -2.5, 1)
+      glVertex3f(3, -3, 1)
 
       self._ui.spritesheet.tileCoord("person.png", 0, 0)
-      glVertex3f(6, -2.5, 1)
+      glVertex3f(9, -3, 1)
 
       self._ui.spritesheet.tileCoord("person.png", 0, 1)
-      glVertex3f(6, 1.5, 1)
+      glVertex3f(9, 3, 1)
 
       self._ui.spritesheet.tileCoord("person.png", 1, 1)
-      glVertex3f(2, 1.5, 1)
+      glVertex3f(3, 3, 1)
 
     glEnd()
 
