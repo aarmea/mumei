@@ -93,15 +93,15 @@ class CharacterSelectScreen(SimpleScreen):
     if True:
       # Draw the sprite
       self._ui.spritesheet.tileCoord("person.png", 0, 0)
-      glVertex3f(-2, -2.5, 1)
+      glVertex3f(0, -6, 1)
 
       self._ui.spritesheet.tileCoord("person.png", 1, 0)
-      glVertex3f(2, -2.5, 1)
+      glVertex3f(8, -6, 1)
 
       self._ui.spritesheet.tileCoord("person.png", 1, 1)
-      glVertex3f(2, 1.5, 1)
+      glVertex3f(8, 2, 1)
 
       self._ui.spritesheet.tileCoord("person.png", 0, 1)
-      glVertex3f(-2, 1.5, 1)
+      glVertex3f(0, 2, 1)
 
     glEnd()
