@@ -203,9 +203,6 @@ class LineNumbers(TextBox):
 class TextEditor(TextBox):
   """An OpenGL text editor"""
 
-  # The initial cursor position
-  _cursorPos = (0, 0)
-
   # Array helpers
   @staticmethod
   def __shiftRows(array, row, off):
@@ -418,6 +415,13 @@ class TextEditor(TextBox):
   def _setText(self, text):
     """Set the buffer to contain the given text"""
     super(TextEditor, self)._setText(text)
+
+    # Find '@', remove it, and set it as the cursor start position
     self._cursorPos = (0, 0)
+    for row_i, row in enumerate(self._textArray):
+      for col_i, char in enumerate(row):
+        if char == ord("@"):
+          self._cursorPos = (row_i, col_i)
+          self.__deleteCharacter()
 
   text = property(_getText, _setText)
