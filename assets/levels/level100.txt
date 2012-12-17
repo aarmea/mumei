@@ -1,11 +1,7 @@
-  int color : an integer value that 
-          represents the robot's eyes
-    0 - Gray (default) 
-    1 - Red
-    2 - Green
-    3 - Blue
+  int color: the color of the robot's eyes
+    colors map to numbers
+      0 = Gray (default)
+      1 = Red
+      2 = Green
+      3 = Blue
  
-  Goals:
-    1. Get the robot to the door.
-    2. Change the robot's eye color to match the 
-       color of the door. 
