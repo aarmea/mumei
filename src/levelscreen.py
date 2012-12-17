@@ -19,6 +19,7 @@ from textbox import LineNumbers, TextBox, TextEditor
 
 LEVEL_DIR = "assets/levels/"
 
+WIN_EPSILON = 0.5 # How far the robot can be to complete the level
 EPSILON = 0.01
 STEP_PERIOD = 10.0 #ms
 
@@ -157,13 +158,14 @@ class LevelScreen(Screen):
 
   def isComplete(self):
     """Check whether the level has been completed"""
+
     # The robot should not be moving
     if self._robot.direction != 0:
       return False
 
     # The robot should be at the destination door
-    if (abs(self._robot._pos[0] - self._level.doorPos[0]) > EPSILON or
-      abs(self._robot._pos[1] - self._level.doorPos[1]) > EPSILON):
+    if (abs(self._robot._pos[0] - self._level.doorPos[0]) > WIN_EPSILON or
+      abs(self._robot._pos[1] - self._level.doorPos[1]) > WIN_EPSILON):
       return False
 
     # The robot's color shold match the door color
@@ -234,8 +236,9 @@ class LevelScreen(Screen):
     else:
       self._varLabel.text = (
         "Variables: x=%d, y=%d, dir=%d, color=%d\n" % (
-          self._robot.x, self._robot.y, self._robot.direction,
-          self._robot.color
+          # Use LevelObject._pos because the robot can move while it is halted
+          self._robot._pos[0], self._robot._pos[1],
+          self._robot.direction, self._robot.color
         )
       )
 

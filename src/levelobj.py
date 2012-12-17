@@ -325,6 +325,8 @@ class Actor(LevelObject):
 
     if not obj1.blocking and not obj2.blocking:
       self._pos = newPos
+    else:
+      self.direction = DIRECTION_NONE
 
     # Gravity
     obj1 = self._level.at((int(self._pos[0] + EPSILON),
@@ -409,7 +411,7 @@ class Robot(Actor):
         self.running = False
 
         # Stop the robot from moving
-        self.direction = DIRECTION_NONE
+        # self.direction = DIRECTION_NONE
 
     # Change the sprites to those with the given color
     try:
