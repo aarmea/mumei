@@ -1,3 +1,8 @@
-int x: an integer value that 
-       represents the x-coordinate
-  0 - starting space
+  int dir: the direction of the robot
+    directions map to numbers
+      0 = not moving
+      1 = left
+      2 = right
+
+  int x: the robot's x coordinate (read-only)
+    0 = leftmost position
