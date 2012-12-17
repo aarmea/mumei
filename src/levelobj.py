@@ -305,6 +305,7 @@ class Actor(LevelObject):
   def step(self):
     stepSize = self._speed * 10.0 / 1000
 
+    # Calculate next position
     if self.direction == DIRECTION_LEFT:
       newPos = (self._pos[0] - stepSize, self._pos[1])
     elif self.direction == DIRECTION_RIGHT:
@@ -316,15 +317,20 @@ class Actor(LevelObject):
     else:
       newPos = self._pos
 
-    obj1 = self._level.at((int(newPos[0] + EPSILON), int(newPos[1] + EPSILON)))
-    obj2 = self._level.at((int(newPos[0] + 1 + EPSILON), int(newPos[1] + EPSILON)))
+    # Collision detection
+    obj1 = self._level.at((int(newPos[0] + EPSILON),
+      int(newPos[1] + EPSILON)))
+    obj2 = self._level.at((int(newPos[0] + 1 + EPSILON),
+      int(newPos[1] + EPSILON)))
 
     if not obj1.blocking and not obj2.blocking:
       self._pos = newPos
 
     # Gravity
-    obj1 = self._level.at((int(self._pos[0] + EPSILON), int(self._pos[1] + EPSILON)))
-    obj2 = self._level.at((int(self._pos[0] + EPSILON), int(self._pos[1] - EPSILON)))
+    obj1 = self._level.at((int(self._pos[0] + EPSILON),
+      int(self._pos[1] + EPSILON)))
+    obj2 = self._level.at((int(self._pos[0] + EPSILON),
+      int(self._pos[1] - EPSILON)))
 
     if not isinstance(obj1, Ladder) and not obj2.blocking:
       self._pos = (self._pos[0], self._pos[1] - stepSize)
