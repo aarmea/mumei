@@ -215,10 +215,14 @@ class LevelSplashScreen(SimpleScreen, Menu):
   def userSelect(self):
     self._ui.pushState(LevelScreen(self._ui, self, self.basename))
 
-def main():
+def main(name="", levelName=None):
   """Create and run the UI."""
   ui = UI()
-  ui.pushState(WelcomeScreen(ui))
+  if levelName is None:
+    ui.pushState(WelcomeScreen(ui))
+  else:
+    print "Directly loading %s" % levelName
+    ui.pushState(LevelSplashScreen(ui, levelName))
   ui.run()
 
 if __name__ == "__main__":
@@ -231,7 +235,7 @@ if __name__ == "__main__":
     print "Increasing the stack size to 64MB..."
     # Windows 64 fix, see http://stackoverflow.com/questions/2917210/
     threading.stack_size(67108864)
-    thread = threading.Thread(target=main)
+    thread = threading.Thread(target=main, args=sys.argv)
     thread.start()
   else:
-    main()
+    main(*sys.argv)
