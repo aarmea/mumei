@@ -1,11 +1,12 @@
-int x: an integer value representing
-       the robots's x coordinate
-  0 - starting position
-
-int color: an integer value representing
-       the robot's eye color
-  0 - Gray (default) 
-  1 - Red
-  2 - Blue
-  3 - Green
+  int color: the color of the robot's eyes
+    colors map to numbers
+      (0, 1, 2, 3) = (Gray, Red, Green, Blue)
   
+  int dir: the direction of the robot
+    directions map to numbers
+      0 = not moving
+      1 = left
+      2 = right
+
+  int x: the robot's x coordinate (read-only)
+    0 = leftmost position

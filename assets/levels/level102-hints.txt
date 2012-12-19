@@ -1,0 +1,3 @@
+The robot needs to move to the right to get to the door.
+The robot's eye color is not the same as the color of the door.
+The robot keeps its eye color and direction even after the main() function finishes.
