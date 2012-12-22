@@ -317,22 +317,34 @@ class Actor(LevelObject):
     else:
       newPos = self._pos
 
-    # Collision detection
+    # Default: Horizontal collision detection
     obj1 = self._level.at((int(newPos[0] + EPSILON),
       int(newPos[1] + EPSILON)))
     obj2 = self._level.at((int(newPos[0] + 1 + EPSILON),
       int(newPos[1] + EPSILON)))
+    if self.direction == DIRECTION_UP or self.direction == DIRECTION_DOWN:
+      # Vertical collision detection
+      obj1 = self._level.at((int(newPos[0]),
+        int(newPos[1])))
+      obj2 = self._level.at((int(newPos[0]),
+        int(newPos[1] + 1)))    
 
     if not obj1.blocking and not obj2.blocking:
+      # Move fully to the new position
       self._pos = newPos
     else:
+      # Move only to the point where the object is blocked
+      if self.direction == DIRECTION_LEFT:
+        self._pos = (math.floor(self._pos[0]), self._pos[1])
+      elif self.direction == DIRECTION_RIGHT:
+        self._pos = (math.ceil(self._pos[0]), self._pos[1])
+      elif self.direction == DIRECTION_UP:
+        self._pos = (self._pos[0], math.ceil(self._pos[1]))
       self.direction = DIRECTION_NONE
 
-    # Gravity
-    obj1 = self._level.at((int(self._pos[0] + EPSILON),
-      int(self._pos[1] + EPSILON)))
-    obj2 = self._level.at((int(self._pos[0] + EPSILON),
-      int(self._pos[1] - EPSILON)))
+    # Gravity and ladders
+    obj1 = self._level.at((int(self._pos[0]), int(self._pos[1] - stepSize)))
+    obj2 = self._level.at((int(self._pos[0]), int(self._pos[1] - stepSize)))
 
     if not isinstance(obj1, Ladder) and not obj2.blocking:
       self._pos = (self._pos[0], self._pos[1] - stepSize)
