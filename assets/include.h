@@ -6,7 +6,7 @@ int wait(int time)
 {
   int i;
   i = 0;
-  time = time * 100;
+  time = time * 120;
   while (i < time) {
     i = i + 1;
   }
