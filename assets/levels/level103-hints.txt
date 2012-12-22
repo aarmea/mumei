@@ -1,0 +1,4 @@
+Use the wait(n) function to make the robot change direction.
+Set dir = 4 to move up.
+Your eye color is already correct.
+It takes the robot about one second to move tiles.

@@ -1,14 +1,9 @@
-int x: an integer value representing
-       the robots's x coordinate
-  0 - starting position
+  int dir: the direction of the robot
+    directions map to numbers
+      0 = not moving
+      1 = left
+      2 = right
+      3 = down
+      4 = up
 
-int y: an integer value representing
-       the robots's y coordinate
-  0 - starting position
-
-int disty: an integer value 
-           representing how high 
-           the robot needs to climb
-
-  
-  
+  int wait(int n): wait about n seconds
