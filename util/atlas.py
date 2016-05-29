@@ -7,7 +7,7 @@ URL:  http://omnisaurusgames.com/2011/06/texture-atlas-generation-using-python/
 Compile separate sprites into one large spritesheet (texture atlas).
 """
 
-import Image
+from PIL import Image
 import sys
 import os
 import optparse
