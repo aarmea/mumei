@@ -1,5 +1,13 @@
 # Compiled Python files
 *.py[co]
+.eggs/*
+
+# Generated files
+assets/spritesheet-0.png
+assets/spritesheet.csv
+
+# Vim swap
+*.swp
 
 # OS-specific indices
 .DS_Store
